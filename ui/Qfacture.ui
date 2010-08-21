@@ -1099,7 +1099,7 @@ Logo</string>
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_Menu">
@@ -1137,21 +1137,15 @@ Logo</string>
   </action>
  </widget>
  <tabstops>
-  <tabstop>cTable</tabstop>
-  <tabstop>cNew</tabstop>
-  <tabstop>cId</tabstop>
-  <tabstop>cName</tabstop>
-  <tabstop>cAdress</tabstop>
-  <tabstop>cAdress2</tabstop>
-  <tabstop>cZip</tabstop>
-  <tabstop>cCity</tabstop>
-  <tabstop>cPhone</tabstop>
-  <tabstop>cMail</tabstop>
-  <tabstop>cSave</tabstop>
   <tabstop>tabWidget</tabstop>
-  <tabstop>cDel</tabstop>
+  <tabstop>aServer</tabstop>
+  <tabstop>aPort</tabstop>
+  <tabstop>aUser</tabstop>
+  <tabstop>aPass</tabstop>
+  <tabstop>aDb</tabstop>
   <tabstop>aConnect</tabstop>
-  <tabstop>uSave</tabstop>
+  <tabstop>uName</tabstop>
+  <tabstop>uSiret</tabstop>
   <tabstop>uAdress</tabstop>
   <tabstop>uAdress2</tabstop>
   <tabstop>uZip</tabstop>
@@ -1160,13 +1154,19 @@ Logo</string>
   <tabstop>uMail</tabstop>
   <tabstop>uHome</tabstop>
   <tabstop>uChangeLogo</tabstop>
-  <tabstop>aServer</tabstop>
-  <tabstop>uName</tabstop>
-  <tabstop>uSiret</tabstop>
-  <tabstop>aPass</tabstop>
-  <tabstop>aDb</tabstop>
-  <tabstop>aUser</tabstop>
-  <tabstop>aPort</tabstop>
+  <tabstop>uSave</tabstop>
+  <tabstop>cTable</tabstop>
+  <tabstop>cNew</tabstop>
+  <tabstop>cSave</tabstop>
+  <tabstop>cDel</tabstop>
+  <tabstop>cId</tabstop>
+  <tabstop>cName</tabstop>
+  <tabstop>cAdress</tabstop>
+  <tabstop>cAdress2</tabstop>
+  <tabstop>cZip</tabstop>
+  <tabstop>cCity</tabstop>
+  <tabstop>cPhone</tabstop>
+  <tabstop>cMail</tabstop>
  </tabstops>
  <resources/>
  <connections>

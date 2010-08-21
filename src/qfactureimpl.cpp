@@ -302,5 +302,3 @@ bool QfactureImpl::tClient_refresh()
 
 	return true;
 }
-
-
