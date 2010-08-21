@@ -3,6 +3,7 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QFileDialog>
+#include <QSqlTableModel>
 #include "qfactureimpl.h"
 
 QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
@@ -125,6 +126,8 @@ bool QfactureImpl::MySQL_connect()
 		pic.loadFromData(ba1);
 		uLogo->setPixmap(pic);
 	}
+	
+	bool Res = tClient_refresh();
 	return (true);
 }
 
@@ -210,7 +213,7 @@ void QfactureImpl::on_cNew_clicked()
 
 void QfactureImpl::on_cSave_clicked()
 {
-	// Enregistrer client
+	// Enregistrer nouveau client
 	
 	if (cId->text() == QString("new")) {
 		// Nouveau client (création instance)
@@ -230,12 +233,42 @@ void QfactureImpl::on_cSave_clicked()
 		QString Id;
 		Id = query.lastInsertId().toString();
 		query.finish();
-		cId->setText(Id);
+		cId->setText(QString("new"));
+		cName->setText(QString(""));
+		cAdress->setText(QString(""));
+		cAdress2->setText(QString(""));
+		cZip->setText(QString(""));
+		cCity->setText(QString(""));
+		cPhone->setText(QString(""));
+		cMail->setText(QString(""));
+		cSave->setEnabled(false);
+		cTable->reset();
 	} else {
 		// Client existant (modification instance)
 		
 	}
 }
 
+bool QfactureImpl::tClient_refresh()
+{
+	// Rafraichit la table client 
+
+	QSqlTableModel *model = new QSqlTableModel;
+	model->setTable("client");
+	model->setEditStrategy(QSqlTableModel::OnRowChange);
+	model->select();
+	model->setHeaderData(0, Qt::Horizontal, QString(trUtf8("IdClient")));
+	model->setHeaderData(1, Qt::Horizontal, QString(trUtf8("Nom")));
+	model->setHeaderData(2, Qt::Horizontal, QString(trUtf8("Adresse")));
+	model->setHeaderData(3, Qt::Horizontal, QString(trUtf8("Complément")));
+	model->setHeaderData(4, Qt::Horizontal, QString(trUtf8("Code postal")));
+	model->setHeaderData(5, Qt::Horizontal, QString(trUtf8("Ville")));
+	model->setHeaderData(6, Qt::Horizontal, QString(trUtf8("Téléphone")));
+	model->setHeaderData(7, Qt::Horizontal, QString(trUtf8("Email")));
+	cTable->setModel(model);
+	cTable->show();
+
+	return true;
+}
 
 
