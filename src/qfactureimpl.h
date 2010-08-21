@@ -19,12 +19,14 @@ private slots:
 	void on_uSave_clicked();
 	void on_aConnect_clicked();
 	void on_action_Quitter_triggered();
-	bool tClient_refresh();
-	bool MySQL_connect();
-
+	
 protected:
     QSqlDatabase db;
-
+    
+    bool MySQL_connect();
+    
+    void tClientBuildModel();
+    bool tClient_refresh();
 };
 #endif
 

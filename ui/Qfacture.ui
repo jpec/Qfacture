@@ -734,6 +734,9 @@ Logo</string>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
+             <property name="toolTip">
+              <string/>
+             </property>
              <property name="sortingEnabled">
               <bool>true</bool>
              </property>
@@ -1137,7 +1140,6 @@ Logo</string>
   </action>
  </widget>
  <tabstops>
-  <tabstop>tabWidget</tabstop>
   <tabstop>aServer</tabstop>
   <tabstop>aPort</tabstop>
   <tabstop>aUser</tabstop>
