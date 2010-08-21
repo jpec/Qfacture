@@ -92,26 +92,34 @@ void QfactureImpl::on_aConnect_clicked()
 	}
 }
 
+/**
+ * Réalise la connexion à la base de données MySQL
+ * 
+ * @return bool Témoin du succès de la connexion
+ */
 bool QfactureImpl::MySQL_connect()
 {
+    QSqlQuery query;
+    QPixmap pic;
+    
 	// Se connecter à la base MySQL
-	
 	db.setHostName(aServer->text());
 	db.setPort(aPort->text().toInt());
 	db.setUserName(aUser->text());
 	db.setPassword(aPass->text());
 	db.setDatabaseName(aDb->text());
-	if (!db.open()) {
-		aFlag->setText(QString(trUtf8("Une erreur est survenue lors de la connection!")));
+    
+	if (db.open())
+        aFlag->setText(QString(trUtf8("Connexion en cours ...")));
+    else {
+		aFlag->setText(QString(trUtf8("Une erreur est survenue lors de la connexion !")));
 		return false;
-	} else {
-		aFlag->setText(QString(trUtf8("Connection en cours...")));
-	}
+    }
 	
-	// On recupération des infos utilisateur
-	QSqlQuery query;
+	// Recupération des infos utilisateur
 	query.exec("SELECT Name, Siret, Adress, Adress2, Zip, City, Phone, Mail, Home, Logo FROM user WHERE id = 1;");
 	while (query.next()) {
+        // infos de l'utilisateur
 		uName->setText(query.value(0).toString());
 		uSiret->setText(query.value(1).toString());
 		uAdress->setText(query.value(2).toString());
@@ -121,14 +129,16 @@ bool QfactureImpl::MySQL_connect()
 		uPhone->setText(query.value(6).toString());
 		uMail->setText(query.value(7).toString());
 		uHome->setText(query.value(8).toString());
-		QByteArray ba1 = query.value(9).toByteArray();
-		QPixmap pic;
-		pic.loadFromData(ba1);
+		
+        // affichage du logo
+		pic.loadFromData(query.value(9).toByteArray());
 		uLogo->setPixmap(pic);
 	}
 	
-	bool Res = tClient_refresh();
-	return (true);
+    // rechargement de la liste des clients
+	tClient_refresh();
+	
+    return true;
 }
 
 /**
