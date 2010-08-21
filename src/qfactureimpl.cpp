@@ -9,7 +9,7 @@
 QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
 
 //
-QfactureImpl::QfactureImpl( QWidget * parent, Qt::WFlags f) 
+QfactureImpl::QfactureImpl( QWidget * parent, Qt::WFlags f)
 	: QMainWindow(parent, f)
 {
 	setupUi(this);
@@ -21,7 +21,7 @@ QfactureImpl::QfactureImpl( QWidget * parent, Qt::WFlags f)
 void QfactureImpl::on_action_Quitter_triggered()
 {
 	// Quitter l'application
-	
+
 	QString msg = QString(trUtf8("Enregistrer les modifications avant de quitter?"));
 	switch (QMessageBox::warning(this, "Qfacture", msg, QMessageBox::Yes, QMessageBox::Cancel, QMessageBox::No)) {
 		case QMessageBox::Yes:
@@ -32,7 +32,7 @@ void QfactureImpl::on_action_Quitter_triggered()
 		case QMessageBox::No:
 			db.close();
 			qApp->quit();
-			break; 
+			break;
   }
 }
 
@@ -56,12 +56,12 @@ void QfactureImpl::on_action_propos_activated()
 void QfactureImpl::on_aConnect_clicked()
 {
 	// Se connecter/déconnecter à la base MySQL
-	
+
 	QString Connected = QString(trUtf8("Connecté!"));
 	QString Disconnected = QString(trUtf8("Déconnecté!"));
 	QString Connect = QString(trUtf8("Connecter"));
 	QString Disconnect = QString(trUtf8("Déconnecter"));
-	
+
 	if (aFlag->text() != Connected) {
 		// Se connecter à la base
 		if ( MySQL_connect() ) {
@@ -94,28 +94,28 @@ void QfactureImpl::on_aConnect_clicked()
 
 /**
  * Réalise la connexion à la base de données MySQL
- * 
+ *
  * @return bool Témoin du succès de la connexion
  */
 bool QfactureImpl::MySQL_connect()
 {
     QSqlQuery query;
     QPixmap pic;
-    
+
 	// Se connecter à la base MySQL
 	db.setHostName(aServer->text());
 	db.setPort(aPort->text().toInt());
 	db.setUserName(aUser->text());
 	db.setPassword(aPass->text());
 	db.setDatabaseName(aDb->text());
-    
+
 	if (db.open())
         aFlag->setText(QString(trUtf8("Connexion en cours ...")));
     else {
 		aFlag->setText(QString(trUtf8("Une erreur est survenue lors de la connexion !")));
 		return false;
     }
-	
+
 	// Recupération des infos utilisateur
 	query.exec("SELECT Name, Siret, Adress, Adress2, Zip, City, Phone, Mail, Home, Logo FROM user WHERE id = 1;");
 	while (query.next()) {
@@ -129,28 +129,28 @@ bool QfactureImpl::MySQL_connect()
 		uPhone->setText(query.value(6).toString());
 		uMail->setText(query.value(7).toString());
 		uHome->setText(query.value(8).toString());
-		
+
         // affichage du logo
 		pic.loadFromData(query.value(9).toByteArray());
 		uLogo->setPixmap(pic);
 	}
-	
+
     // rechargement de la liste des clients
 	tClient_refresh();
-	
+
     return true;
 }
 
 /**
  * Sauvegarde les informations sur l'utilisateur/Auto-entrepreneur
  * lors du clic sur le bouton d'enregistrement
- * 
+ *
  * @return void
  */
 void QfactureImpl::on_uSave_clicked()
 {
 	QSqlQuery query;
-    
+
     // création de la requête
 	query.prepare(
 		"UPDATE user "
@@ -158,7 +158,7 @@ void QfactureImpl::on_uSave_clicked()
 		"    Zip = :zip, City = :city, Phone = :phone, Mail = :mail, Home = :home "
 		"WHERE id = 1"
 	);
-    
+
     // définition des paramètres
 	query.bindValue(":name", uName->text());
 	query.bindValue(":siret", uSiret->text());
@@ -169,7 +169,7 @@ void QfactureImpl::on_uSave_clicked()
 	query.bindValue(":phone", uPhone->text());
 	query.bindValue(":mail", uMail->text());
 	query.bindValue(":home", uHome->text());
-    
+
     // exécution de la requête
 	if(query.exec())
 		statusbar->showMessage(trUtf8("Modifications enregistrées avec succès."), 3000);
@@ -177,31 +177,51 @@ void QfactureImpl::on_uSave_clicked()
         statusbar->showMessage(trUtf8("Erreur lors de la sauvegarde des paramètres !"));
 }
 
+/**
+ * Change le logo de l'utilisateur/auto-entrepreneur. Appelé automatiquement
+ * lors du clic sur le bouton dans l'ui
+ *
+ * @return void
+ */
 void QfactureImpl::on_uChangeLogo_clicked()
 {
+    QString image;
+    QPixmap img_pixmap;
+	QFile img_file;
+    QSqlQuery query;
+
 	// Sélection du logo
-	
-	QString image = QFileDialog::getOpenFileName(this, QString(trUtf8("Qfacture - Importer un logo...")), "", tr("Image Files (*.png *.jpg *.bmp)"));
-	if (image.isNull())
+	image = QFileDialog::getOpenFileName(
+                                         this,
+                                         QString(trUtf8("Qfacture - Importer un logo...")),
+                                         "", tr("Image Files (*.png *.jpg *.bmp)")
+                                        );
+
+    // pas d'image sélectionnée
+    if (image.isNull())
 		return;
-	// Effacer le texte	
+
+	// Effacer le texte
 	uLogo->text().clear();
-	// Lecture du fichier image 
-	QByteArray ba;	
-	QFile f(image);
-	if(f.open(QIODevice::ReadOnly))
-	{
-		ba = f.readAll();
-		f.close();
-	}	
+
+	// Lecture du fichier image
+    img_file.setFileName(image);
+	if(!img_file.open(QIODevice::ReadOnly)) {
+        uLogo->setText("Impossible d'ouvrir le fichier contenant le logo !");
+        return;
+    }
+
 	// Enregistrement de l'image dans la base SQL
-	QSqlQuery query;
-	query.prepare("UPDATE user SET Logo = :logo WHERE id = 1");
-	query.bindValue(":logo", ba);
+	query.prepare("UPDATE user SET Logo = :logo WHERE id = 1;");
+	query.bindValue(":logo", img_file.readAll());
 	query.exec();
+
 	// Affichage de l'image
-	QPixmap pixmap(image);
-	uLogo->setPixmap(pixmap);
+	img_pixmap.load(image);
+	uLogo->setPixmap(img_pixmap);
+
+    // Fermeture du fichier
+    img_file.close();
 }
 
 /* Tab Clients ***************************************************************/
@@ -209,7 +229,7 @@ void QfactureImpl::on_uChangeLogo_clicked()
 void QfactureImpl::on_cNew_clicked()
 {
 	// Nouveau client
-	
+
 	cGroupBox->setEnabled(true);
 	cSave->setEnabled(true);
 	cId->setEnabled(false);
@@ -226,7 +246,7 @@ void QfactureImpl::on_cNew_clicked()
 void QfactureImpl::on_cSave_clicked()
 {
 	// Enregistrer nouveau client
-	
+
 	if (cId->text() == QString("new")) {
 		// Nouveau client (création instance)
 		QSqlQuery query;
@@ -257,13 +277,13 @@ void QfactureImpl::on_cSave_clicked()
 		cTable->reset();
 	} else {
 		// Client existant (modification instance)
-		
+
 	}
 }
 
 bool QfactureImpl::tClient_refresh()
 {
-	// Rafraichit la table client 
+	// Rafraichit la table client
 
 	QSqlTableModel *model = new QSqlTableModel;
 	model->setTable("client");
