@@ -6,13 +6,14 @@
 #include <QSqlTableModel>
 #include "qfactureimpl.h"
 
-QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
 
 //
 QfactureImpl::QfactureImpl( QWidget * parent, Qt::WFlags f)
 	: QMainWindow(parent, f)
 {
 	setupUi(this);
+    
+    db = QSqlDatabase::addDatabase("QMYSQL");
 }
 //
 

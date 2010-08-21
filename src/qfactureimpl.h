@@ -22,6 +22,9 @@ private slots:
 	bool tClient_refresh();
 	bool MySQL_connect();
 
+protected:
+    QSqlDatabase db;
+
 };
 #endif
 
