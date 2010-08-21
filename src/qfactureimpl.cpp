@@ -131,25 +131,25 @@ bool QfactureImpl::MySQL_connect()
 	return (true);
 }
 
+/**
+ * Sauvegarde les informations sur l'utilisateur/Auto-entrepreneur
+ * lors du clic sur le bouton d'enregistrement
+ * 
+ * @return void
+ */
 void QfactureImpl::on_uSave_clicked()
 {
-	// Sauver les informations utilisateurs
-	
-	QByteArray ba;	
-	QFile f(uLogo->text());
-	if(f.open(QIODevice::ReadOnly))
-	{
-	ba = f.readAll();
-	f.close();
-	}
-	
 	QSqlQuery query;
+    
+    // création de la requête
 	query.prepare(
 		"UPDATE user "
 		"SET Name = :name, Siret = :siret, Adress = :adress, Adress2 = :adress2, "
 		"    Zip = :zip, City = :city, Phone = :phone, Mail = :mail, Home = :home "
 		"WHERE id = 1"
 	);
+    
+    // définition des paramètres
 	query.bindValue(":name", uName->text());
 	query.bindValue(":siret", uSiret->text());
 	query.bindValue(":adress", uAdress->text());
@@ -159,10 +159,12 @@ void QfactureImpl::on_uSave_clicked()
 	query.bindValue(":phone", uPhone->text());
 	query.bindValue(":mail", uMail->text());
 	query.bindValue(":home", uHome->text());
-	query.exec();
-	if (1 == query.numRowsAffected()) {
-		//statusbar.message(QString(trUtf8("Modifications enregistrées avec succès..."), 10);
-	}
+    
+    // exécution de la requête
+	if(query.exec())
+		statusbar->showMessage(trUtf8("Modifications enregistrées avec succès."), 3000);
+    else
+        statusbar->showMessage(trUtf8("Erreur lors de la sauvegarde des paramètres !"));
 }
 
 void QfactureImpl::on_uChangeLogo_clicked()
