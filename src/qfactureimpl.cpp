@@ -387,3 +387,30 @@ void QfactureImpl::on_cDel_clicked()
 		cListRefresh();
 	}
 }
+
+/* Tab Articles **************************************************************/
+
+void QfactureImpl::on_aNew_clicked()
+{
+	// TODO
+}
+
+void QfactureImpl::on_aSave_clicked()
+{
+	// TODO
+}
+
+void QfactureImpl::on_aDel_clicked()
+{
+	// TODO
+}
+
+bool QfactureImpl::aListRefresh()
+{
+	// TODO
+}
+
+void QfactureImpl::on_aList_itemClicked(QListWidgetItem* item)
+{
+	// TODO
+}

@@ -11,7 +11,12 @@ class QfactureImpl : public QMainWindow, public Ui::Qfacture
 Q_OBJECT
 public:
 	QfactureImpl( QWidget * parent = 0, Qt::WFlags f = 0 );
+	
 private slots:
+	void on_aList_itemClicked(QListWidgetItem* item);
+	void on_aNew_clicked();
+	void on_aSave_clicked();
+	void on_aDel_clicked();
 	void on_cDel_clicked();
 	void on_cList_itemClicked(QListWidgetItem* item);
 	void on_action_propos_activated();
@@ -24,9 +29,9 @@ private slots:
 	
 protected:
 	QSqlDatabase db;
-	
 	bool MySQL_connect();
 	bool cListRefresh();
+	bool aListRefresh();
 };
 #endif
 
