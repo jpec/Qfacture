@@ -1,0 +1,18 @@
+*** TODO LIST OF THE QFACTURE PROJECT ***
+
+** IMPORTANT **
+ * Implementing the Article tab (code) >> JPEC.
+ * Implementing the Facture tab (GUI) >> JPEC.
+ * Implementing the Facture tab (code) >> JPEC.
+ * Implementing the Reporting tab (GUI) >> JPEC.
+ * Implementing the Reporting tab (code) >> JPEC.
+ * Implementing the Facture pdf generation >> KPHOEN.
+ * 
+
+** NOT IMPORTANT **
+ * Cleaning the code >> ?.
+ * Cleaning the GUI (adjustment with police size and 1024*600px compatible) >> ?.
+ * Implementing the Facture Latex generation >> KPHOEN.
+ * Implementing the MySQL setting in ~/.qfacture file >> ?.
+ * Implementing the automated MySQL installation >> ?.
+ * Implementing the MySQL dump database >> ?.
