@@ -10,12 +10,11 @@
 
 
 //
-QfactureImpl::QfactureImpl( QWidget * parent, Qt::WFlags f)
-	: QMainWindow(parent, f)
+QfactureImpl::QfactureImpl( QWidget * parent, Qt::WFlags f) : QMainWindow(parent, f)
 {
 	setupUi(this);
-    
-    db = QSqlDatabase::addDatabase("QMYSQL");
+	
+	db = QSqlDatabase::addDatabase("QMYSQL");
 }
 //
 
@@ -24,7 +23,7 @@ QfactureImpl::QfactureImpl( QWidget * parent, Qt::WFlags f)
 void QfactureImpl::on_action_Quitter_triggered()
 {
 	// Quitter l'application
-
+	
 	QString msg = QString(trUtf8("Enregistrer les modifications avant de quitter?"));
 	switch (QMessageBox::warning(this, "Qfacture", msg, QMessageBox::Yes, QMessageBox::Cancel, QMessageBox::No)) {
 		case QMessageBox::Yes:
@@ -49,8 +48,7 @@ void QfactureImpl::on_action_propos_activated()
 	"Licence : GPL\n"
 	"Auteur : Julien PECQUEUR (jpec@julienpecqueur.com)\n"
 	"Contributeur(s) :\n"
-	"  Kévin GOMEZ (contact@kevingomez.fr)\n"
-	" ...\n"
+	" * Kévin GOMEZ (contact@kevingomez.fr)\n"
 	"\n"));
 	QMessageBox::about(this, "Qfacture", msg);
 }
@@ -60,12 +58,12 @@ void QfactureImpl::on_action_propos_activated()
 void QfactureImpl::on_aConnect_clicked()
 {
 	// Se connecter/déconnecter à la base MySQL
-
+	
 	QString Connected = QString(trUtf8("Connecté!"));
 	QString Disconnected = QString(trUtf8("Déconnecté!"));
 	QString Connect = QString(trUtf8("Connecter"));
 	QString Disconnect = QString(trUtf8("Déconnecter"));
-
+	
 	if (aFlag->text() != Connected) {
 		// Se connecter à la base
 		if ( MySQL_connect() ) {
@@ -103,27 +101,27 @@ void QfactureImpl::on_aConnect_clicked()
  */
 bool QfactureImpl::MySQL_connect()
 {
-    QSqlQuery query;
-    QPixmap pic;
-
+	QSqlQuery query;
+	QPixmap pic;
+	
 	// Se connecter à la base MySQL
 	db.setHostName(aServer->text());
 	db.setPort(aPort->text().toInt());
 	db.setUserName(aUser->text());
 	db.setPassword(aPass->text());
 	db.setDatabaseName(aDb->text());
-
+	
 	if (db.open())
-        aFlag->setText(QString(trUtf8("Connexion en cours ...")));
-    else {
+		aFlag->setText(QString(trUtf8("Connexion en cours ...")));
+	else {
 		aFlag->setText(QString(trUtf8("Une erreur est survenue lors de la connexion !")));
 		return false;
-    }
+	}
 
 	// Recupération des infos utilisateur
 	query.exec("SELECT Name, Siret, Adress, Adress2, Zip, City, Phone, Mail, Home, Logo FROM user WHERE id = 1;");
 	while (query.next()) {
-        // infos de l'utilisateur
+		// infos de l'utilisateur
 		uName->setText(query.value(0).toString());
 		uSiret->setText(query.value(1).toString());
 		uAdress->setText(query.value(2).toString());
@@ -133,17 +131,15 @@ bool QfactureImpl::MySQL_connect()
 		uPhone->setText(query.value(6).toString());
 		uMail->setText(query.value(7).toString());
 		uHome->setText(query.value(8).toString());
-
-        // affichage du logo
+		// affichage du logo
 		pic.loadFromData(query.value(9).toByteArray());
 		uLogo->setPixmap(pic);
 	}
-
-    // rechargement de la liste des clients
-	//tClient_refresh();
-	bool Res = cListRefresh();
-
-    return true;
+	
+	// rechargement de la liste des clients
+	cListRefresh();
+	
+	return true;
 }
 
 /**
@@ -155,16 +151,16 @@ bool QfactureImpl::MySQL_connect()
 void QfactureImpl::on_uSave_clicked()
 {
 	QSqlQuery query;
-
-    // création de la requête
+	
+	// création de la requête
 	query.prepare(
 		"UPDATE user "
 		"SET Name = :name, Siret = :siret, Adress = :adress, Adress2 = :adress2, "
 		"    Zip = :zip, City = :city, Phone = :phone, Mail = :mail, Home = :home "
 		"WHERE id = 1"
 	);
-
-    // définition des paramètres
+	
+	// définition des paramètres
 	query.bindValue(":name", uName->text());
 	query.bindValue(":siret", uSiret->text());
 	query.bindValue(":adress", uAdress->text());
@@ -174,12 +170,12 @@ void QfactureImpl::on_uSave_clicked()
 	query.bindValue(":phone", uPhone->text());
 	query.bindValue(":mail", uMail->text());
 	query.bindValue(":home", uHome->text());
-
-    // exécution de la requête
+	
+	// exécution de la requête
 	if(query.exec())
 		statusbar->showMessage(trUtf8("Modifications enregistrées avec succès."), 3000);
-    else
-        statusbar->showMessage(trUtf8("Erreur lors de la sauvegarde des paramètres !"));
+	else
+		statusbar->showMessage(trUtf8("Erreur lors de la sauvegarde des paramètres !"));
 }
 
 /**
@@ -190,43 +186,43 @@ void QfactureImpl::on_uSave_clicked()
  */
 void QfactureImpl::on_uChangeLogo_clicked()
 {
-    QString image;
-    QPixmap img_pixmap;
+	QString image;
+	QPixmap img_pixmap;
 	QFile img_file;
-    QSqlQuery query;
-
+	QSqlQuery query;
+	
 	// Sélection du logo
 	image = QFileDialog::getOpenFileName(
-                                         this,
-                                         QString(trUtf8("Qfacture - Importer un logo...")),
-                                         "", tr("Image Files (*.png *.jpg *.bmp)")
-                                        );
-
-    // pas d'image sélectionnée
-    if (image.isNull())
+										this,
+										QString(trUtf8("Qfacture - Importer un logo...")),
+										"", tr("Image Files (*.png *.jpg *.bmp)")
+										);
+	
+	// pas d'image sélectionnée
+	if (image.isNull())
 		return;
-
+	
 	// Effacer le texte
 	uLogo->text().clear();
-
+	
 	// Lecture du fichier image
-    img_file.setFileName(image);
+	img_file.setFileName(image);
 	if(!img_file.open(QIODevice::ReadOnly)) {
-        uLogo->setText("Impossible d'ouvrir le fichier contenant le logo !");
-        return;
-    }
-
+		uLogo->setText("Impossible d'ouvrir le fichier contenant le logo !");
+		return;
+	}
+	
 	// Enregistrement de l'image dans la base SQL
 	query.prepare("UPDATE user SET Logo = :logo WHERE id = 1;");
 	query.bindValue(":logo", img_file.readAll());
 	query.exec();
-
+	
 	// Affichage de l'image
 	img_pixmap.load(image);
 	uLogo->setPixmap(img_pixmap);
-
-    // Fermeture du fichier
-    img_file.close();
+	
+	// Fermeture du fichier
+	img_file.close();
 }
 
 /* Tab Clients ***************************************************************/
@@ -234,9 +230,10 @@ void QfactureImpl::on_uChangeLogo_clicked()
 void QfactureImpl::on_cNew_clicked()
 {
 	// Nouveau client
-
+	
 	cGroupBox->setEnabled(true);
 	cSave->setEnabled(true);
+	cDel->setEnabled(false);
 	cId->setEnabled(false);
 	cId->setText(QString("new"));
 	cName->setText(QString(""));
@@ -251,7 +248,7 @@ void QfactureImpl::on_cNew_clicked()
 void QfactureImpl::on_cSave_clicked()
 {
 	// Enregistrer nouveau client
-
+	
 	if (cId->text() == QString("new")) {
 		// Nouveau client (création instance)
 		QSqlQuery query;
@@ -278,13 +275,14 @@ void QfactureImpl::on_cSave_clicked()
 		cCity->setText(QString(""));
 		cPhone->setText(QString(""));
 		cMail->setText(QString(""));
+		cDel->setEnabled(false);
 	} else {
 		// Client existant (modification instance)
 		QSqlQuery query;
 		query.prepare(
 			"UPDATE client "
-			"SET (Name = :name, Adress = :adress, Adress2 = :adress2, Zip = :zip, City = :city, Phone = :phone, Mail = :mail) "
-			"WHERE Id = :id"
+			"SET Name = :name, Adress = :adress, Adress2 = :adress2, Zip = :zip, City = :city, Phone = :phone, Mail = :mail "
+			"WHERE Id = :id "
 		);
 		query.bindValue(":id", cId->text());
 		query.bindValue(":name", cName->text());
@@ -295,10 +293,12 @@ void QfactureImpl::on_cSave_clicked()
 		query.bindValue(":phone", cPhone->text());
 		query.bindValue(":mail", cMail->text());
 		query.exec();
+		QString Test = query.executedQuery();
 		query.finish();
 		cSave->setEnabled(false);
+		cDel->setEnabled(false);
 	}
-	bool Res = cListRefresh();
+	cListRefresh();
 }
 
 bool QfactureImpl::cListRefresh()
@@ -315,11 +315,14 @@ bool QfactureImpl::cListRefresh()
 	query.exec();
 	while (query.next()) {
 		// Ajout d'une ligne à la liste pour chaque client!
-		QString Item = QString("[") + query.value(0).toString()
-			+ QString("] ") + query.value(1).toString() 
-			+ QString(" (") + query.value(4).toString()
-			+ QString(") ") + query.value(6).toString()
+		QString Item = query.value(1).toString() 
+			+ QString(" (") + query.value(2).toString()
+			+ QString(" ") + query.value(3).toString()
+			+ QString(" ") + query.value(4).toString()
+			+ QString(" ") + query.value(5).toString()
+			+ QString(" - ") + query.value(6).toString()
 			+ QString(" - ") + query.value(7).toString()
+			+ QString(") [") + query.value(0).toString() + QString("]")
 			;
 		cList->addItem(Item);
 	}
@@ -327,9 +330,60 @@ bool QfactureImpl::cListRefresh()
 	return true;
 }
 
-void QfactureImpl::on_cList_doubleClicked(QModelIndex index)
+void QfactureImpl::on_cList_itemClicked(QListWidgetItem* item)
 {
-	// Un des clients est sélectionné dans la table
+	// Modification d'un client de la liste
 	
-	//QString Res = index->text();
+	QString Text = item->text();
+	QString Id = Text.section(" [", -1);
+	Id = Id.replace(QString("]"), "");
+	QSqlQuery query;
+	query.prepare(
+		"SELECT Id, Name, Adress, Adress2, Zip, City, Phone, Mail "
+		"FROM client "
+		"WHERE Id = :id"
+	);
+	query.bindValue(":id", Id);
+	query.exec();
+	while (query.next()) {
+		cGroupBox->setEnabled(true);
+		cSave->setEnabled(true);
+		cDel->setEnabled(true);
+		cId->setEnabled(false);
+		cId->setText(query.value(0).toString());
+		cName->setText(query.value(1).toString());
+		cAdress->setText(query.value(2).toString());
+		cAdress2->setText(query.value(3).toString());
+		cZip->setText(query.value(4).toString());
+		cCity->setText(query.value(5).toString());
+		cPhone->setText(query.value(6).toString());
+		cMail->setText(query.value(7).toString());
+	}
+	query.finish();
+}
+
+void QfactureImpl::on_cDel_clicked()
+{
+	// Supprimer un client
+	
+	QString msg = QString(trUtf8("Voulez-vous supprimer le client sélectionné ?\n\n")) ;
+	if (QMessageBox::warning(this, "Qfacture", msg , QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+		QSqlQuery query;
+		query.prepare("DELETE FROM client WHERE Id = :id");
+		query.bindValue(":id", cId->text());
+		query.exec();
+		query.finish();
+		cId->setText(QString("new"));
+		cName->setText(QString(""));
+		cAdress->setText(QString(""));
+		cAdress2->setText(QString(""));
+		cZip->setText(QString(""));
+		cCity->setText(QString(""));
+		cPhone->setText(QString(""));
+		cMail->setText(QString(""));
+		cDel->setEnabled(false);
+		cNew->setEnabled(true);
+		cSave->setEnabled(false);
+		cListRefresh();
+	}
 }
