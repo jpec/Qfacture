@@ -12,6 +12,7 @@ Q_OBJECT
 public:
 	QfactureImpl( QWidget * parent = 0, Qt::WFlags f = 0 );
 private slots:
+	void on_cList_doubleClicked(QModelIndex index);
 	void on_action_propos_activated();
 	void on_cSave_clicked();
 	void on_cNew_clicked();
@@ -24,9 +25,9 @@ protected:
     QSqlDatabase db;
     
     bool MySQL_connect();
-    
-    void tClientBuildModel();
-    bool tClient_refresh();
+    bool cListRefresh();
+//    void tClientBuildModel();
+//    bool tClient_refresh();
 };
 #endif
 

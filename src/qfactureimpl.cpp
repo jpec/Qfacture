@@ -4,6 +4,8 @@
 #include <QSqlQuery>
 #include <QFileDialog>
 #include <QSqlTableModel>
+#include <QListWidget>
+#include <QModelIndex>
 #include "qfactureimpl.h"
 
 
@@ -47,6 +49,7 @@ void QfactureImpl::on_action_propos_activated()
 	"Licence : GPL\n"
 	"Auteur : Julien PECQUEUR (jpec@julienpecqueur.com)\n"
 	"Contributeur(s) :\n"
+	"  Kévin GOMEZ (contact@kevingomez.fr)\n"
 	" ...\n"
 	"\n"));
 	QMessageBox::about(this, "Qfacture", msg);
@@ -137,7 +140,8 @@ bool QfactureImpl::MySQL_connect()
 	}
 
     // rechargement de la liste des clients
-	tClient_refresh();
+	//tClient_refresh();
+	bool Res = cListRefresh();
 
     return true;
 }
@@ -274,32 +278,58 @@ void QfactureImpl::on_cSave_clicked()
 		cCity->setText(QString(""));
 		cPhone->setText(QString(""));
 		cMail->setText(QString(""));
-		cSave->setEnabled(false);
-		cTable->reset();
 	} else {
 		// Client existant (modification instance)
-
+		QSqlQuery query;
+		query.prepare(
+			"UPDATE client "
+			"SET (Name = :name, Adress = :adress, Adress2 = :adress2, Zip = :zip, City = :city, Phone = :phone, Mail = :mail) "
+			"WHERE Id = :id"
+		);
+		query.bindValue(":id", cId->text());
+		query.bindValue(":name", cName->text());
+		query.bindValue(":adress", cAdress->text());
+		query.bindValue(":adress2", cAdress2->text());
+		query.bindValue(":zip", cZip->text());
+		query.bindValue(":city", cCity->text());
+		query.bindValue(":phone", cPhone->text());
+		query.bindValue(":mail", cMail->text());
+		query.exec();
+		query.finish();
+		cSave->setEnabled(false);
 	}
+	bool Res = cListRefresh();
 }
 
-bool QfactureImpl::tClient_refresh()
+bool QfactureImpl::cListRefresh()
 {
-	// Rafraichit la table client
-
-	QSqlTableModel *model = new QSqlTableModel;
-	model->setTable("client");
-	model->setEditStrategy(QSqlTableModel::OnRowChange);
-	model->select();
-	model->setHeaderData(0, Qt::Horizontal, QString(trUtf8("IdClient")));
-	model->setHeaderData(1, Qt::Horizontal, QString(trUtf8("Nom")));
-	model->setHeaderData(2, Qt::Horizontal, QString(trUtf8("Adresse")));
-	model->setHeaderData(3, Qt::Horizontal, QString(trUtf8("Complément")));
-	model->setHeaderData(4, Qt::Horizontal, QString(trUtf8("Code postal")));
-	model->setHeaderData(5, Qt::Horizontal, QString(trUtf8("Ville")));
-	model->setHeaderData(6, Qt::Horizontal, QString(trUtf8("Téléphone")));
-	model->setHeaderData(7, Qt::Horizontal, QString(trUtf8("Email")));
-	cTable->setModel(model);
-	cTable->show();
-
+	// Rafraichit la liste des clients 
+	
+	cList->clear();
+	QSqlQuery query;
+	query.prepare(
+		"SELECT Id, Name, Adress, Adress2, Zip, City, Phone, Mail "
+		"FROM client "
+		"ORDER BY Name"
+	);
+	query.exec();
+	while (query.next()) {
+		// Ajout d'une ligne à la liste pour chaque client!
+		QString Item = QString("[") + query.value(0).toString()
+			+ QString("] ") + query.value(1).toString() 
+			+ QString(" (") + query.value(4).toString()
+			+ QString(") ") + query.value(6).toString()
+			+ QString(" - ") + query.value(7).toString()
+			;
+		cList->addItem(Item);
+	}
+	query.finish();
 	return true;
+}
+
+void QfactureImpl::on_cList_doubleClicked(QModelIndex index)
+{
+	// Un des clients est sélectionné dans la table
+	
+	//QString Res = index->text();
 }

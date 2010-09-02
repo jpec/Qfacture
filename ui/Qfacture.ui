@@ -345,7 +345,7 @@ Logo</string>
               </size>
              </property>
              <property name="text">
-              <string>Veuillez sélectionner un image de 300x150 Pixels.</string>
+              <string>Veuillez sélectionner une image de 300x150 Pixels.</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -727,20 +727,7 @@ Logo</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_5">
            <item row="0" column="0">
-            <widget class="QTableView" name="cTable">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="toolTip">
-              <string/>
-             </property>
-             <property name="sortingEnabled">
-              <bool>true</bool>
-             </property>
-            </widget>
+            <widget class="QListWidget" name="cList"/>
            </item>
           </layout>
          </widget>
@@ -1081,6 +1068,7 @@ Logo</string>
        <attribute name="title">
         <string>Prestations</string>
        </attribute>
+       <layout class="QGridLayout" name="gridLayout"/>
       </widget>
       <widget class="QWidget" name="tFacture">
        <attribute name="title">
@@ -1102,7 +1090,7 @@ Logo</string>
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_Menu">
@@ -1140,6 +1128,7 @@ Logo</string>
   </action>
  </widget>
  <tabstops>
+  <tabstop>tabWidget</tabstop>
   <tabstop>aServer</tabstop>
   <tabstop>aPort</tabstop>
   <tabstop>aUser</tabstop>
@@ -1157,7 +1146,7 @@ Logo</string>
   <tabstop>uHome</tabstop>
   <tabstop>uChangeLogo</tabstop>
   <tabstop>uSave</tabstop>
-  <tabstop>cTable</tabstop>
+  <tabstop>cList</tabstop>
   <tabstop>cNew</tabstop>
   <tabstop>cSave</tabstop>
   <tabstop>cDel</tabstop>
