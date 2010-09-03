@@ -24,16 +24,14 @@ void QfactureImpl::on_action_Quitter_triggered()
 {
 	// Quitter l'application
 	
-	QString msg = QString(trUtf8("Enregistrer les modifications avant de quitter?"));
-	switch (QMessageBox::warning(this, "Qfacture", msg, QMessageBox::Yes, QMessageBox::Cancel, QMessageBox::No)) {
+	QString msg = QString(trUtf8("Voulez vous quitter l'application ?"));
+	switch (QMessageBox::warning(this, "Qfacture", msg, QMessageBox::Yes, QMessageBox::No)) {
 		case QMessageBox::Yes:
 			if (true)
 				db.close();
 				qApp->quit();
 			break;
 		case QMessageBox::No:
-			db.close();
-			qApp->quit();
 			break;
   }
 }
@@ -138,6 +136,9 @@ bool QfactureImpl::MySQL_connect()
 	
 	// rechargement de la liste des clients
 	cListRefresh();
+	
+	// rechargement de la liste des articles
+	aListRefresh();
 	
 	return true;
 }
@@ -392,25 +393,134 @@ void QfactureImpl::on_cDel_clicked()
 
 void QfactureImpl::on_aNew_clicked()
 {
-	// TODO
+	// Nouvel article
+	
+	artGroupBox->setEnabled(true);
+	aSave->setEnabled(true);
+	aDel->setEnabled(false);
+	aId->setEnabled(false);
+	aId->setText(QString("new"));
+	aName->setText(QString(""));
+	aPrice->setText(QString("0.00"));
+	aCom->setText(QString(""));
 }
 
 void QfactureImpl::on_aSave_clicked()
 {
-	// TODO
+	// Enregistrer nouvel article
+	
+	if (aId->text() == QString("new")) {
+		// Nouvel article (création instance)
+		QSqlQuery query;
+		query.prepare(
+			"INSERT INTO article(Name, Price, Comment) "
+			"VALUES(:name, :price, :comment)"
+		);
+		query.bindValue(":name", aName->text());
+		query.bindValue(":price", aPrice->text());
+		query.bindValue(":comment", aCom->text());
+		query.exec();
+		QString Id;
+		Id = query.lastInsertId().toString();
+		query.finish();
+		aId->setText(QString("new"));
+		aName->setText(QString(""));
+		aPrice->setText(QString("0.00"));
+		aCom->setText(QString(""));
+		aDel->setEnabled(false);
+	} else {
+		// Article existant (modification instance)
+		QSqlQuery query;
+		query.prepare(
+			"UPDATE article "
+			"SET Name = :name, Price = :price, Comment = :comment "
+			"WHERE Id = :id "
+		);
+		query.bindValue(":id", aId->text());
+		query.bindValue(":name", aName->text());
+		query.bindValue(":price", aPrice->text());
+		query.bindValue(":comment", aCom->text());
+		query.exec();
+		QString Test = query.executedQuery();
+		query.finish();
+		aSave->setEnabled(false);
+		aDel->setEnabled(false);
+	}
+	aListRefresh();
 }
 
 void QfactureImpl::on_aDel_clicked()
 {
-	// TODO
+	// Supprimer un article
+	
+	QString msg = QString(trUtf8("Voulez-vous supprimer l'article sélectionné ?\n\n")) ;
+	if (QMessageBox::warning(this, "Qfacture", msg , QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+		QSqlQuery query;
+		query.prepare("DELETE FROM article WHERE Id = :id");
+		query.bindValue(":id", aId->text());
+		query.exec();
+		query.finish();
+		aId->setText(QString("new"));
+		aName->setText(QString(""));
+		aPrice->setText(QString("0.00"));
+		aCom->setText(QString(""));
+		aDel->setEnabled(false);
+		aNew->setEnabled(true);
+		aSave->setEnabled(false);
+		aListRefresh();
+	}
 }
 
 bool QfactureImpl::aListRefresh()
 {
-	// TODO
+	// Rafraichit la liste des articles
+	
+	aList->clear();
+	QSqlQuery query;
+	query.prepare(
+		"SELECT Id, Name, Price, Comment "
+		"FROM article "
+		"ORDER BY Name"
+	);
+	query.exec();
+	while (query.next()) {
+		// Ajout d'une ligne à la liste pour chaque client!
+		
+		QString Item = query.value(1).toString() 
+			+ QString(" - ") + query.value(2).toString()
+			+ QString(" (") + query.value(3).toString()
+			+ QString(") [") + query.value(0).toString() + QString("]")
+			;
+		aList->addItem(Item);
+	}
+	query.finish();
+	return true;
 }
 
 void QfactureImpl::on_aList_itemClicked(QListWidgetItem* item)
 {
-	// TODO
+	// Modification d'un article de la liste
+	
+	QString Text = item->text();
+	QString Id = Text.section(" [", -1);
+	Id = Id.replace(QString("]"), "");
+	QSqlQuery query;
+	query.prepare(
+		"SELECT Id, Name, Price, Comment "
+		"FROM article "
+		"WHERE Id = :id"
+	);
+	query.bindValue(":id", Id);
+	query.exec();
+	while (query.next()) {
+		artGroupBox->setEnabled(true);
+		aSave->setEnabled(true);
+		aDel->setEnabled(true);
+		aId->setEnabled(false);
+		aId->setText(query.value(0).toString());
+		aName->setText(query.value(1).toString());
+		aPrice->setText(query.value(2).toString());
+		aCom->setText(query.value(3).toString());
+	}
+	query.finish();
 }
