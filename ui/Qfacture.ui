@@ -1298,6 +1298,305 @@ Logo</string>
        <attribute name="title">
         <string>Factures</string>
        </attribute>
+       <layout class="QGridLayout" name="gridLayout_7">
+        <item row="1" column="0">
+         <widget class="QTabWidget" name="tabFacture">
+          <property name="tabPosition">
+           <enum>QTabWidget::West</enum>
+          </property>
+          <property name="currentIndex">
+           <number>0</number>
+          </property>
+          <widget class="QWidget" name="tabFact1">
+           <attribute name="title">
+            <string>Editer une facture</string>
+           </attribute>
+           <layout class="QGridLayout" name="gridLayout_9">
+            <item row="2" column="0" colspan="2">
+             <widget class="QGroupBox" name="fArticleGroup">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="title">
+               <string>Liste des prestations</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_11">
+               <item row="0" column="0">
+                <widget class="QTableWidget" name="fArtList">
+                 <attribute name="horizontalHeaderCascadingSectionResizes">
+                  <bool>true</bool>
+                 </attribute>
+                 <attribute name="horizontalHeaderDefaultSectionSize">
+                  <number>100</number>
+                 </attribute>
+                 <attribute name="horizontalHeaderStretchLastSection">
+                  <bool>false</bool>
+                 </attribute>
+                 <attribute name="horizontalHeaderStretchLastSection">
+                  <bool>false</bool>
+                 </attribute>
+                 <attribute name="horizontalHeaderCascadingSectionResizes">
+                  <bool>true</bool>
+                 </attribute>
+                 <attribute name="horizontalHeaderDefaultSectionSize">
+                  <number>100</number>
+                 </attribute>
+                 <column>
+                  <property name="text">
+                   <string>Id</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>Désignation</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>Prix unitaire</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>Commentaire</string>
+                  </property>
+                 </column>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QTableWidget" name="fArtLink">
+                 <column>
+                  <property name="text">
+                   <string>Id</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>Désignation</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>Prix unitaire</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>Quantité</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>Remise</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>Total</string>
+                  </property>
+                 </column>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QGroupBox" name="fClientGroup">
+              <property name="title">
+               <string>Client</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_2">
+               <item>
+                <widget class="QTableWidget" name="fClientList">
+                 <property name="columnCount">
+                  <number>3</number>
+                 </property>
+                 <attribute name="horizontalHeaderCascadingSectionResizes">
+                  <bool>true</bool>
+                 </attribute>
+                 <attribute name="horizontalHeaderStretchLastSection">
+                  <bool>false</bool>
+                 </attribute>
+                 <attribute name="horizontalHeaderStretchLastSection">
+                  <bool>false</bool>
+                 </attribute>
+                 <attribute name="horizontalHeaderCascadingSectionResizes">
+                  <bool>true</bool>
+                 </attribute>
+                 <column>
+                  <property name="text">
+                   <string>Id</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>Nom</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>Ville</string>
+                  </property>
+                 </column>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="fClient"/>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QGroupBox" name="fDetail">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="title">
+               <string>Détails de la facture</string>
+              </property>
+              <layout class="QFormLayout" name="formLayout_7">
+               <item row="1" column="0">
+                <widget class="QLabel" name="fDateLab">
+                 <property name="text">
+                  <string>Date de facturation</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QDateEdit" name="fDate">
+                 <property name="displayFormat">
+                  <string>dd/MM/yyyy</string>
+                 </property>
+                 <property name="date">
+                  <date>
+                   <year>2000</year>
+                   <month>2</month>
+                   <day>1</day>
+                  </date>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QLineEdit" name="fNum">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QLabel" name="fNumLab">
+                 <property name="text">
+                  <string>Numéro de la facture</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QComboBox" name="fType">
+                 <item>
+                  <property name="text">
+                   <string>Facture</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Devis</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <widget class="QComboBox" name="fRegl">
+                 <item>
+                  <property name="text">
+                   <string>Aucun réglement</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Espèces</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Chèque</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Paypal</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="fTypeLab">
+                 <property name="text">
+                  <string>Type de document</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QLabel" name="fReglLab">
+                 <property name="text">
+                  <string>Réglement</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tabFact2">
+           <attribute name="title">
+            <string>Liste des factures</string>
+           </attribute>
+           <layout class="QGridLayout" name="gridLayout_8">
+            <item row="0" column="0">
+             <widget class="QTableWidget" name="factList">
+              <column>
+               <property name="text">
+                <string>Numéro</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Type</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Date facture</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Client</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Total</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Réglement</string>
+               </property>
+              </column>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
       </widget>
       <widget class="QWidget" name="tStat">
        <attribute name="title">
