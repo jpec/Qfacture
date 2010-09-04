@@ -1,8 +1,7 @@
 *** TODO LIST OF THE QFACTURE PROJECT ***
 
 ** IMPORTANT **
- * Implementing the Facture tab (GUI) >> JPEC.
- * Implementing the Facture tab (code) >> JPEC.
+ * Implementing the Facture tab (code) >> JPEC. >> IN PROGESS
  * Implementing the Reporting tab (GUI) >> JPEC.
  * Implementing the Reporting tab (code) >> JPEC.
  * Implementing the Facture pdf generation >> KPHOEN.
@@ -15,3 +14,9 @@
  * Implementing the MySQL setting in ~/.qfacture file >> ?.
  * Implementing the automated MySQL installation >> ?.
  * Implementing the MySQL dump database >> ?.
+
+** NOTES **
+ * Pour les listes clients, j'utilise le Nom comme clé de recherche plutôt que l'Id...
+   Ça permet d'avoir moins d'informations dans la liste et ainsi avoir un affichage plus clair.
+   Je vais tester un peu comme ca (j'ai laissé l'Id sur les articles). À suivre.
+

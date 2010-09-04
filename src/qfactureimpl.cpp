@@ -1,11 +1,14 @@
 #include <QMessageBox>
 #include <QString>
+#include <QStringList>
+#include <QRegExp>
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QFileDialog>
 #include <QSqlTableModel>
 #include <QListWidget>
 #include <QModelIndex>
+#include <QTableWidget>
 #include "qfactureimpl.h"
 
 
@@ -136,6 +139,7 @@ bool QfactureImpl::MySQL_connect()
 	
 	// rechargement de la liste des clients
 	cListRefresh();
+	fClientListRefresh();
 	
 	// rechargement de la liste des articles
 	aListRefresh();
@@ -224,6 +228,9 @@ void QfactureImpl::on_uChangeLogo_clicked()
 	
 	// Fermeture du fichier
 	img_file.close();
+	
+	// Message status bar
+	statusbar->showMessage(trUtf8("Le logo a été enregistré avec succès."), 3000);
 }
 
 /* Tab Clients ***************************************************************/
@@ -254,29 +261,44 @@ void QfactureImpl::on_cSave_clicked()
 		// Nouveau client (création instance)
 		QSqlQuery query;
 		query.prepare(
-			"INSERT INTO client(Name, Adress, Adress2, Zip, City, Phone, Mail) "
-			"VALUES(:name, :adress, :adress2, :zip, :city, :phone, :mail)"
+			"SELECT Name FROM client WHERE Name = :name"
 		);
 		query.bindValue(":name", cName->text());
-		query.bindValue(":adress", cAdress->text());
-		query.bindValue(":adress2", cAdress2->text());
-		query.bindValue(":zip", cZip->text());
-		query.bindValue(":city", cCity->text());
-		query.bindValue(":phone", cPhone->text());
-		query.bindValue(":mail", cMail->text());
 		query.exec();
-		QString Id;
-		Id = query.lastInsertId().toString();
+		int Res = query.numRowsAffected();
 		query.finish();
-		cId->setText(QString("new"));
-		cName->setText(QString(""));
-		cAdress->setText(QString(""));
-		cAdress2->setText(QString(""));
-		cZip->setText(QString(""));
-		cCity->setText(QString(""));
-		cPhone->setText(QString(""));
-		cMail->setText(QString(""));
-		cDel->setEnabled(false);
+		if (Res != 0) {
+			// Doublon
+			QString msg = QString(trUtf8("Le nom saisi existe déjà dans la base!"));
+			QMessageBox::warning(this, "Qfacture", msg , QMessageBox::Ok);
+		} else {
+			QSqlQuery query;
+			query.prepare(
+				"INSERT INTO client(Name, Adress, Adress2, Zip, City, Phone, Mail) "
+				"VALUES(:name, :adress, :adress2, :zip, :city, :phone, :mail)"
+			);
+			query.bindValue(":name", cName->text());
+			query.bindValue(":adress", cAdress->text());
+			query.bindValue(":adress2", cAdress2->text());
+			query.bindValue(":zip", cZip->text());
+			query.bindValue(":city", cCity->text());
+			query.bindValue(":phone", cPhone->text());
+			query.bindValue(":mail", cMail->text());
+			query.exec();
+			QString Id;
+			Id = query.lastInsertId().toString();
+			query.finish();
+			cId->setText(QString("new"));
+			cName->setText(QString(""));
+			cAdress->setText(QString(""));
+			cAdress2->setText(QString(""));
+			cZip->setText(QString(""));
+			cCity->setText(QString(""));
+			cPhone->setText(QString(""));
+			cMail->setText(QString(""));
+			cDel->setEnabled(false);
+			statusbar->showMessage(trUtf8("Le nouveau client a été enregistré avec succès."), 3000);
+		}
 	} else {
 		// Client existant (modification instance)
 		QSqlQuery query;
@@ -298,8 +320,10 @@ void QfactureImpl::on_cSave_clicked()
 		query.finish();
 		cSave->setEnabled(false);
 		cDel->setEnabled(false);
+		statusbar->showMessage(trUtf8("Les modifications ont été enregistrées avec succès."), 3000);
 	}
 	cListRefresh();
+	fClientListRefresh();
 }
 
 bool QfactureImpl::cListRefresh()
@@ -317,13 +341,12 @@ bool QfactureImpl::cListRefresh()
 	while (query.next()) {
 		// Ajout d'une ligne à la liste pour chaque client!
 		QString Item = query.value(1).toString() 
-			+ QString(" (") + query.value(2).toString()
+			+ QString(" | ") + query.value(2).toString()
 			+ QString(" ") + query.value(3).toString()
 			+ QString(" ") + query.value(4).toString()
 			+ QString(" ") + query.value(5).toString()
 			+ QString(" - ") + query.value(6).toString()
 			+ QString(" - ") + query.value(7).toString()
-			+ QString(") [") + query.value(0).toString() + QString("]")
 			;
 		cList->addItem(Item);
 	}
@@ -336,15 +359,16 @@ void QfactureImpl::on_cList_itemClicked(QListWidgetItem* item)
 	// Modification d'un client de la liste
 	
 	QString Text = item->text();
-	QString Id = Text.section(" [", -1);
-	Id = Id.replace(QString("]"), "");
+	int NameLen = Text.indexOf(QString(" | "), 0);
+	QString Name = Text.mid(0, NameLen);
 	QSqlQuery query;
 	query.prepare(
 		"SELECT Id, Name, Adress, Adress2, Zip, City, Phone, Mail "
 		"FROM client "
-		"WHERE Id = :id"
+		"WHERE Name = :name "
 	);
-	query.bindValue(":id", Id);
+	query.bindValue(":name", Name);
+
 	query.exec();
 	while (query.next()) {
 		cGroupBox->setEnabled(true);
@@ -386,6 +410,8 @@ void QfactureImpl::on_cDel_clicked()
 		cNew->setEnabled(true);
 		cSave->setEnabled(false);
 		cListRefresh();
+		fClientListRefresh();
+		statusbar->showMessage(trUtf8("Le client a été supprimé avec succès."), 3000);
 	}
 }
 
@@ -428,6 +454,7 @@ void QfactureImpl::on_aSave_clicked()
 		aPrice->setText(QString("0.00"));
 		aCom->setText(QString(""));
 		aDel->setEnabled(false);
+		statusbar->showMessage(trUtf8("Le nouvel article a été enregistré avec succès."), 3000);
 	} else {
 		// Article existant (modification instance)
 		QSqlQuery query;
@@ -445,6 +472,7 @@ void QfactureImpl::on_aSave_clicked()
 		query.finish();
 		aSave->setEnabled(false);
 		aDel->setEnabled(false);
+		statusbar->showMessage(trUtf8("Les modifications ont été enregistrées avec succès."), 3000);
 	}
 	aListRefresh();
 }
@@ -468,6 +496,7 @@ void QfactureImpl::on_aDel_clicked()
 		aNew->setEnabled(true);
 		aSave->setEnabled(false);
 		aListRefresh();
+		statusbar->showMessage(trUtf8("L'article a été supprimé avec succès."), 3000);
 	}
 }
 
@@ -524,3 +553,83 @@ void QfactureImpl::on_aList_itemClicked(QListWidgetItem* item)
 	}
 	query.finish();
 }
+
+/* Tab facture - éditer une facture ******************************************/
+
+bool QfactureImpl::fClientListRefresh()
+{
+	// Rafraichit la liste des clients de l'onglet facture
+	
+	fClientList->clear();
+	QSqlQuery query;
+	query.prepare(
+		"SELECT Id, Name, Adress, Adress2, Zip, City, Phone, Mail "
+		"FROM client "
+		"ORDER BY Name"
+	);
+	query.exec();
+	while (query.next()) {
+		// Ajout d'une ligne à la liste pour chaque client!
+		QString Item = query.value(1).toString() 
+			+ QString(" | ") + query.value(2).toString()
+			+ QString(" ") + query.value(3).toString()
+			+ QString(" ") + query.value(4).toString()
+			+ QString(" ") + query.value(5).toString()
+			+ QString(" - ") + query.value(6).toString()
+			+ QString(" - ") + query.value(7).toString()
+			;
+		fClientList->addItem(Item);
+	}
+	query.finish();
+	return true;
+}
+
+void QfactureImpl::on_fClientList_itemDoubleClicked(QListWidgetItem* item)
+{
+	// Sélection du client de la facture (alimente le champ fClient)
+	
+	QString Text = item->text();
+	int NameLen = Text.indexOf(QString(" | "), 0);
+	QString Name = Text.mid(0, NameLen);
+	QSqlQuery query;
+	query.prepare(
+		"SELECT Id, Name "
+		"FROM client "
+		"WHERE Name = :name "
+	);
+	query.bindValue(":name", Name);
+	query.exec();
+	while (query.next()) {
+		fClient->setText(query.value(1).toString());
+	}
+	query.finish();
+	statusbar->showMessage(trUtf8("Client ajouté sur la facture."), 3000);
+}
+
+//bool QfactureImpl::fClientListRefresh()
+//{
+	// Rafraichit la liste des clients de l'onglet facture
+	//
+	//fClientList->clear();
+	//QSqlQuery query;
+	//query.prepare(
+		//"SELECT Id, Name, Adress, Adress2, Zip, City, Phone, Mail "
+		//"FROM client "
+		//"ORDER BY Name"
+	//);
+	//query.exec();
+	//fClientList->setRowCount(query.size());
+	//int i=0;
+	//while (query.next()) {
+		// Ajout d'une ligne à la liste pour chaque client!
+		//QTableWidgetItem *Id = new QTableWidgetItem(query.value(0).toString());
+		//fClientList->setItem(i, 0, Id);
+		//QTableWidgetItem *Name = new QTableWidgetItem(query.value(1).toString());
+		//fClientList->setItem(i, 1, Name);
+		//QTableWidgetItem *City = new QTableWidgetItem(query.value(5).toString());
+		//fClientList->setItem(i, 2, City);
+		//i++;
+	//}
+	//query.finish();
+	//return true;
+//}

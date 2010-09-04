@@ -13,6 +13,7 @@ public:
 	QfactureImpl( QWidget * parent = 0, Qt::WFlags f = 0 );
 	
 private slots:
+	void on_fClientList_itemDoubleClicked(QListWidgetItem* item);
 	void on_aList_itemClicked(QListWidgetItem* item);
 	void on_aNew_clicked();
 	void on_aSave_clicked();
@@ -32,6 +33,7 @@ protected:
 	bool MySQL_connect();
 	bool cListRefresh();
 	bool aListRefresh();
+	bool fClientListRefresh();
 };
 #endif
 
