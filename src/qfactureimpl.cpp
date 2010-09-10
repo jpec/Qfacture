@@ -143,6 +143,7 @@ bool QfactureImpl::MySQL_connect()
 	
 	// rechargement de la liste des articles
 	aListRefresh();
+	fArtListRefresh();
 	
 	return true;
 }
@@ -341,12 +342,12 @@ bool QfactureImpl::cListRefresh()
 	while (query.next()) {
 		// Ajout d'une ligne à la liste pour chaque client!
 		QString Item = query.value(1).toString() 
-			+ QString(" | ") + query.value(2).toString()
-			+ QString(" ") + query.value(3).toString()
-			+ QString(" ") + query.value(4).toString()
-			+ QString(" ") + query.value(5).toString()
-			+ QString(" - ") + query.value(6).toString()
-			+ QString(" - ") + query.value(7).toString()
+			+ QString(trUtf8(" | ")) + query.value(2).toString()
+			+ QString(trUtf8(" ")) + query.value(3).toString()
+			+ QString(trUtf8(" ")) + query.value(4).toString()
+			+ QString(trUtf8(" ")) + query.value(5).toString()
+			+ QString(trUtf8(" - ")) + query.value(6).toString()
+			+ QString(trUtf8(" - ")) + query.value(7).toString()
 			;
 		cList->addItem(Item);
 	}
@@ -368,7 +369,6 @@ void QfactureImpl::on_cList_itemClicked(QListWidgetItem* item)
 		"WHERE Name = :name "
 	);
 	query.bindValue(":name", Name);
-
 	query.exec();
 	while (query.next()) {
 		cGroupBox->setEnabled(true);
@@ -434,27 +434,40 @@ void QfactureImpl::on_aNew_clicked()
 void QfactureImpl::on_aSave_clicked()
 {
 	// Enregistrer nouvel article
-	
 	if (aId->text() == QString("new")) {
 		// Nouvel article (création instance)
 		QSqlQuery query;
 		query.prepare(
-			"INSERT INTO article(Name, Price, Comment) "
-			"VALUES(:name, :price, :comment)"
+			"SELECT Name FROM article WHERE Name = :name"
 		);
 		query.bindValue(":name", aName->text());
-		query.bindValue(":price", aPrice->text());
-		query.bindValue(":comment", aCom->text());
 		query.exec();
-		QString Id;
-		Id = query.lastInsertId().toString();
+		int Res = query.numRowsAffected();
 		query.finish();
-		aId->setText(QString("new"));
-		aName->setText(QString(""));
-		aPrice->setText(QString("0.00"));
-		aCom->setText(QString(""));
-		aDel->setEnabled(false);
-		statusbar->showMessage(trUtf8("Le nouvel article a été enregistré avec succès."), 3000);
+		if (Res != 0) {
+			// Doublon
+			QString msg = QString(trUtf8("Le nom d'article saisi existe déjà dans la base!"));
+			QMessageBox::warning(this, "Qfacture", msg , QMessageBox::Ok);
+		} else {
+			QSqlQuery query;
+			query.prepare(
+				"INSERT INTO article(Name, Price, Comment) "
+				"VALUES(:name, :price, :comment)"
+			);
+			query.bindValue(":name", aName->text());
+			query.bindValue(":price", aPrice->text());
+			query.bindValue(":comment", aCom->text());
+			query.exec();
+			QString Id;
+			Id = query.lastInsertId().toString();
+			query.finish();
+			aId->setText(QString("new"));
+			aName->setText(QString(""));
+			aPrice->setText(QString("0.00"));
+			aCom->setText(QString(""));
+			aDel->setEnabled(false);
+			statusbar->showMessage(trUtf8("Le nouvel article a été enregistré avec succès."), 3000);
+		}
 	} else {
 		// Article existant (modification instance)
 		QSqlQuery query;
@@ -475,6 +488,7 @@ void QfactureImpl::on_aSave_clicked()
 		statusbar->showMessage(trUtf8("Les modifications ont été enregistrées avec succès."), 3000);
 	}
 	aListRefresh();
+	fArtListRefresh();
 }
 
 void QfactureImpl::on_aDel_clicked()
@@ -496,6 +510,7 @@ void QfactureImpl::on_aDel_clicked()
 		aNew->setEnabled(true);
 		aSave->setEnabled(false);
 		aListRefresh();
+		fArtListRefresh();
 		statusbar->showMessage(trUtf8("L'article a été supprimé avec succès."), 3000);
 	}
 }
@@ -514,11 +529,10 @@ bool QfactureImpl::aListRefresh()
 	query.exec();
 	while (query.next()) {
 		// Ajout d'une ligne à la liste pour chaque client!
-		
 		QString Item = query.value(1).toString() 
-			+ QString(" - ") + query.value(2).toString()
-			+ QString(" (") + query.value(3).toString()
-			+ QString(") [") + query.value(0).toString() + QString("]")
+			+ QString(trUtf8(" | ")) + query.value(2).toString()
+			+ QString(trUtf8("€ (")) + query.value(3).toString()
+			+ QString(trUtf8(")"))
 			;
 		aList->addItem(Item);
 	}
@@ -531,15 +545,15 @@ void QfactureImpl::on_aList_itemClicked(QListWidgetItem* item)
 	// Modification d'un article de la liste
 	
 	QString Text = item->text();
-	QString Id = Text.section(" [", -1);
-	Id = Id.replace(QString("]"), "");
+	int NameLen = Text.indexOf(QString(" | "), 0);
+	QString Name = Text.mid(0, NameLen);
 	QSqlQuery query;
 	query.prepare(
 		"SELECT Id, Name, Price, Comment "
 		"FROM article "
-		"WHERE Id = :id"
+		"WHERE Name = :name"
 	);
-	query.bindValue(":id", Id);
+	query.bindValue(":name", Name);
 	query.exec();
 	while (query.next()) {
 		artGroupBox->setEnabled(true);
@@ -571,12 +585,12 @@ bool QfactureImpl::fClientListRefresh()
 	while (query.next()) {
 		// Ajout d'une ligne à la liste pour chaque client!
 		QString Item = query.value(1).toString() 
-			+ QString(" | ") + query.value(2).toString()
-			+ QString(" ") + query.value(3).toString()
-			+ QString(" ") + query.value(4).toString()
-			+ QString(" ") + query.value(5).toString()
-			+ QString(" - ") + query.value(6).toString()
-			+ QString(" - ") + query.value(7).toString()
+			+ QString(trUtf8(" | ")) + query.value(2).toString()
+			+ QString(trUtf8(" ")) + query.value(3).toString()
+			+ QString(trUtf8(" ")) + query.value(4).toString()
+			+ QString(trUtf8(" ")) + query.value(5).toString()
+			+ QString(trUtf8(" - ")) + query.value(6).toString()
+			+ QString(trUtf8(" - ")) + query.value(7).toString()
 			;
 		fClientList->addItem(Item);
 	}
@@ -606,6 +620,38 @@ void QfactureImpl::on_fClientList_itemDoubleClicked(QListWidgetItem* item)
 	statusbar->showMessage(trUtf8("Client ajouté sur la facture."), 3000);
 }
 
+bool QfactureImpl::fArtListRefresh()
+{
+	// Rafraichit la liste des articles de l'onglet facture
+	
+	fArtList->clear();
+	QSqlQuery query;
+	query.prepare(
+		"SELECT Id, Name, Price, Comment "
+		"FROM article "
+		"ORDER BY Name"
+	);
+	query.exec();
+	while (query.next()) {
+		// Ajout d'une ligne à la liste pour chaque client!
+		QString Item = query.value(1).toString() 
+			+ QString(trUtf8(" | ")) + query.value(2).toString()
+			+ QString(trUtf8("€ (")) + query.value(3).toString()
+			+ QString(trUtf8(")"))
+			;
+		fArtList->addItem(Item);
+	}
+	query.finish();
+	return true;
+}
+
+void QfactureImpl::on_fArtList_itemDoubleClicked(QListWidgetItem* item)
+{
+	// Ajout d'un article dans la facture
+	
+	
+}
+
 //bool QfactureImpl::fClientListRefresh()
 //{
 	// Rafraichit la liste des clients de l'onglet facture
@@ -633,3 +679,5 @@ void QfactureImpl::on_fClientList_itemDoubleClicked(QListWidgetItem* item)
 	//query.finish();
 	//return true;
 //}
+
+
