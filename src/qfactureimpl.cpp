@@ -265,9 +265,9 @@ void QfactureImpl::on_cSave_clicked()
 		query.prepare("SELECT Name FROM client WHERE Name = :name");
 		query.bindValue(":name", cName->text());
 		query.exec();
-		int Res = query.numRowsAffected();
+		int Res = query.size();
 		query.finish();
-		if (Res != 0) {
+		if (Res > 0) {
 			// Doublon
 			QString msg = QString(trUtf8("Le nom saisi existe déjà dans la base!"));
 			QMessageBox::warning(this, "Qfacture", msg , QMessageBox::Ok);
@@ -302,25 +302,36 @@ void QfactureImpl::on_cSave_clicked()
 	} else {
 		// Client existant (modification instance)
 		QSqlQuery query;
-		query.prepare(
-			"UPDATE client "
-			"SET Name = :name, Adress = :adress, Adress2 = :adress2, Zip = :zip, City = :city, Phone = :phone, Mail = :mail "
-			"WHERE Id = :id "
-		);
-		query.bindValue(":id", cId->text());
+				query.prepare("SELECT Name FROM client WHERE Name = :name");
 		query.bindValue(":name", cName->text());
-		query.bindValue(":adress", cAdress->text());
-		query.bindValue(":adress2", cAdress2->text());
-		query.bindValue(":zip", cZip->text());
-		query.bindValue(":city", cCity->text());
-		query.bindValue(":phone", cPhone->text());
-		query.bindValue(":mail", cMail->text());
 		query.exec();
-		QString Test = query.executedQuery();
+		int Res = query.size();
 		query.finish();
-		cSave->setEnabled(false);
-		cDel->setEnabled(false);
-		statusbar->showMessage(trUtf8("Les modifications ont été enregistrées avec succès."), 3000);
+		if (Res > 0) {
+			// Doublon
+			QString msg = QString(trUtf8("Le nom saisi existe déjà dans la base!"));
+			QMessageBox::warning(this, "Qfacture", msg , QMessageBox::Ok);
+		} else {
+			query.prepare(
+				"UPDATE client "
+				"SET Name = :name, Adress = :adress, Adress2 = :adress2, Zip = :zip, City = :city, Phone = :phone, Mail = :mail "
+				"WHERE Id = :id "
+			);
+			query.bindValue(":id", cId->text());
+			query.bindValue(":name", cName->text());
+			query.bindValue(":adress", cAdress->text());
+			query.bindValue(":adress2", cAdress2->text());
+			query.bindValue(":zip", cZip->text());
+			query.bindValue(":city", cCity->text());
+			query.bindValue(":phone", cPhone->text());
+			query.bindValue(":mail", cMail->text());
+			query.exec();
+			QString Test = query.executedQuery();
+			query.finish();
+			cSave->setEnabled(false);
+			cDel->setEnabled(false);
+			statusbar->showMessage(trUtf8("Les modifications ont été enregistrées avec succès."), 3000);
+		}
 	}
 	cListRefresh();
 	fClientListRefresh();
@@ -439,9 +450,9 @@ void QfactureImpl::on_aSave_clicked()
 		query.prepare("SELECT Name FROM article WHERE Name = :name");
 		query.bindValue(":name", aName->text());
 		query.exec();
-		int Res = query.numRowsAffected();
+		int Res = query.size();
 		query.finish();
-		if (Res != 0) {
+		if (Res > 0) {
 			// Doublon
 			QString msg = QString(trUtf8("Le nom d'article saisi existe déjà dans la base!"));
 			QMessageBox::warning(this, "Qfacture", msg , QMessageBox::Ok);
@@ -468,21 +479,32 @@ void QfactureImpl::on_aSave_clicked()
 	} else {
 		// Article existant (modification instance)
 		QSqlQuery query;
-		query.prepare(
-			"UPDATE article "
-			"SET Name = :name, Price = :price, Comment = :comment "
-			"WHERE Id = :id "
-		);
-		query.bindValue(":id", aId->text());
+		query.prepare("SELECT Name FROM article WHERE Name = :name");
 		query.bindValue(":name", aName->text());
-		query.bindValue(":price", aPrice->text());
-		query.bindValue(":comment", aCom->text());
 		query.exec();
-		QString Test = query.executedQuery();
+		int Res = query.size();
 		query.finish();
-		aSave->setEnabled(false);
-		aDel->setEnabled(false);
-		statusbar->showMessage(trUtf8("Les modifications ont été enregistrées avec succès."), 3000);
+		if (Res > 0) {
+			// Doublon
+			QString msg = QString(trUtf8("Le nom d'article saisi existe déjà dans la base!"));
+			QMessageBox::warning(this, "Qfacture", msg , QMessageBox::Ok);
+		} else {
+			query.prepare(
+				"UPDATE article "
+				"SET Name = :name, Price = :price, Comment = :comment "
+				"WHERE Id = :id "
+			);
+			query.bindValue(":id", aId->text());
+			query.bindValue(":name", aName->text());
+			query.bindValue(":price", aPrice->text());
+			query.bindValue(":comment", aCom->text());
+			query.exec();
+			QString Test = query.executedQuery();
+			query.finish();
+			aSave->setEnabled(false);
+			aDel->setEnabled(false);
+			statusbar->showMessage(trUtf8("Les modifications ont été enregistrées avec succès."), 3000);
+		}
 	}
 	aListRefresh();
 	fArtListRefresh();
