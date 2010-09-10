@@ -146,6 +146,9 @@ bool QfactureImpl::MySQL_connect()
 	aListRefresh();
 	fArtListRefresh();
 	
+	// rechargement de la liste des factures
+	fListRefresh();
+	
 	return true;
 }
 
@@ -587,6 +590,88 @@ void QfactureImpl::on_aList_itemClicked(QListWidgetItem* item)
 	query.finish();
 }
 
+/* Tab facture - liste des factures ******************************************/
+
+bool QfactureImpl::fListRefresh()
+{
+	// Rafraichit la liste des factures
+	
+	fList->clear();
+	QSqlQuery query;
+	query.prepare(
+		"SELECT "
+		"    f.id, f.Amount, f.Comment, f.Payment, f.Reference, f.Type, f.Date, "
+		"    c.Name "
+		"FROM facture AS f "
+		"LEFT JOIN client AS c "
+		"    ON f.idClient = c.id "
+		"ORDER BY Reference DESC"
+	);
+	query.exec();
+	while (query.next()) {
+		// Ajout d'une ligne à la liste pour chaque client!
+		QString Item = query.value(0).toString() 
+			+ QString(trUtf8(" | ")) + query.value(4).toString()
+			+ QString(trUtf8(" | ")) + query.value(5).toString()
+			+ QString(trUtf8(" | ")) + query.value(6).toString()
+			+ QString(trUtf8(" | ")) + query.value(7).toString()
+			+ QString(trUtf8(" | ")) + query.value(1).toString()
+			+ QString(trUtf8("€ (")) + query.value(3).toString()
+			+ QString(trUtf8(")"))
+			;
+		fList->addItem(Item);
+	}
+	query.finish();
+	return true;
+}
+
+void QfactureImpl::on_fList_itemDoubleClicked(QListWidgetItem* item)
+{
+	// Ouvre la facture sélectionnée en édition
+	
+	QString Text = item->text();
+	int IdLen = Text.indexOf(QString(" | "), 0);
+	QString Id = Text.mid(0, IdLen);
+	QSqlQuery query;
+	query.prepare(
+		"SELECT Id, IdClient, Amount, Comment, Payment, Reference, Type, Date "
+		"FROM facture "
+		"WHERE Id = :Id"
+	);
+	query.bindValue(":Id", Id);
+	query.exec();
+	QString Client;
+	while (query.next()) {
+		fNum->setText(query.value(5).toString());
+		fDate->setDate(query.value(7).toDate());
+		fMontant->setText(query.value(2).toString());
+		fRegl->setEditText(query.value(4).toString());
+		fType->setEditText(query.value(6).toString());
+		Client = query.value(1).toString();
+		fCalc->setEnabled(true);
+		fSave->setEnabled(true);
+		fPrint->setEnabled(true);
+		fDel->setEnabled(true);
+		fArticleGroup->setEnabled(true);
+		fClientGroup->setEnabled(true);
+		fDate->setEnabled(true);
+		fType->setEnabled(true);
+		fRegl->setEnabled(true);
+	}
+	query.finish();
+	query.prepare(
+		"SELECT Name "
+		"FROM client "
+		"WHERE Id = :Id"
+	);
+	query.bindValue(":Id", Client);
+	query.exec();
+	query.next();
+	fClient->setText(query.value(0).toString());
+	tabFacture->setCurrentIndex(0);
+	statusbar->showMessage(trUtf8("La facture est chargée avec succès."), 3000);
+}
+
 /* Tab facture - éditer une facture ******************************************/
 
 bool QfactureImpl::fClientListRefresh()
@@ -739,6 +824,15 @@ void QfactureImpl::on_fSave_clicked()
 {
 	// Bouton sauver la facture
 	
+	/*
+	 * 
+	 *  IL FAUDRA RAJOUTER DES CONTROLES SUR LES CHAMPS OBLIGATOIRES
+	 *  * Client,
+	 *  * Type,
+	 *  * Date
+	 * 
+ 	 */
+	
 	if (fNum->text() == QString(trUtf8("0"))) {
 		// Nouvelle facture
 		QSqlQuery query;
@@ -824,6 +918,7 @@ void QfactureImpl::on_fSave_clicked()
 		query.finish();
 		statusbar->showMessage(trUtf8("Les modifications sur la facture sont bien enregistrées."), 3000);
 	}
+	fListRefresh();
 }
 
 void QfactureImpl::on_fPrint_clicked()
@@ -862,6 +957,7 @@ void QfactureImpl::on_fDel_clicked()
 		fMontant->setText("");
 		fClient->setText("");
 		statusbar->showMessage(trUtf8("La facture a bien été supprimée."), 3000);
+		fListRefresh();
 	}
 }
 
@@ -883,3 +979,4 @@ void QfactureImpl::on_fNew_clicked()
 	fRegl->setEnabled(true);
 	statusbar->showMessage(trUtf8("Nouvelle facture créée."), 3000);
 }
+

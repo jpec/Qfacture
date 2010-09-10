@@ -13,6 +13,7 @@ public:
 	QfactureImpl( QWidget * parent = 0, Qt::WFlags f = 0 );
 	
 private slots:
+	void on_fList_itemDoubleClicked(QListWidgetItem* item);
 	void on_fCalc_clicked();
 	void on_fSave_clicked();
 	void on_fPrint_clicked();
@@ -41,6 +42,7 @@ protected:
 	bool aListRefresh();
 	bool fClientListRefresh();
 	bool fArtListRefresh();
+	bool fListRefresh();
 };
 #endif
 

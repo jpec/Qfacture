@@ -1612,7 +1612,7 @@ Logo</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout_8">
             <item row="0" column="0">
-             <widget class="QListWidget" name="factList"/>
+             <widget class="QListWidget" name="fList"/>
             </item>
            </layout>
           </widget>
