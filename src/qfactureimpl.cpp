@@ -642,7 +642,7 @@ void QfactureImpl::on_fList_itemDoubleClicked(QListWidgetItem* item)
 	query.exec();
 	QString Client;
 	while (query.next()) {
-		fNum->setText(query.value(5).toString());
+		fNum->setText(query.value(0).toString());
 		fDate->setDate(query.value(7).toDate());
 		fMontant->setText(query.value(2).toString());
 		fRegl->setEditText(query.value(4).toString());
@@ -837,6 +837,12 @@ void QfactureImpl::on_fSave_clicked()
 		// Nouvelle facture
 		QSqlQuery query;
 		QString Client;
+		query.prepare("SELECT COUNT(Id)+1 FROM facture WHERE Date = :date ");
+		query.bindValue(":date", fDate->text().mid(6,4)+QString("-")+fDate->text().mid(3,2)+QString("-")+fDate->text().mid(0,2));
+		query.exec();
+		query.next();
+		QString Count = query.value(0).toString();
+		query.finish();
 		query.prepare(
 			"SELECT Id, Name "
 			"FROM client "
@@ -870,7 +876,7 @@ void QfactureImpl::on_fSave_clicked()
 		query.bindValue(":client", Client);
 		query.bindValue(":amount", fMontant->text());
 		query.bindValue(":pay", fRegl->currentText());
-		query.bindValue(":ref",fDate->text().mid(6,4)+fDate->text().mid(3,2)+fDate->text().mid(0,2));
+		query.bindValue(":ref",fDate->text().mid(6,4)+fDate->text().mid(3,2)+fDate->text().mid(0,2)+Count.rightJustified(3, '0'));
 		query.bindValue(":type", fType->currentText());
 		query.bindValue(":date", fDate->text().mid(6,4)+QString("-")+fDate->text().mid(3,2)+QString("-")+fDate->text().mid(0,2));
 		query.exec();
@@ -885,6 +891,7 @@ void QfactureImpl::on_fSave_clicked()
 		// Mise à jour facture existante
 		QSqlQuery query;
 		QString Client;
+		query.finish();
 		query.prepare(
 			"SELECT Id, Name "
 			"FROM client "
@@ -902,7 +909,7 @@ void QfactureImpl::on_fSave_clicked()
 			"    Amount = :amount "
 			//"    Comment = NULL " non implémenté
 			"    Payment = :pay "
-			"    Reference = :ref "
+			//"    Reference = :ref "
 			"    Type = :type "
 			"    Date = :date "
 			"WHERE IdFacture = :id"
@@ -911,7 +918,6 @@ void QfactureImpl::on_fSave_clicked()
 		query.bindValue(":client", Client);
 		query.bindValue(":amount", fMontant->text());
 		query.bindValue(":pay", fRegl->currentText());
-		query.bindValue(":ref",fDate->text().mid(6,4)+fDate->text().mid(3,2)+fDate->text().mid(0,2));
 		query.bindValue(":type", fType->currentText());
 		query.bindValue(":date", fDate->text().mid(6,4)+QString("-")+fDate->text().mid(3,2)+QString("-")+fDate->text().mid(0,2));
 		query.exec();
