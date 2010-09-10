@@ -1348,6 +1348,9 @@ Logo</string>
            <layout class="QGridLayout" name="gridLayout_9">
             <item row="2" column="0" colspan="2">
              <widget class="QGroupBox" name="fArticleGroup">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -1400,6 +1403,9 @@ Logo</string>
             </item>
             <item row="0" column="0">
              <widget class="QGroupBox" name="fClientGroup">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="title">
                <string>Client</string>
               </property>
@@ -1455,6 +1461,9 @@ Logo</string>
                </item>
                <item row="1" column="1">
                 <widget class="QDateEdit" name="fDate">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="displayFormat">
                   <string>dd/MM/yyyy</string>
                  </property>
@@ -1476,14 +1485,17 @@ Logo</string>
                </item>
                <item row="2" column="1">
                 <widget class="QComboBox" name="fType">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <item>
                   <property name="text">
-                   <string>Facture</string>
+                   <string notr="true">FACTU</string>
                   </property>
                  </item>
                  <item>
                   <property name="text">
-                   <string>Devis</string>
+                   <string notr="true">DEVIS</string>
                   </property>
                  </item>
                 </widget>
@@ -1511,6 +1523,9 @@ Logo</string>
                </item>
                <item row="4" column="1">
                 <widget class="QComboBox" name="fRegl">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <item>
                   <property name="text">
                    <string>Aucun réglement</string>
@@ -1536,31 +1551,50 @@ Logo</string>
                <item row="5" column="0" colspan="2">
                 <widget class="QFrame" name="frame">
                  <layout class="QGridLayout" name="gridLayout_12">
-                  <item row="0" column="0">
-                   <widget class="QPushButton" name="fCalcTotal">
+                  <item row="0" column="1">
+                   <widget class="QPushButton" name="fCalc">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
                     <property name="text">
                      <string>Recalculer</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="0" column="1">
-                   <widget class="QPushButton" name="pushButton">
+                  <item row="0" column="2">
+                   <widget class="QPushButton" name="fSave">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
                     <property name="text">
-                     <string>Enregistrer</string>
+                     <string>Sauver</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="0" column="2">
-                   <widget class="QPushButton" name="pushButton_2">
+                  <item row="0" column="3">
+                   <widget class="QPushButton" name="fPrint">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
                     <property name="text">
                      <string>Imprimer</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="0" column="3">
-                   <widget class="QPushButton" name="pushButton_3">
+                  <item row="0" column="4">
+                   <widget class="QPushButton" name="fDel">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
                     <property name="text">
                      <string>Supprimer</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="QPushButton" name="fNew">
+                    <property name="text">
+                     <string>Créer</string>
                     </property>
                    </widget>
                   </item>
