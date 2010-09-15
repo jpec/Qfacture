@@ -11,7 +11,7 @@
  * Cleaning the code >> ?.
  * Cleaning the GUI (adjustment with police size and 1024*600px compatible) >> ?.
  * Implementing the Facture Latex generation >> KPHOEN.
- * Implementing the MySQL setting in ~/.qfacture file >> ?.
+ * Implementing the MySQL setting in config file (see xdg[1]) >> ?.
  * Implementing the automated MySQL installation >> ?.
  * Implementing the MySQL dump database >> ?.
 
@@ -20,3 +20,5 @@
    Ça permet d'avoir moins d'informations dans la liste et ainsi avoir un affichage plus clair.
    Je vais tester un peu comme ca (j'ai laissé l'Id sur les articles). À suivre.
 
+--
+[1] http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html

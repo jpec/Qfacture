@@ -43,6 +43,7 @@ protected:
 	bool fClientListRefresh();
 	bool fArtListRefresh();
 	bool fListRefresh();
+	bool fArtLinkRefresh();
 };
 #endif
 

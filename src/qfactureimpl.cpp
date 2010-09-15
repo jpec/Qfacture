@@ -669,6 +669,7 @@ void QfactureImpl::on_fList_itemDoubleClicked(QListWidgetItem* item)
 	query.next();
 	fClient->setText(query.value(0).toString());
 	tabFacture->setCurrentIndex(0);
+	fArtLinkRefresh();
 	statusbar->showMessage(trUtf8("La facture est chargée avec succès."), 3000);
 }
 
@@ -774,36 +775,49 @@ void QfactureImpl::on_fArtList_itemDoubleClicked(QListWidgetItem* item)
 	query.bindValue(":amount", Price);
 	query.exec();
 	query.finish();
+	fArtLinkRefresh();
 	statusbar->showMessage(trUtf8("Article ajouté sur la facture."), 3000);
 }
 
-//bool QfactureImpl::fClientListRefresh()
-//{
-	// Rafraichit la liste des clients de l'onglet facture
-	//
-	//fClientList->clear();
-	//QSqlQuery query;
-	//query.prepare(
-		//"SELECT Id, Name, Adress, Adress2, Zip, City, Phone, Mail "
-		//"FROM client "
-		//"ORDER BY Name"
-	//);
-	//query.exec();
-	//fClientList->setRowCount(query.size());
-	//int i=0;
-	//while (query.next()) {
-		// Ajout d'une ligne à la liste pour chaque client!
-		//QTableWidgetItem *Id = new QTableWidgetItem(query.value(0).toString());
-		//fClientList->setItem(i, 0, Id);
-		//QTableWidgetItem *Name = new QTableWidgetItem(query.value(1).toString());
-		//fClientList->setItem(i, 1, Name);
-		//QTableWidgetItem *City = new QTableWidgetItem(query.value(5).toString());
-		//fClientList->setItem(i, 2, City);
-		//i++;
-	//}
-	//query.finish();
-	//return true;
-//}
+bool QfactureImpl::fArtLinkRefresh()
+{
+	// Rafraichit la liste des liens de l'onglet facture
+	
+	fArtLink->clearContents();
+	QSqlQuery query;
+	query.prepare(
+		"SELECT l.id, a.name, l.price, l.quantity, l.off, l.amount "
+		"FROM link AS l "
+		"LEFT JOIN article AS a "
+		"ON a.id = l.idarticle "
+		"WHERE l.idfacture = :idFacture "
+		"ORDER BY l.id "
+	);
+	query.bindValue(":IdFacture", fNum->text());
+	query.exec();
+	fArtLink->setRowCount(query.size());
+	fArtLink->setAlternatingRowColors(true);
+	//fArtLink->verticalHeader()->setVisible(false);
+	int i=0;
+	while (query.next()) {
+		// Ajout d'une ligne à la liste pour chaque lien
+		QTableWidgetItem *Id = new QTableWidgetItem(query.value(0).toString());
+		fArtLink->setItem(i, 0, Id);
+		QTableWidgetItem *Name = new QTableWidgetItem(query.value(1).toString());
+		fArtLink->setItem(i, 1, Name);
+		QTableWidgetItem *Price = new QTableWidgetItem(query.value(2).toString());
+		fArtLink->setItem(i, 2, Price);
+		QTableWidgetItem *Nbr = new QTableWidgetItem(query.value(3).toString());
+		fArtLink->setItem(i, 3, Nbr);
+		QTableWidgetItem *Off = new QTableWidgetItem(query.value(4).toString());
+		fArtLink->setItem(i, 4, Off);
+		QTableWidgetItem *Mont = new QTableWidgetItem(query.value(5).toString());
+		fArtLink->setItem(i, 5, Mont);
+		i++;
+	}
+	query.finish();
+	return true;
+}
 
 
 
@@ -818,6 +832,7 @@ void QfactureImpl::on_fCalc_clicked()
 	query.next();
 	fMontant->setText(query.value(0).toString());
 	query.finish();
+	fArtLinkRefresh();
 }
 
 void QfactureImpl::on_fSave_clicked()
@@ -924,6 +939,7 @@ void QfactureImpl::on_fSave_clicked()
 		query.finish();
 		statusbar->showMessage(trUtf8("Les modifications sur la facture sont bien enregistrées."), 3000);
 	}
+	fArtLinkRefresh();
 	fListRefresh();
 }
 
@@ -963,6 +979,7 @@ void QfactureImpl::on_fDel_clicked()
 		fMontant->setText("");
 		fClient->setText("");
 		statusbar->showMessage(trUtf8("La facture a bien été supprimée."), 3000);
+		fArtLinkRefresh();
 		fListRefresh();
 	}
 }
@@ -983,6 +1000,7 @@ void QfactureImpl::on_fNew_clicked()
 	fDate->setEnabled(true);
 	fType->setEnabled(true);
 	fRegl->setEnabled(true);
+	fArtLinkRefresh();
 	statusbar->showMessage(trUtf8("Nouvelle facture créée."), 3000);
 }
 
