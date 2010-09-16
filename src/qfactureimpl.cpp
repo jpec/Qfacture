@@ -18,6 +18,7 @@ QfactureImpl::QfactureImpl( QWidget * parent, Qt::WFlags f) : QMainWindow(parent
 {
 	setupUi(this);
 	
+	VERSION = QString(trUtf8("v0.1-alpha"));
 	db = QSqlDatabase::addDatabase("QMYSQL");
 }
 //
@@ -43,7 +44,7 @@ void QfactureImpl::on_action_Quitter_triggered()
 void QfactureImpl::on_action_propos_activated()
 {
 	// A propos
-	QString msg = QString(trUtf8("Qfacture v0.1\n"
+	QString msg = QString(trUtf8("Qfacture :VERSION\n"
 	"Le logiciel libre de facturation pour les Auto-Entrepreneurs!\n"
 	"--\n"
 	"Copyright 2010 : Julien PECQUEUR\n"
@@ -51,7 +52,9 @@ void QfactureImpl::on_action_propos_activated()
 	"Auteur : Julien PECQUEUR <jpec@julienpecqueur.com>\n"
 	"Contributeur(s) :\n"
 	" * Module génération PDF : Kévin GOMEZ <contact@kevingomez.fr>\n"
+	" * Logo : Kevin MACPHAIL <http://kmacphail.blogspot.com>\n"
 	"\n"));
+	msg.replace(":VERSION", VERSION);
 	QMessageBox::about(this, "Qfacture", msg);
 }
 

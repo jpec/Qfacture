@@ -36,6 +36,7 @@ private slots:
 	void on_action_Quitter_triggered();
 	
 protected:
+	QString VERSION;
 	QSqlDatabase db;
 	bool MySQL_connect();
 	bool cListRefresh();
