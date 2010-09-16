@@ -51,6 +51,7 @@ void QfactureImpl::on_action_propos_activated()
 	"Copyright 2010 : Julien PECQUEUR\n"
 	"Licence : GPL\n"
 	"Auteur : Julien PECQUEUR <jpec@julienpecqueur.com>\n"
+	"--\n"
 	"Contributeur(s) :\n"
 	" * Module génération PDF : Kévin GOMEZ <contact@kevingomez.fr>\n"
 	" * Logo : Kevin MACPHAIL <http://kmacphail.blogspot.com>\n"
@@ -1118,6 +1119,14 @@ void QfactureImpl::on_fNew_clicked()
 	fType->setEnabled(true);
 	fRegl->setEnabled(true);
 	fArtLinkRefresh();
+	fRegl->clear();
+	fRegl->addItem(QString(trUtf8("Aucun réglement")));
+	fRegl->addItem(QString(trUtf8("Espèces")));
+	fRegl->addItem(QString(trUtf8("Chèque")));
+	fRegl->addItem(QString(trUtf8("Paypal")));
+	fType->clear();
+	fType->addItem(QString(trUtf8("FACTU")));
+	fType->addItem(QString(trUtf8("DEVIS")));
 	statusbar->showMessage(trUtf8("Nouvelle facture créée."), 3000);
 }
 
