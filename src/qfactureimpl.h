@@ -13,6 +13,12 @@ public:
 	QfactureImpl( QWidget * parent = 0, Qt::WFlags f = 0 );
 	
 private slots:
+	void on_aPass_returnPressed();
+	void on_sYearCa_textChanged(QString );
+	void on_sYearCa_editingFinished();
+	void on_sYearCa_lostFocus();
+	void on_sListCa_itemDoubleClicked(QListWidgetItem* item);
+	void on_fArtLink_itemChanged(QTableWidgetItem* item);
 	void on_fList_itemDoubleClicked(QListWidgetItem* item);
 	void on_fCalc_clicked();
 	void on_fSave_clicked();
@@ -38,6 +44,7 @@ private slots:
 protected:
 	QString VERSION;
 	QSqlDatabase db;
+	bool fFlag;
 	bool MySQL_connect();
 	bool cListRefresh();
 	bool aListRefresh();
@@ -45,6 +52,7 @@ protected:
 	bool fArtListRefresh();
 	bool fListRefresh();
 	bool fArtLinkRefresh();
+	bool sListCaRefresh();
 };
 #endif
 
