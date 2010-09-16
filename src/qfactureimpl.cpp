@@ -658,22 +658,18 @@ void QfactureImpl::on_fList_itemDoubleClicked(QListWidgetItem* item)
 		fMontant->setText(query.value(2).toString());
 		// Il faudra mettre des variables :)
 		fRegl->clear();
-		//fRegl->addItem(QString(trUtf8("Aucun réglement")), QVariant(trUtf8("Aucun réglement")));
-		//fRegl->addItem(QString(trUtf8("Espèces")), QVariant(trUtf8("Espèces")));
-		//fRegl->addItem(QString(trUtf8("Chèques")), QVariant(trUtf8("Chèques")));
-		//fRegl->addItem(QString(trUtf8("Paypal")), QVariant(trUtf8("Paypal")));
 		if (0 == QString(trUtf8("Aucun réglement")).compare(query.value(4).toString())) {
 			fRegl->addItem(QString(trUtf8("Aucun réglement")));
 			fRegl->addItem(QString(trUtf8("Espèces")));
-			fRegl->addItem(QString(trUtf8("Chèques")));
+			fRegl->addItem(QString(trUtf8("Chèque")));
 			fRegl->addItem(QString(trUtf8("Paypal")));
 		} else if (0 == QString(trUtf8("Espèces")).compare(query.value(4).toString())) {
 			fRegl->addItem(QString(trUtf8("Espèces")));
 			fRegl->addItem(QString(trUtf8("Aucun réglement")));
-			fRegl->addItem(QString(trUtf8("Chèques")));
+			fRegl->addItem(QString(trUtf8("Chèque")));
 			fRegl->addItem(QString(trUtf8("Paypal")));
-		} else if (0 == QString(trUtf8("Chèques")).compare(query.value(4).toString())) {
-			fRegl->addItem(QString(trUtf8("Chèques")));
+		} else if (0 == QString(trUtf8("Chèque")).compare(query.value(4).toString())) {
+			fRegl->addItem(QString(trUtf8("Chèque")));
 			fRegl->addItem(QString(trUtf8("Aucun réglement")));
 			fRegl->addItem(QString(trUtf8("Espèces")));
 			fRegl->addItem(QString(trUtf8("Paypal")));
@@ -681,11 +677,9 @@ void QfactureImpl::on_fList_itemDoubleClicked(QListWidgetItem* item)
 			fRegl->addItem(QString(trUtf8("Paypal")));
 			fRegl->addItem(QString(trUtf8("Aucun réglement")));
 			fRegl->addItem(QString(trUtf8("Espèces")));
-			fRegl->addItem(QString(trUtf8("Chèques")));
+			fRegl->addItem(QString(trUtf8("Chèque")));
 		}
 		fType->clear();
-		//fType->addItem(QString(trUtf8("FACTU")), QVariant(trUtf8("FACTU")));
-		//fType->addItem(QString(trUtf8("DEVIS")), QVariant(trUtf8("DEVIS")));
 		if (0 == QString(trUtf8("FACTU")).compare(query.value(6).toString())) {
 			fType->addItem(QString(trUtf8("FACTU")));
 			fType->addItem(QString(trUtf8("DEVIS")));

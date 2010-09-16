@@ -1627,7 +1627,11 @@ Logo</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout_8">
             <item row="0" column="0">
-             <widget class="QListWidget" name="fList"/>
+             <widget class="QListWidget" name="fList">
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>
