@@ -62,43 +62,52 @@ void QfactureImpl::on_action_propos_activated()
 
 /* Tab Paramètres ************************************************************/
 
+/**
+ * Méthode de callback appelée lors du clic sur le bouton de (dé)connexion
+ * à la DB dans l'onglet "Paramètres".
+ * On s'occupe ici d'appeler la méthode gérant la connexion à la DB et
+ * de (dés)activer certains champs
+ * 
+ * @return void
+ */
 void QfactureImpl::on_aConnect_clicked()
 {
-	// Se connecter/déconnecter à la base MySQL
+    bool connexion_state = db.isOpen();
 	
-	QString Connected = QString(trUtf8("Connecté!"));
-	QString Disconnected = QString(trUtf8("Déconnecté!"));
-	QString Connect = QString(trUtf8("Connecter"));
-	QString Disconnect = QString(trUtf8("Déconnecter"));
+	QString Connected = QString(trUtf8("Connecté"));
+	QString Disconnected = QString(trUtf8("Déconnecté"));
+	QString Connect = QString(trUtf8("Connexion"));
+	QString Disconnect = QString(trUtf8("Déconnexion"));
 	
-	if (aFlag->text() != Connected) {
+	if (!connexion_state) {
 		// Se connecter à la base
-		if ( MySQL_connect() ) {
-			aFlag->setText(Connected);
-			aConnect->setText(Disconnect);
-			uSave->setEnabled(true);
-			uGroupBox->setEnabled(true);
-			aServer->setEnabled(false);
-			aPort->setEnabled(false);
-			aUser->setEnabled(false);
-			aPass->setEnabled(false);
-			aDb->setEnabled(false);
-		}
-	} else {
+        connexion_state = MySQL_connect();
+        
+        if(connexion_state) {
+            aFlag->setText(Connected);
+            aConnect->setText(Disconnect);
+        }
+    } else {
 		// Se déconnecter de la base
 		QString msg = QString(trUtf8("Voulez-vous réellement vous déconnecter du serveur?"));
+        
 		if (QMessageBox::warning(this, "Qfacture", msg, QMessageBox::Yes, QMessageBox::Cancel, QMessageBox::No) == QMessageBox::Yes) {
 			aFlag->setText(Disconnected);
 			aConnect->setText(Connect);
-			uSave->setEnabled(false);
-			uGroupBox->setEnabled(false);
-			aServer->setEnabled(true);
-			aPort->setEnabled(true);
-			aUser->setEnabled(true);
-			aPass->setEnabled(true);
-			aDb->setEnabled(true);
+            
+            db.close();
 		}
 	}
+    
+    connexion_state = db.isOpen();
+    
+    uSave->setEnabled(connexion_state);
+    uGroupBox->setEnabled(connexion_state);
+    aServer->setEnabled(!connexion_state);
+    aPort->setEnabled(!connexion_state);
+    aUser->setEnabled(!connexion_state);
+    aPass->setEnabled(!connexion_state);
+    aDb->setEnabled(!connexion_state);
 }
 
 void QfactureImpl::on_aPass_returnPressed()

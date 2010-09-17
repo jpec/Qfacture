@@ -44,6 +44,7 @@ private slots:
 protected:
 	QString VERSION;
 	QSqlDatabase db;
+    
 	bool fFlag;
 	bool MySQL_connect();
 	bool cListRefresh();
