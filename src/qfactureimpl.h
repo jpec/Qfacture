@@ -46,9 +46,10 @@ private slots:
     void cListRefresh();
     
     void fClientListRefresh();
-    bool fArtLinkRefresh();
-	bool fArtListRefresh();
+    void fArtLinkRefresh();
+	void fArtListRefresh();
     void fListRefresh();
+    void fUpdateAmount();
     
     bool sListCaRefresh();
     
@@ -62,6 +63,7 @@ signals:
     
     void factureSaved();
     void factureDeleted();
+    void factureArticlesUpdated();
 
 protected:
 	QString VERSION;

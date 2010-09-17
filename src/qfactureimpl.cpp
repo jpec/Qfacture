@@ -71,6 +71,11 @@ void QfactureImpl::createActions()
     
     connect(this, SIGNAL(factureDeleted()), this, SLOT(fArtLinkRefresh()));
     connect(this, SIGNAL(factureDeleted()), this, SLOT(fListRefresh()));
+    
+    /** Actions effectuées lors de l'ajout d'un article à une facture **/
+    
+    connect(this, SIGNAL(factureArticlesUpdated()), this, SLOT(fArtLinkRefresh()));
+    connect(this, SIGNAL(factureArticlesUpdated()), this, SLOT(fUpdateAmount()));
 }
 
 /**
@@ -887,6 +892,7 @@ void QfactureImpl::on_fList_itemDoubleClicked(QListWidgetItem* item)
 void QfactureImpl::fClientListRefresh()
 {
     QSqlQuery query;
+    QString item;
     
 	// Rafraichit la liste des clients de l'onglet facture
 	
@@ -900,8 +906,7 @@ void QfactureImpl::fClientListRefresh()
 	query.exec();
 	
     while (query.next()) {
-		// Ajout d'une ligne à la liste pour chaque client!
-		QString Item = query.value(1).toString() 
+		item = query.value(1).toString() 
 			+ QString(trUtf8(" | ")) + query.value(2).toString()
 			+ QString(trUtf8(" ")) + query.value(3).toString()
 			+ QString(trUtf8(" ")) + query.value(4).toString()
@@ -909,89 +914,125 @@ void QfactureImpl::fClientListRefresh()
 			+ QString(trUtf8(" - ")) + query.value(6).toString()
 			+ QString(trUtf8(" - ")) + query.value(7).toString()
 			;
-		fClientList->addItem(Item);
+		fClientList->addItem(item);
+        
+        // chaque élément de la liste connait ainsi l'ID du client qu'il représente
+        fClientList->item(fClientList->count()-1)->setData(Qt::UserRole, query.value(0).toInt());
 	}
     
 	query.finish();
 }
 
+/**
+ * Appelée lors du clic sur un client. Le choix du client pour la facture
+ * est alors réalisé et le champ fClient est alimenté.
+ * 
+ * @param item Pointeur vers la ligne choisie.
+ * 
+ * @return void
+ */
 void QfactureImpl::on_fClientList_itemDoubleClicked(QListWidgetItem* item)
 {
-	// Sélection du client de la facture (alimente le champ fClient)
-	
-	QString Text = item->text();
-	int NameLen = Text.indexOf(QString(" | "), 0);
-	QString Name = Text.mid(0, NameLen);
 	QSqlQuery query;
+    
 	query.prepare(
 		"SELECT Id, Name "
 		"FROM client "
-		"WHERE Name = :name "
+		"WHERE Id = :id "
 	);
-	query.bindValue(":name", Name);
+    
+	query.bindValue(":id", item->data(Qt::UserRole).toInt());
+    
 	query.exec();
-	while (query.next()) {
+    
+	while (query.next())
 		fClient->setText(query.value(1).toString());
-	}
+	
 	query.finish();
-	statusbar->showMessage(trUtf8("Client ajouté sur la facture."), 3000);
+	
+    statusbar->showMessage(trUtf8("Client ajouté sur la facture."), 3000);
 }
 
-bool QfactureImpl::fArtListRefresh()
+/**
+ * Recharge la liste des articles de l'onglet facture.
+ * 
+ * @return void
+ */
+void QfactureImpl::fArtListRefresh()
 {
-	// Rafraichit la liste des articles de l'onglet facture
-	
-	fArtList->clear();
+    QString item;
 	QSqlQuery query;
+    
+    fArtList->clear();
+	
 	query.prepare(
 		"SELECT Id, Name, Price, Comment "
 		"FROM article "
 		"ORDER BY Name"
 	);
+    
 	query.exec();
+    
 	while (query.next()) {
-		// Ajout d'une ligne à la liste pour chaque client!
-		QString Item = query.value(1).toString() 
-			+ QString(trUtf8(" | ")) + query.value(2).toString()
-			+ QString(trUtf8("€ (")) + query.value(3).toString()
-			+ QString(trUtf8(")"))
-			;
-		fArtList->addItem(Item);
+		item = query.value(1).toString() 
+             + QString(trUtf8(" | ")) + query.value(2).toString()
+			 + QString(trUtf8("€ (")) + query.value(3).toString()
+			 + QString(trUtf8(")"));
+        
+		fArtList->addItem(item);
+        
+        // chaque élément de la liste connait ainsi l'ID de l'article qu'il représente
+        fArtList->item(fArtList->count()-1)->setData(Qt::UserRole, query.value(0).toInt());
 	}
+    
 	query.finish();
-	return true;
 }
 
+/**
+ * Ajoute l'article sur lequel on vient de cliquer dans la facture en
+ * cours d'édition
+ * 
+ * @param item Pointeur vers la ligne représentant l'article
+ * 
+ * @return void
+ */
 void QfactureImpl::on_fArtList_itemDoubleClicked(QListWidgetItem* item)
 {
-	// Ajout d'un article dans la facture
-	
-	QString Text = item->text();
-	int NameLen = Text.indexOf(QString(" | "), 0);
-	QString Name = Text.mid(0, NameLen);
 	QSqlQuery query;
-	query.prepare("SELECT Id, Price FROM article WHERE Name = :name");
-	query.bindValue(":name", Name);
+    QString art_id, art_price;
+    
+    art_id = item->data(Qt::UserRole).toInt();
+    
+	query.prepare("SELECT Id, Price FROM article WHERE Id = :id");
+	query.bindValue(":id", art_id);
 	query.exec();
-	query.next();
-	QString Art = QString(query.value(0).toString());
-	QString Price = QString(query.value(1).toString());
+	
+    query.next();
+	
+	art_price = query.value(1).toString();
+    
 	query.finish();
+    
 	query.prepare(
 		"INSERT INTO link(IdFacture, IdArticle, Quantity, Off, Price, Amount) "
 		"VALUES (:num, :art, 1, 0, :price, :amount)"
 	);
+    
 	query.bindValue(":num", fNum->text());
-	query.bindValue(":art", Art);
-	query.bindValue(":price", Price);
-	query.bindValue(":amount", Price);
-	query.exec();
-	query.finish();
-	fArtLinkRefresh();
+	query.bindValue(":art", art_id);
+	query.bindValue(":price", art_price);
+	query.bindValue(":amount", art_price);
+	
+    query.exec();
+	
+    query.finish();
+    
+    emit factureArticlesUpdated();
+    
 	statusbar->showMessage(trUtf8("Article ajouté sur la facture."), 3000);
 }
 
-bool QfactureImpl::fArtLinkRefresh()
+void QfactureImpl::fArtLinkRefresh()
 {
 	// Rafraichit la liste des liens de l'onglet facture
 	
@@ -1030,14 +1071,13 @@ bool QfactureImpl::fArtLinkRefresh()
 	}
 	query.finish();
 	fFlag = true; // verrou refresh facture non activé
-	return true;
 }
 
 void QfactureImpl::on_fArtLink_itemChanged(QTableWidgetItem* Item)
 {
 	// Une cellule du tableau lien article est modifiée
 	
-	if (fFlag) { 
+	if (fFlag) {
 		// verrou refresh facture non activé
 		int Row = Item->row();
 		int Col = Item->column();
@@ -1067,8 +1107,7 @@ void QfactureImpl::on_fArtLink_itemChanged(QTableWidgetItem* Item)
 					query.exec();
 					query.finish();
 				}
-				fArtLinkRefresh();
-				on_fCalc_clicked();
+                
 				statusbar->showMessage(trUtf8("La quantité a été modifiée avec succés."), 3000);
 			} else {
 				// Quantité = 0 => suppression de la ligne
@@ -1102,30 +1141,50 @@ void QfactureImpl::on_fArtLink_itemChanged(QTableWidgetItem* Item)
 				query.finish();
 			}
 			fFlag = true;
-			fArtLinkRefresh();
-			on_fCalc_clicked();
+            
 			statusbar->showMessage(trUtf8("La remise a été modifiée avec succés."), 3000);
 			break;
 			default:
-			fArtLinkRefresh();
 			statusbar->showMessage(trUtf8("Cette cellule n'est pas modifiable."), 3000);
 			break;
 		}
+        
+        emit factureArticlesUpdated();
 	}
 }
 
+/**
+ * Méthode callback appelée lors du clic sur le bouton de calcul du
+ * montant de la facture.
+ * 
+ * \note Ne devrait plus exister (en principe le montant est automatiquement
+ *       mis à jour)
+ * 
+ * @return void
+ */
 void QfactureImpl::on_fCalc_clicked()
 {
 	// Bouton calculer le montant total de la facture
 	
-	QSqlQuery query;
+    fUpdateAmount();
+	
+	//fArtLinkRefresh();
+}
+
+/**
+ * Met à jour le montant total de la facture en cours
+ * 
+ * @return void
+ */
+void QfactureImpl::fUpdateAmount()
+{
+    QSqlQuery query;
 	query.prepare("SELECT SUM(Amount) FROM link WHERE IdFacture = :id");
 	query.bindValue(":id", fNum->text());
 	query.exec();
 	query.next();
 	fMontant->setText(query.value(0).toString());
 	query.finish();
-	fArtLinkRefresh();
 }
 
 /**
@@ -1260,7 +1319,8 @@ void QfactureImpl::on_fPrint_clicked()
 }
 
 /**
- * Supprime la facture actuellement sélectionnée dans la liste.
+ * Supprime la facture actuellement sélectionnée dans la liste (ou plutôt
+ * en cours d'édition)
  * 
  * @return void
  */
@@ -1276,7 +1336,7 @@ void QfactureImpl::on_fDel_clicked()
     query.bindValue(":id", fNum->text());
     query.exec();
     query.finish();
-	
+    
     query.prepare("DELETE FROM facture WHERE Id = :id");
     query.bindValue(":id", fNum->text());
     query.exec();
@@ -1291,7 +1351,8 @@ void QfactureImpl::on_fDel_clicked()
     fDate->setEnabled(false);
     fType->setEnabled(false);
     fRegl->setEnabled(false);
-    fNum->setText(QString(trUtf8("0")));
+    
+    fNum->setText(QString(trUtf8("")));
     fDate->setDate(QDate::currentDate());
     fMontant->setText("");
     fClient->setText("");
@@ -1301,11 +1362,15 @@ void QfactureImpl::on_fDel_clicked()
     emit factureDeleted();
 }
 
+/**
+ * Méthode de callback appelée lors du clic sur le bouton de création
+ * d'une nouvelle facture.
+ * 
+ * @return void
+ */
 void QfactureImpl::on_fNew_clicked()
 {
-	// Bouton nouvelle facture
-	
-	fNum->setText(QString(""));
+    fNum->setText(QString(""));
 	fDate->setDate(QDate::currentDate());
 	
     fMontant->setText("");
