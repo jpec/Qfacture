@@ -36,6 +36,8 @@ QfactureImpl::QfactureImpl( QWidget * parent, Qt::WFlags f) : QMainWindow(parent
  */
 void QfactureImpl::createActions()
 {
+    /** Actions effectuées à la connexion à la DB **/
+    
     // affichage des infos sur l'auto-entrepreneur
     connect(this, SIGNAL(DBConnected()), this, SLOT(loadUserInfos()));
     
@@ -49,6 +51,16 @@ void QfactureImpl::createActions()
 	
 	// rechargement de la liste des factures
 	connect(this, SIGNAL(DBConnected()), this, SLOT(fListRefresh()));
+    
+    /** Actions effectuées lors de la sauvegarde d'un client (nouveau ou mise à jour d'un déjà existant) **/
+    
+    connect(this, SIGNAL(clientSaved()), this, SLOT(cListRefresh()));
+	connect(this, SIGNAL(clientSaved()), this, SLOT(fClientListRefresh()));
+    
+    /** Actions effectuées lors de la suppression d'un client **/
+    
+    connect(this, SIGNAL(clientDeleted()), this, SLOT(cListRefresh()));
+    connect(this, SIGNAL(clientDeleted()), this, SLOT(fClientListRefresh()));
 }
 
 /**
@@ -387,8 +399,8 @@ void QfactureImpl::on_cSave_clicked()
 			statusbar->showMessage(trUtf8("Les modifications ont été enregistrées avec succès."), 3000);
 		}
 	}
-	cListRefresh();
-	fClientListRefresh();
+    
+    emit clientSaved();
 }
 
 bool QfactureImpl::cListRefresh()
@@ -453,30 +465,34 @@ void QfactureImpl::on_cList_itemClicked(QListWidgetItem* item)
 
 void QfactureImpl::on_cDel_clicked()
 {
+    QSqlQuery query;
+    
 	// Supprimer un client
 	
-	QString msg = QString(trUtf8("Voulez-vous supprimer le client sélectionné ?\n\n")) ;
-	if (QMessageBox::warning(this, "Qfacture", msg , QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
-		QSqlQuery query;
-		query.prepare("DELETE FROM client WHERE Id = :id");
-		query.bindValue(":id", cId->text());
-		query.exec();
-		query.finish();
-		cId->setText(QString("new"));
-		cName->setText(QString(""));
-		cAdress->setText(QString(""));
-		cAdress2->setText(QString(""));
-		cZip->setText(QString(""));
-		cCity->setText(QString(""));
-		cPhone->setText(QString(""));
-		cMail->setText(QString(""));
-		cDel->setEnabled(false);
-		cNew->setEnabled(true);
-		cSave->setEnabled(false);
-		cListRefresh();
-		fClientListRefresh();
-		statusbar->showMessage(trUtf8("Le client a été supprimé avec succès."), 3000);
-	}
+	QString msg = QString(trUtf8("Voulez-vous supprimer le client sélectionné ?\n\n"));
+	if(QMessageBox::warning(this, "Qfacture", msg , QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes) 
+        return;
+    
+    query.prepare("DELETE FROM client WHERE Id = :id");
+    query.bindValue(":id", cId->text());
+    query.exec();
+    query.finish();
+    
+    cId->setText(QString("new"));
+    cName->setText(QString(""));
+    cAdress->setText(QString(""));
+    cAdress2->setText(QString(""));
+    cZip->setText(QString(""));
+    cCity->setText(QString(""));
+    cPhone->setText(QString(""));
+    cMail->setText(QString(""));
+    cDel->setEnabled(false);
+    cNew->setEnabled(true);
+    cSave->setEnabled(false);
+    
+    emit clientDeleted();
+    
+    statusbar->showMessage(trUtf8("Le client a été supprimé avec succès."), 3000);
 }
 
 /* Tab Articles **************************************************************/
