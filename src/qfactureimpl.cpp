@@ -454,6 +454,7 @@ void QfactureImpl::on_cSave_clicked()
 void QfactureImpl::cListRefresh()
 {
     QSqlQuery query;
+    QString item;
 	
 	cList->clear();
 	
@@ -466,7 +467,7 @@ void QfactureImpl::cListRefresh()
 	query.exec();
     
 	while (query.next()) {
-		QString Item = query.value(1).toString() 
+		item = query.value(1).toString() 
 			+ QString(trUtf8(" | ")) + query.value(2).toString()
 			+ QString(trUtf8(" ")) + query.value(3).toString()
 			+ QString(trUtf8(" ")) + query.value(4).toString()
@@ -475,7 +476,7 @@ void QfactureImpl::cListRefresh()
 			+ QString(trUtf8(" - ")) + query.value(7).toString()
 			;
         
-		cList->addItem(Item);
+		cList->addItem(item);
         
         // chaque élément de la liste connait ainsi l'ID du client qu'il représente
         cList->item(cList->count()-1)->setData(Qt::UserRole, query.value(0).toInt());
@@ -563,15 +564,20 @@ void QfactureImpl::on_cDel_clicked()
 
 /* Tab Articles **************************************************************/
 
+/**
+ * Méthode callback appelée lors d'un clic sur le bouton d'ajout d'un
+ * article
+ * 
+ * @return void
+ */
 void QfactureImpl::on_aNew_clicked()
 {
-	// Nouvel article
-	
-	artGroupBox->setEnabled(true);
+    artGroupBox->setEnabled(true);
 	aSave->setEnabled(true);
 	aDel->setEnabled(false);
 	aId->setEnabled(false);
-	aId->setText(QString("new"));
+    
+	aId->setText(QString(""));
 	aName->setText(QString(""));
 	aPrice->setText(QString("0.00"));
 	aCom->setText(QString(""));
@@ -580,7 +586,7 @@ void QfactureImpl::on_aNew_clicked()
 void QfactureImpl::on_aSave_clicked()
 {
 	// Enregistrer nouvel article
-	if (aId->text() == QString("new")) {
+	if (aId->text().isEmpty()) {
 		// Nouvel article (création instance)
 		QSqlQuery query;
 		query.prepare("SELECT Name FROM article WHERE Name = :name");
@@ -605,7 +611,7 @@ void QfactureImpl::on_aSave_clicked()
 			QString Id;
 			Id = query.lastInsertId().toString();
 			query.finish();
-			aId->setText(QString("new"));
+			aId->setText(QString(""));
 			aName->setText(QString(""));
 			aPrice->setText(QString("0.00"));
 			aCom->setText(QString(""));
@@ -686,6 +692,7 @@ void QfactureImpl::on_aDel_clicked()
 void QfactureImpl::aListRefresh()
 {
     QSqlQuery query;
+    QString item;
     
 	aList->clear();
     
@@ -698,13 +705,12 @@ void QfactureImpl::aListRefresh()
 	query.exec();
     
     while (query.next()) {
-		QString Item = query.value(1).toString() 
+		item = query.value(1).toString() 
 			+ QString(trUtf8(" | ")) + query.value(2).toString()
 			+ QString(trUtf8("€ (")) + query.value(3).toString()
-			+ QString(trUtf8(")"))
-			;
+			+ QString(trUtf8(")"));
         
-		aList->addItem(Item);
+		aList->addItem(item);
         
         // chaque élément de la liste connait ainsi l'ID de l'article qu'il représente
         aList->item(aList->count()-1)->setData(Qt::UserRole, query.value(0).toInt());
@@ -781,8 +787,7 @@ void QfactureImpl::fListRefresh()
 			+ QString(trUtf8(" | ")) + query.value(7).toString()
 			+ QString(trUtf8(" | ")) + query.value(1).toString()
 			+ QString(trUtf8("€ (")) + query.value(3).toString()
-			+ QString(trUtf8(")"))
-			;
+			+ QString(trUtf8(")"));
         
 		fList->addItem(Item);
         
@@ -795,7 +800,7 @@ void QfactureImpl::fListRefresh()
 
 /**
  * Affiche les infos d'une facture dans le formulaire d'édition au clic
- * sur cette dernière dans la liste
+ * sur cette dernière dans la liste.
  * 
  * @param item Pointeur vers la ligne représentant la facture
  * 
@@ -804,59 +809,34 @@ void QfactureImpl::fListRefresh()
 void QfactureImpl::on_fList_itemDoubleClicked(QListWidgetItem* item)
 {
 	QSqlQuery query;
+    QString id_client;
     
 	query.prepare(
-		"SELECT Id, IdClient, Amount, Comment, Payment, Reference, Type, Date "
-		"FROM facture "
-		"WHERE Id = :Id"
+		"SELECT f.Id, IdClient, Name, Amount, Comment, Payment, Reference, Type, Date "
+		"FROM facture f "
+        "LEFT JOIN client c "
+        "ON c.Id = f.IdClient "
+		"WHERE f.Id = :Id"
 	);
     
 	query.bindValue(":id", item->data(Qt::UserRole).toInt());
 	query.exec();
     
     query.next();
-    
-	QString Client;
 	
     fNum->setText(query.value(0).toString());
-    fDate->setDate(query.value(7).toDate());
-    fMontant->setText(query.value(2).toString());
+    fDate->setDate(query.value(8).toDate());
+    fMontant->setText(query.value(3).toString());
+    fClient->setText(query.value(1).toString());
 	
-    // Il faudra mettre des variables :)
-    fRegl->clear();
+    // on sélectionne le mode de paiement
+    fRegl->setCurrentIndex(fRegl->findText(query.value(5).toString(), Qt::MatchExactly));
     
-    if (0 == QString(trUtf8("Aucun réglement")).compare(query.value(4).toString())) {
-        fRegl->addItem(QString(trUtf8("Aucun réglement")));
-        fRegl->addItem(QString(trUtf8("Espèces")));
-        fRegl->addItem(QString(trUtf8("Chèque")));
-        fRegl->addItem(QString(trUtf8("Paypal")));
-    } else if (0 == QString(trUtf8("Espèces")).compare(query.value(4).toString())) {
-        fRegl->addItem(QString(trUtf8("Espèces")));
-        fRegl->addItem(QString(trUtf8("Aucun réglement")));
-        fRegl->addItem(QString(trUtf8("Chèque")));
-        fRegl->addItem(QString(trUtf8("Paypal")));
-    } else if (0 == QString(trUtf8("Chèque")).compare(query.value(4).toString())) {
-        fRegl->addItem(QString(trUtf8("Chèque")));
-        fRegl->addItem(QString(trUtf8("Aucun réglement")));
-        fRegl->addItem(QString(trUtf8("Espèces")));
-        fRegl->addItem(QString(trUtf8("Paypal")));
-    } else if (0 == QString(trUtf8("Paypal")).compare(query.value(4).toString())) {
-        fRegl->addItem(QString(trUtf8("Paypal")));
-        fRegl->addItem(QString(trUtf8("Aucun réglement")));
-        fRegl->addItem(QString(trUtf8("Espèces")));
-        fRegl->addItem(QString(trUtf8("Chèque")));
-    }
+    // on sélectionne le type de document
+    fType->setCurrentIndex(fType->findText(query.value(7).toString(), Qt::MatchExactly));
     
-    fType->clear();
+    query.finish();
     
-    if (0 == QString(trUtf8("FACTU")).compare(query.value(6).toString())) {
-        fType->addItem(QString(trUtf8("FACTU")));
-        fType->addItem(QString(trUtf8("DEVIS")));
-    } else if (0 == QString(trUtf8("DEVIS")).compare(query.value(6).toString())) {
-        fType->addItem(QString(trUtf8("DEVIS")));
-        fType->addItem(QString(trUtf8("FACTU")));
-    }
-    Client = query.value(1).toString();
     fCalc->setEnabled(true);
     fSave->setEnabled(true);
     fPrint->setEnabled(true);
@@ -867,24 +847,11 @@ void QfactureImpl::on_fList_itemDoubleClicked(QListWidgetItem* item)
     fType->setEnabled(true);
     fRegl->setEnabled(true);
 	
-	query.finish();
-	
-    query.prepare(
-		"SELECT Name "
-		"FROM client "
-		"WHERE Id = :Id"
-	);
-	
-    query.bindValue(":Id", Client);
-	query.exec();
-	query.next();
-	
-    fClient->setText(query.value(0).toString());
 	tabFacture->setCurrentIndex(0);
 	
     fArtLinkRefresh();
 	
-    statusbar->showMessage(trUtf8("La facture est chargée avec succès."), 3000);
+    statusbar->showMessage(trUtf8("La facture a été chargée avec succès."), 3000);
 }
 
 /* Tab facture - éditer une facture ******************************************/

@@ -1376,6 +1376,9 @@ Logo</string>
                  <property name="selectionMode">
                   <enum>QAbstractItemView::SingleSelection</enum>
                  </property>
+                 <property name="sortingEnabled">
+                  <bool>true</bool>
+                 </property>
                  <attribute name="horizontalHeaderCascadingSectionResizes">
                   <bool>true</bool>
                  </attribute>
@@ -1533,6 +1536,16 @@ Logo</string>
                  <property name="enabled">
                   <bool>false</bool>
                  </property>
+                 <item>
+                  <property name="text">
+                   <string>FACTU</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>DEVIS</string>
+                  </property>
+                 </item>
                 </widget>
                </item>
                <item row="3" column="0">
@@ -1561,6 +1574,26 @@ Logo</string>
                  <property name="enabled">
                   <bool>false</bool>
                  </property>
+                 <item>
+                  <property name="text">
+                   <string>Aucun réglement</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Chèque</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Espèces</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Paypal</string>
+                  </property>
+                 </item>
                 </widget>
                </item>
                <item row="5" column="0" colspan="2">
@@ -1754,7 +1787,7 @@ Logo</string>
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>23</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_Menu">
