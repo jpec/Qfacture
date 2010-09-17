@@ -340,71 +340,16 @@ void QfactureImpl::on_cNew_clicked()
  */
 void QfactureImpl::on_cSave_clicked()
 {
+    QSqlQuery query;
+    
     // Nouveau client
-	if (cId->text().isEmpty()) {
-		QSqlQuery query;
-		query.prepare("SELECT Name FROM client WHERE Name = :name");
-		query.bindValue(":name", cName->text());
-		query.exec();
-		int Res = query.size();
-		query.finish();
-        
-        // un client portant le même nom existe déjà
-		if (Res > 0) {
-			QString msg = QString(trUtf8("Le nom saisi existe déjà dans la base!"));
-			QMessageBox::warning(this, "Qfacture", msg , QMessageBox::Ok);
-            
-            return;
-		}
-        
-        QSqlQuery query;
+	if (cId->text().isEmpty())
         query.prepare(
             "INSERT INTO client(Name, Adress, Adress2, Zip, City, Phone, Mail) "
             "VALUES(:name, :adress, :adress2, :zip, :city, :phone, :mail)"
         );
-        
-        query.bindValue(":name", cName->text());
-        query.bindValue(":adress", cAdress->text());
-        query.bindValue(":adress2", cAdress2->text());
-        query.bindValue(":zip", cZip->text());
-        query.bindValue(":city", cCity->text());
-        query.bindValue(":phone", cPhone->text());
-        query.bindValue(":mail", cMail->text());
-        
-        query.exec();
-        
-        QString Id;
-        
-        Id = query.lastInsertId().toString();
-        
-        query.finish();
-        cId->setText(QString("new"));
-        cName->setText(QString(""));
-        cAdress->setText(QString(""));
-        cAdress2->setText(QString(""));
-        cZip->setText(QString(""));
-        cCity->setText(QString(""));
-        cPhone->setText(QString(""));
-        cMail->setText(QString(""));
-        cDel->setEnabled(false);
-        statusbar->showMessage(trUtf8("Le nouveau client a été enregistré avec succès."), 3000);
-	} else { 
+    else { 
         // Client existant (modification instance)
-        
-		QSqlQuery query;
-				query.prepare("SELECT Name FROM client WHERE Name = :name");
-		query.bindValue(":name", cName->text());
-		query.exec();
-		int Res = query.size();
-		query.finish();
-        
-        // un client portant le même nom existe déjà
-		if (Res > 0) {
-			QString msg = QString(trUtf8("Le nom saisi existe déjà dans la base!"));
-			QMessageBox::warning(this, "Qfacture", msg , QMessageBox::Ok);
-            
-            return;
-		}
         
         query.prepare(
             "UPDATE client "
@@ -413,22 +358,29 @@ void QfactureImpl::on_cSave_clicked()
         );
         
         query.bindValue(":id", cId->text());
-        query.bindValue(":name", cName->text());
-        query.bindValue(":adress", cAdress->text());
-        query.bindValue(":adress2", cAdress2->text());
-        query.bindValue(":zip", cZip->text());
-        query.bindValue(":city", cCity->text());
-        query.bindValue(":phone", cPhone->text());
-        query.bindValue(":mail", cMail->text());
-        
-        query.exec();
-        query.finish();
-        
-        cSave->setEnabled(false);
-        cDel->setEnabled(false);
-        
-        statusbar->showMessage(trUtf8("Les modifications ont été enregistrées avec succès."), 3000);
 	}
+    
+    query.bindValue(":name", cName->text());
+    query.bindValue(":adress", cAdress->text());
+    query.bindValue(":adress2", cAdress2->text());
+    query.bindValue(":zip", cZip->text());
+    query.bindValue(":city", cCity->text());
+    query.bindValue(":phone", cPhone->text());
+    query.bindValue(":mail", cMail->text());
+    
+    query.exec();
+    
+    if(!cId->text().isEmpty())
+        statusbar->showMessage(trUtf8("Les modifications ont été enregistrées avec succès."), 3000);
+    else {
+        // dans le cas d'un nouveau client, on récupère aussi son ID
+        cId->setText(query.lastInsertId().toString());
+        
+        statusbar->showMessage(trUtf8("Le nouveau client a été enregistré avec succès."), 3000);
+    }
+    
+    cSave->setEnabled(true);
+    cDel->setEnabled(true);
     
     emit clientSaved();
 }
