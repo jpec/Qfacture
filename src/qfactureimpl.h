@@ -43,7 +43,7 @@ private slots:
     
     void loadUserInfos();
     
-    bool cListRefresh();
+    void cListRefresh();
     
     bool fClientListRefresh();
     bool fArtLinkRefresh();

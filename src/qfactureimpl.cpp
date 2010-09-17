@@ -385,20 +385,26 @@ void QfactureImpl::on_cSave_clicked()
     emit clientSaved();
 }
 
-bool QfactureImpl::cListRefresh()
+/**
+ * Recharge la liste des clients.
+ * 
+ * @return void
+ */
+void QfactureImpl::cListRefresh()
 {
-	// Rafraichit la liste des clients 
+    QSqlQuery query;
 	
 	cList->clear();
-	QSqlQuery query;
+	
 	query.prepare(
 		"SELECT Id, Name, Adress, Adress2, Zip, City, Phone, Mail "
 		"FROM client "
 		"ORDER BY Name"
 	);
+    
 	query.exec();
+    
 	while (query.next()) {
-		// Ajout d'une ligne à la liste pour chaque client!
 		QString Item = query.value(1).toString() 
 			+ QString(trUtf8(" | ")) + query.value(2).toString()
 			+ QString(trUtf8(" ")) + query.value(3).toString()
@@ -407,41 +413,54 @@ bool QfactureImpl::cListRefresh()
 			+ QString(trUtf8(" - ")) + query.value(6).toString()
 			+ QString(trUtf8(" - ")) + query.value(7).toString()
 			;
+        
 		cList->addItem(Item);
+        
+        // chaque élément de la liste connait ainsi l'ID du client qu'il représente
+        cList->item(cList->count()-1)->setData(Qt::UserRole, query.value(0).toInt());
 	}
+    
 	query.finish();
-	return true;
 }
 
+/**
+ * Affiche les infos d'un client dans le formulaire d'édition au clic
+ * sur ce dernier dans la liste
+ * 
+ * @param item Pointeur vers la ligne représentant le client
+ * 
+ * @return void
+ */
 void QfactureImpl::on_cList_itemClicked(QListWidgetItem* item)
 {
-	// Modification d'un client de la liste
-	
-	QString Text = item->text();
-	int NameLen = Text.indexOf(QString(" | "), 0);
-	QString Name = Text.mid(0, NameLen);
 	QSqlQuery query;
+    
 	query.prepare(
 		"SELECT Id, Name, Adress, Adress2, Zip, City, Phone, Mail "
 		"FROM client "
-		"WHERE Name = :name "
+		"WHERE Id = :id"
 	);
-	query.bindValue(":name", Name);
+	
+    query.bindValue(":id", item->data(Qt::UserRole).toInt());
 	query.exec();
-	while (query.next()) {
-		cGroupBox->setEnabled(true);
-		cSave->setEnabled(true);
-		cDel->setEnabled(true);
-		cId->setEnabled(false);
-		cId->setText(query.value(0).toString());
-		cName->setText(query.value(1).toString());
-		cAdress->setText(query.value(2).toString());
-		cAdress2->setText(query.value(3).toString());
-		cZip->setText(query.value(4).toString());
-		cCity->setText(query.value(5).toString());
-		cPhone->setText(query.value(6).toString());
-		cMail->setText(query.value(7).toString());
-	}
+	
+    query.next();
+    
+
+    cGroupBox->setEnabled(true);
+    cSave->setEnabled(true);
+    cDel->setEnabled(true);
+    cId->setEnabled(false);
+    
+    cId->setText(query.value(0).toString());
+    cName->setText(query.value(1).toString());
+    cAdress->setText(query.value(2).toString());
+    cAdress2->setText(query.value(3).toString());
+    cZip->setText(query.value(4).toString());
+    cCity->setText(query.value(5).toString());
+    cPhone->setText(query.value(6).toString());
+    cMail->setText(query.value(7).toString());
+    
 	query.finish();
 }
 
