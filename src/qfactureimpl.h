@@ -45,21 +45,23 @@ private slots:
     
     void cListRefresh();
     
-    bool fClientListRefresh();
+    void fClientListRefresh();
     bool fArtLinkRefresh();
 	bool fArtListRefresh();
-    bool fListRefresh();
+    void fListRefresh();
     
     bool sListCaRefresh();
     
-    bool aListRefresh();
+    void aListRefresh();
 
 signals:
     void DBConnected();
     
-    // nouveau client ou infos sur un client mises à jour
-    void clientSaved();
+    void clientSaved(); // nouveau client ou infos sur un client mises à jour
     void clientDeleted();
+    
+    void factureSaved();
+    void factureDeleted();
 
 protected:
 	QString VERSION;
@@ -69,6 +71,9 @@ protected:
     
     void createActions();
 	bool MySQL_connect();
+    QString compactDate(QString date);
+    QString dateToDB(QDateEdit *date);
+    QString makeFactureReference(QString number, QString date);
 };
 #endif
 
