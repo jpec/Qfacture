@@ -40,18 +40,28 @@ private slots:
 	void on_uSave_clicked();
 	void on_aConnect_clicked();
 	void on_action_Quitter_triggered();
-	
+    
+    void loadUserInfos();
+    
+    bool cListRefresh();
+    bool fClientListRefresh();
+    
+    bool fArtListRefresh();
+    bool aListRefresh();
+    
+    bool fListRefresh();
+
+signals:
+    void DBConnected();
+
 protected:
 	QString VERSION;
 	QSqlDatabase db;
     
 	bool fFlag;
+    
+    void createActions();
 	bool MySQL_connect();
-	bool cListRefresh();
-	bool aListRefresh();
-	bool fClientListRefresh();
-	bool fArtListRefresh();
-	bool fListRefresh();
 	bool fArtLinkRefresh();
 	bool sListCaRefresh();
 };

@@ -21,8 +21,63 @@ QfactureImpl::QfactureImpl( QWidget * parent, Qt::WFlags f) : QMainWindow(parent
 	VERSION = QString(trUtf8("v0.1-alpha"));
 	db = QSqlDatabase::addDatabase("QMYSQL");
 	fFlag = true;
+    
+    createActions();
 }
 //
+
+/* Fonctionnement interne de l'appli *****************************************/
+
+/**
+ * Définit quelles méthodes seront appelées lors de l'émission de certains
+ * évènements
+ * 
+ * @return void
+ */
+void QfactureImpl::createActions()
+{
+    // affichage des infos sur l'auto-entrepreneur
+    connect(this, SIGNAL(DBConnected()), this, SLOT(loadUserInfos()));
+    
+    // rechargement de la liste des clients à la connexion à la DB
+    connect(this, SIGNAL(DBConnected()), this, SLOT(cListRefresh()));
+    connect(this, SIGNAL(DBConnected()), this, SLOT(fClientListRefresh()));
+    
+    // rechargement de la liste des articles
+	connect(this, SIGNAL(DBConnected()), this, SLOT(aListRefresh()));
+	connect(this, SIGNAL(DBConnected()), this, SLOT(fArtListRefresh()));
+	
+	// rechargement de la liste des factures
+	connect(this, SIGNAL(DBConnected()), this, SLOT(fListRefresh()));
+}
+
+/**
+ * Réalise la connexion à la base de données MySQL
+ *
+ * @return bool Témoin du succès de la connexion
+ */
+bool QfactureImpl::MySQL_connect()
+{	
+	// Se connecter à la base MySQL
+	db.setHostName(aServer->text());
+	db.setPort(aPort->text().toInt());
+	db.setUserName(aUser->text());
+	db.setPassword(aPass->text());
+	db.setDatabaseName(aDb->text());
+	
+	if (db.open())
+		aFlag->setText(QString(trUtf8("Connexion en cours ...")));
+	else {
+		aFlag->setText(QString(trUtf8("Une erreur est survenue lors de la connexion !")));
+		return false;
+	}
+    
+    // on signale à l'appli que la connexion à réussi
+    emit DBConnected();
+	
+	return true;
+}
+
 
 /* Menu **********************************************************************/
 
@@ -63,6 +118,37 @@ void QfactureImpl::on_action_propos_activated()
 /* Tab Paramètres ************************************************************/
 
 /**
+ * Charge les informations sur l'auto-entrepreneur à afficher dans l'onglet
+ * paramètres
+ * 
+ * @return void
+ */
+void QfactureImpl::loadUserInfos()
+{
+    QSqlQuery query;
+	QPixmap pic;
+    
+    // Recupération des infos utilisateur
+	query.exec("SELECT Name, Siret, Adress, Adress2, Zip, City, Phone, Mail, Home, Logo FROM user WHERE id = 1 LIMIT 1;");
+	query.next();
+	
+	// infos de l'utilisateur
+	uName->setText(query.value(0).toString());
+	uSiret->setText(query.value(1).toString());
+	uAdress->setText(query.value(2).toString());
+	uAdress2->setText(query.value(3).toString());
+	uZip->setText(query.value(4).toString());
+	uCity->setText(query.value(5).toString());
+	uPhone->setText(query.value(6).toString());
+	uMail->setText(query.value(7).toString());
+	uHome->setText(query.value(8).toString());
+	
+	// affichage du logo
+	pic.loadFromData(query.value(9).toByteArray());
+	uLogo->setPixmap(pic);
+}
+
+/**
  * Méthode de callback appelée lors du clic sur le bouton de (dé)connexion
  * à la DB dans l'onglet "Paramètres".
  * On s'occupe ici d'appeler la méthode gérant la connexion à la DB et
@@ -72,42 +158,42 @@ void QfactureImpl::on_action_propos_activated()
  */
 void QfactureImpl::on_aConnect_clicked()
 {
-    bool connexion_state = db.isOpen();
+	bool connexion_state = db.isOpen();
 	
 	QString Connected = QString(trUtf8("Connecté"));
 	QString Disconnected = QString(trUtf8("Déconnecté"));
 	QString Connect = QString(trUtf8("Connexion"));
 	QString Disconnect = QString(trUtf8("Déconnexion"));
 	
-	if (!connexion_state) {
+	if(!connexion_state) {
 		// Se connecter à la base
-        connexion_state = MySQL_connect();
-        
-        if(connexion_state) {
-            aFlag->setText(Connected);
-            aConnect->setText(Disconnect);
-        }
-    } else {
+		connexion_state = MySQL_connect();
+		
+		if(connexion_state) {
+			aFlag->setText(Connected);
+			aConnect->setText(Disconnect);
+		}
+	} else {
 		// Se déconnecter de la base
 		QString msg = QString(trUtf8("Voulez-vous réellement vous déconnecter du serveur?"));
-        
-		if (QMessageBox::warning(this, "Qfacture", msg, QMessageBox::Yes, QMessageBox::Cancel, QMessageBox::No) == QMessageBox::Yes) {
+		
+		if(QMessageBox::warning(this, "Qfacture", msg, QMessageBox::Yes, QMessageBox::Cancel, QMessageBox::No) == QMessageBox::Yes) {
 			aFlag->setText(Disconnected);
 			aConnect->setText(Connect);
-            
-            db.close();
+			
+			db.close();
 		}
 	}
-    
-    connexion_state = db.isOpen();
-    
-    uSave->setEnabled(connexion_state);
-    uGroupBox->setEnabled(connexion_state);
-    aServer->setEnabled(!connexion_state);
-    aPort->setEnabled(!connexion_state);
-    aUser->setEnabled(!connexion_state);
-    aPass->setEnabled(!connexion_state);
-    aDb->setEnabled(!connexion_state);
+	
+	connexion_state = db.isOpen();
+	
+	uSave->setEnabled(connexion_state);
+	uGroupBox->setEnabled(connexion_state);
+	aServer->setEnabled(!connexion_state);
+	aPort->setEnabled(!connexion_state);
+	aUser->setEnabled(!connexion_state);
+	aPass->setEnabled(!connexion_state);
+	aDb->setEnabled(!connexion_state);
 }
 
 void QfactureImpl::on_aPass_returnPressed()
@@ -115,62 +201,6 @@ void QfactureImpl::on_aPass_returnPressed()
 	// Password saisi
 	
 	on_aConnect_clicked();
-}
-
-/**
- * Réalise la connexion à la base de données MySQL
- *
- * @return bool Témoin du succès de la connexion
- */
-bool QfactureImpl::MySQL_connect()
-{
-	QSqlQuery query;
-	QPixmap pic;
-	
-	// Se connecter à la base MySQL
-	db.setHostName(aServer->text());
-	db.setPort(aPort->text().toInt());
-	db.setUserName(aUser->text());
-	db.setPassword(aPass->text());
-	db.setDatabaseName(aDb->text());
-	
-	if (db.open())
-		aFlag->setText(QString(trUtf8("Connexion en cours ...")));
-	else {
-		aFlag->setText(QString(trUtf8("Une erreur est survenue lors de la connexion !")));
-		return false;
-	}
-
-	// Recupération des infos utilisateur
-	query.exec("SELECT Name, Siret, Adress, Adress2, Zip, City, Phone, Mail, Home, Logo FROM user WHERE id = 1;");
-	while (query.next()) {
-		// infos de l'utilisateur
-		uName->setText(query.value(0).toString());
-		uSiret->setText(query.value(1).toString());
-		uAdress->setText(query.value(2).toString());
-		uAdress2->setText(query.value(3).toString());
-		uZip->setText(query.value(4).toString());
-		uCity->setText(query.value(5).toString());
-		uPhone->setText(query.value(6).toString());
-		uMail->setText(query.value(7).toString());
-		uHome->setText(query.value(8).toString());
-		// affichage du logo
-		pic.loadFromData(query.value(9).toByteArray());
-		uLogo->setPixmap(pic);
-	}
-	
-	// rechargement de la liste des clients
-	cListRefresh();
-	fClientListRefresh();
-	
-	// rechargement de la liste des articles
-	aListRefresh();
-	fArtListRefresh();
-	
-	// rechargement de la liste des factures
-	fListRefresh();
-	
-	return true;
 }
 
 /**
@@ -187,7 +217,7 @@ void QfactureImpl::on_uSave_clicked()
 	query.prepare(
 		"UPDATE user "
 		"SET Name = :name, Siret = :siret, Adress = :adress, Adress2 = :adress2, "
-		"    Zip = :zip, City = :city, Phone = :phone, Mail = :mail, Home = :home "
+		"	Zip = :zip, City = :city, Phone = :phone, Mail = :mail, Home = :home "
 		"WHERE id = 1"
 	);
 	
@@ -621,11 +651,11 @@ bool QfactureImpl::fListRefresh()
 	QSqlQuery query;
 	query.prepare(
 		"SELECT "
-		"    f.id, f.Amount, f.Comment, f.Payment, f.Reference, f.Type, f.Date, "
-		"    c.Name "
+		"	f.id, f.Amount, f.Comment, f.Payment, f.Reference, f.Type, f.Date, "
+		"	c.Name "
 		"FROM facture AS f "
 		"LEFT JOIN client AS c "
-		"    ON f.idClient = c.id "
+		"	ON f.idClient = c.id "
 		"ORDER BY Reference DESC"
 	);
 	query.exec();
@@ -994,21 +1024,21 @@ void QfactureImpl::on_fSave_clicked()
 			query.finish();
 			query.prepare(
 				"INSERT INTO facture ( "
-				"    idClient, "
-				"    Amount, "
-				//"    Comment, " non implémenté
-				"    Payment, "
-				"    Reference, "
-				"    Type, "
-				"    Date  "
+				"	idClient, "
+				"	Amount, "
+				//"	Comment, " non implémenté
+				"	Payment, "
+				"	Reference, "
+				"	Type, "
+				"	Date  "
 				") VALUES ("
-				"    :client, "
-				"    :amount, "
-				//"    NULL, " non implémenté
-				"    :pay, "
-				"    :ref, "
-				"    :type, "
-				"    :date "
+				"	:client, "
+				"	:amount, "
+				//"	NULL, " non implémenté
+				"	:pay, "
+				"	:ref, "
+				"	:type, "
+				"	:date "
 				")"
 			);
 			query.bindValue(":client", Client);
@@ -1044,12 +1074,12 @@ void QfactureImpl::on_fSave_clicked()
 			query.prepare(
 				"UPDATE facture "
 				"SET idClient = :client, "
-				"    Amount = :amount, "
-				//"    Comment = NULL, " non implémenté
-				"    Payment = :pay, "
-				//"    Reference = :ref, "
-				"    Type = :type, "
-				"    Date = :date "
+				"	Amount = :amount, "
+				//"	Comment = NULL, " non implémenté
+				"	Payment = :pay, "
+				//"	Reference = :ref, "
+				"	Type = :type, "
+				"	Date = :date "
 				"WHERE Id = :id"
 			);
 			query.bindValue(":id", fNum->text());
@@ -1075,6 +1105,7 @@ void QfactureImpl::on_fPrint_clicked()
 	// Bouton imprimer la facture
 	
 	// TO DO : générer fichier pdf et l'ouvrir dans le lecteur pdf (xdg-open ?)
+    // -> pas d'ouverture auto du pdf (puis xdg-open c'est pas portable =p)
 }
 
 void QfactureImpl::on_fDel_clicked()
@@ -1117,26 +1148,34 @@ void QfactureImpl::on_fNew_clicked()
 	
 	fNum->setText(QString(trUtf8("0")));
 	fDate->setDate(QDate::currentDate());
-	fMontant->setText("");
+	
+    fMontant->setText("");
+
 	fCalc->setEnabled(true);
 	fSave->setEnabled(true);
 	fPrint->setEnabled(true);
 	fDel->setEnabled(true);
 	fArticleGroup->setEnabled(true);
 	fClientGroup->setEnabled(true);
-	fDate->setEnabled(true);
+    fDate->setEnabled(true);
 	fType->setEnabled(true);
 	fRegl->setEnabled(true);
-	fArtLinkRefresh();
-	fRegl->clear();
-	fRegl->addItem(QString(trUtf8("Aucun réglement")));
+	
+    fArtLinkRefresh();
+	
+    fRegl->clear();
+	
+    fRegl->addItem(QString(trUtf8("Aucun réglement")));
 	fRegl->addItem(QString(trUtf8("Espèces")));
 	fRegl->addItem(QString(trUtf8("Chèque")));
 	fRegl->addItem(QString(trUtf8("Paypal")));
-	fType->clear();
+	
+    fType->clear();
+    
 	fType->addItem(QString(trUtf8("FACTU")));
 	fType->addItem(QString(trUtf8("DEVIS")));
-	statusbar->showMessage(trUtf8("Nouvelle facture créée."), 3000);
+	
+    statusbar->showMessage(trUtf8("Nouvelle facture créée."), 3000);
 }
 
 /* Tab stats - Statistiques **************************************************/
