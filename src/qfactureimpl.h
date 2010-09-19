@@ -61,6 +61,8 @@ signals:
     void clientSaved(); // nouveau client ou infos sur un client mises à jour
     void clientDeleted();
     
+    void articleSaved();
+    
     void factureSaved();
     void factureDeleted();
     void factureArticlesUpdated();

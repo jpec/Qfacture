@@ -76,6 +76,11 @@ void QfactureImpl::createActions()
     
     connect(this, SIGNAL(factureArticlesUpdated()), this, SLOT(fArtLinkRefresh()));
     connect(this, SIGNAL(factureArticlesUpdated()), this, SLOT(fUpdateAmount()));
+    
+    /** Actions effectuées lors de la sauvegarde d'un article **/
+    
+    connect(this, SIGNAL(articleSaved()), this, SLOT(aListRefresh()));
+    connect(this, SIGNAL(articleSaved()), this, SLOT(fArtListRefresh()));
 }
 
 /**
@@ -508,7 +513,6 @@ void QfactureImpl::on_cList_itemClicked(QListWidgetItem* item)
 	
     query.next();
     
-
     cGroupBox->setEnabled(true);
     cSave->setEnabled(true);
     cDel->setEnabled(true);
@@ -583,73 +587,91 @@ void QfactureImpl::on_aNew_clicked()
 	aCom->setText(QString(""));
 }
 
+/**
+ * Méthode appelée lors du clic sur le bouton de sauvegarde d'un article.
+ * On réalise l'enregistrement d'un nouvel article si le champ de l'ID
+ * est vide, ou la mise à jour des informations d'un article déjà existant
+ * dans le cas contraire.
+ * 
+ * \todo Documenter les vérifications effectuées par la méthode
+ * 
+ * @return void
+ */
 void QfactureImpl::on_aSave_clicked()
 {
+    QSqlQuery query;
+    QString msg = QString(trUtf8("Le nom d'article saisi existe déjà dans la base !"));
+    int nb;
+    
 	// Enregistrer nouvel article
-	if (aId->text().isEmpty()) {
-		// Nouvel article (création instance)
-		QSqlQuery query;
-		query.prepare("SELECT Name FROM article WHERE Name = :name");
+	if(aId->text().isEmpty()) {
+        // on vérifie qu'il n'existe pas déjà un article ayant la même désignation
+		query.prepare("SELECT 1 FROM article WHERE Name = :name");
 		query.bindValue(":name", aName->text());
+        
 		query.exec();
-		int Res = query.size();
+        
+		nb = query.size();
+        
 		query.finish();
-		if (Res > 0) {
-			// Doublon
-			QString msg = QString(trUtf8("Le nom d'article saisi existe déjà dans la base!"));
+		
+        if (nb > 0) {
 			QMessageBox::warning(this, "Qfacture", msg , QMessageBox::Ok);
-		} else {
-			QSqlQuery query;
-			query.prepare(
-				"INSERT INTO article(Name, Price, Comment) "
-				"VALUES(:name, :price, :comment)"
-			);
-			query.bindValue(":name", aName->text());
-			query.bindValue(":price", aPrice->text());
-			query.bindValue(":comment", aCom->text());
-			query.exec();
-			QString Id;
-			Id = query.lastInsertId().toString();
-			query.finish();
-			aId->setText(QString(""));
-			aName->setText(QString(""));
-			aPrice->setText(QString("0.00"));
-			aCom->setText(QString(""));
-			aDel->setEnabled(false);
-			statusbar->showMessage(trUtf8("Le nouvel article a été enregistré avec succès."), 3000);
+            
+            return;
 		}
+        
+        query.prepare(
+            "INSERT INTO article(Name, Price, Comment) "
+            "VALUES(:name, :price, :comment)"
+        );
 	} else {
-		// Article existant (modification instance)
-		QSqlQuery query;
-		query.prepare("SELECT Name FROM article WHERE Name = :name");
-		query.bindValue(":name", aName->text());
+		// on vérifie qu'il n'existe pas déjà un article ayant la même désignation
+		query.prepare("SELECT 1 FROM article WHERE Name = :name AND Id != :id");
+		query.bindValue(":id", aId->text());
+        query.bindValue(":name", aName->text());
+        
 		query.exec();
-		int Res = query.size();
+        
+		nb = query.size();
+        
 		query.finish();
-		if (Res > 0) {
-			// Doublon
-			QString msg = QString(trUtf8("Le nom d'article saisi existe déjà dans la base!"));
+		
+        if (nb > 0) {
 			QMessageBox::warning(this, "Qfacture", msg , QMessageBox::Ok);
-		} else {
-			query.prepare(
-				"UPDATE article "
-				"SET Name = :name, Price = :price, Comment = :comment "
-				"WHERE Id = :id "
-			);
-			query.bindValue(":id", aId->text());
-			query.bindValue(":name", aName->text());
-			query.bindValue(":price", aPrice->text());
-			query.bindValue(":comment", aCom->text());
-			query.exec();
-			QString Test = query.executedQuery();
-			query.finish();
-			aSave->setEnabled(false);
-			aDel->setEnabled(false);
-			statusbar->showMessage(trUtf8("Les modifications ont été enregistrées avec succès."), 3000);
+            
+            return;
 		}
+		
+        query.prepare(
+            "UPDATE article "
+            "SET Name = :name, Price = :price, Comment = :comment "
+            "WHERE Id = :id "
+        );
+        
+        query.bindValue(":id", aId->text());
 	}
-	aListRefresh();
-	fArtListRefresh();
+    
+    query.bindValue(":name", aName->text());
+    query.bindValue(":price", aPrice->text());
+    query.bindValue(":comment", aCom->text());
+    
+    query.exec();
+    
+    if(!aId->text().isEmpty())
+        statusbar->showMessage(trUtf8("Les modifications ont été enregistrées avec succès."), 3000);
+    else {
+        aId->setText(query.lastInsertId().toString());
+        
+        statusbar->showMessage(trUtf8("Le nouvel article a été enregistré avec succès."), 3000);
+    }
+    
+    query.finish();
+    
+    aSave->setEnabled(true);
+    aDel->setEnabled(true);
+    
+    emit articleSaved();
 }
 
 /**
@@ -720,7 +742,7 @@ void QfactureImpl::aListRefresh()
 }
 
 /**
-* Affiche les infos d'un article dans le formulaire d'édition au clic
+ * Affiche les infos d'un article dans le formulaire d'édition au clic
  * sur ce dernier dans la liste
  * 
  * @param item Pointeur vers la ligne représentant l'article
