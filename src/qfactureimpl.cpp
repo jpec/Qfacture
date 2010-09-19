@@ -11,7 +11,7 @@
 #include <QTableWidget>
 #include <QDate>
 #include "qfactureimpl.h"
-
+#include <iostream>
 
 //
 QfactureImpl::QfactureImpl( QWidget * parent, Qt::WFlags f) : QMainWindow(parent, f)
@@ -853,7 +853,7 @@ void QfactureImpl::on_fList_itemDoubleClicked(QListWidgetItem* item)
     fNum->setText(query.value(0).toString());
     fDate->setDate(query.value(8).toDate());
     fMontant->setText(query.value(3).toString());
-    fClient->setText(query.value(1).toString());
+    fClient->setText(query.value(2).toString());
 	
     // on sélectionne le mode de paiement
     fRegl->setCurrentIndex(fRegl->findText(query.value(5).toString(), Qt::MatchExactly));
@@ -920,6 +920,10 @@ void QfactureImpl::fClientListRefresh()
  * Appelée lors du clic sur un client. Le choix du client pour la facture
  * est alors réalisé et le champ fClient est alimenté.
  * 
+ * \todo se débrouiller pour stocker l'ID du membre et afficher le nom
+ *       pour ne travailler qu'avec l'ID (unique) par la suite et non
+ *       le nom (pas forcément unique :-°)
+ * 
  * @param item Pointeur vers la ligne choisie.
  * 
  * @return void
@@ -938,8 +942,9 @@ void QfactureImpl::on_fClientList_itemDoubleClicked(QListWidgetItem* item)
     
 	query.exec();
     
-	while (query.next())
-		fClient->setText(query.value(1).toString());
+	query.next();
+    
+    fClient->setText(query.value(1).toString());
 	
 	query.finish();
 	
@@ -994,9 +999,9 @@ void QfactureImpl::on_fArtList_itemDoubleClicked(QListWidgetItem* item)
 	QSqlQuery query;
     QString art_id, art_price;
     
-    art_id = item->data(Qt::UserRole).toInt();
-    
-	query.prepare("SELECT Id, Price FROM article WHERE Id = :id");
+    art_id = item->data(Qt::UserRole).toString();
+	
+    query.prepare("SELECT Id, Price FROM article WHERE Id = :id");
 	query.bindValue(":id", art_id);
 	query.exec();
 	
@@ -1172,12 +1177,16 @@ void QfactureImpl::on_fCalc_clicked()
 void QfactureImpl::fUpdateAmount()
 {
     QSqlQuery query;
+    
 	query.prepare("SELECT SUM(Amount) FROM link WHERE IdFacture = :id");
 	query.bindValue(":id", fNum->text());
 	query.exec();
-	query.next();
-	fMontant->setText(query.value(0).toString());
-	query.finish();
+	
+    query.next();
+	
+    fMontant->setText(query.value(0).toString());
+	
+    query.finish();
 }
 
 /**
@@ -1379,18 +1388,6 @@ void QfactureImpl::on_fNew_clicked()
 	fRegl->setEnabled(true);
 	
     fArtLinkRefresh();
-	
-    fRegl->clear();
-	
-    fRegl->addItem(QString(trUtf8("Aucun réglement")));
-	fRegl->addItem(QString(trUtf8("Espèces")));
-	fRegl->addItem(QString(trUtf8("Chèque")));
-	fRegl->addItem(QString(trUtf8("Paypal")));
-	
-    fType->clear();
-    
-	fType->addItem(QString(trUtf8("FACTU")));
-	fType->addItem(QString(trUtf8("DEVIS")));
 	
     statusbar->showMessage(trUtf8("Nouvelle facture créée."), 3000);
 }
