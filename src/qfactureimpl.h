@@ -62,6 +62,7 @@ signals:
     void clientDeleted();
     
     void articleSaved();
+    void articleDeleted();
     
     void factureSaved();
     void factureDeleted();

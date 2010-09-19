@@ -81,6 +81,11 @@ void QfactureImpl::createActions()
     
     connect(this, SIGNAL(articleSaved()), this, SLOT(aListRefresh()));
     connect(this, SIGNAL(articleSaved()), this, SLOT(fArtListRefresh()));
+    
+    /** Actions effectuées lors de la suppression d'un article **/
+    
+    connect(this, SIGNAL(articleDeleted()), this, SLOT(aListRefresh()));
+    connect(this, SIGNAL(articleDeleted()), this, SLOT(fArtListRefresh()));
 }
 
 /**
@@ -692,18 +697,17 @@ void QfactureImpl::on_aDel_clicked()
     query.exec();
     query.finish();
     
-    aId->setText(QString("new"));
+    aId->setText(QString(""));
     aName->setText(QString(""));
     aPrice->setText(QString("0.00"));
     aCom->setText(QString(""));
     aDel->setEnabled(false);
     aNew->setEnabled(true);
     aSave->setEnabled(false);
-	
-    aListRefresh();
-    fArtListRefresh();
     
     statusbar->showMessage(trUtf8("L'article a été supprimé avec succès."), 3000);
+    
+    emit articleDeleted();
 }
 
 /**
