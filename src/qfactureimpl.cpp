@@ -11,7 +11,6 @@
 #include <QTableWidget>
 #include <QDate>
 #include "qfactureimpl.h"
-#include <iostream>
 
 //
 QfactureImpl::QfactureImpl( QWidget * parent, Qt::WFlags f) : QMainWindow(parent, f)
