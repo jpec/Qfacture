@@ -14,10 +14,7 @@ public:
 	
 private slots:
 	void on_aPass_returnPressed();
-	void on_sYearCa_textChanged(QString );
-	void on_sYearCa_editingFinished();
 	void on_sYearCa_lostFocus();
-	void on_sListCa_itemDoubleClicked(QListWidgetItem* item);
 	void on_fArtLink_itemChanged(QTableWidgetItem* item);
 	void on_fList_itemDoubleClicked(QListWidgetItem* item);
 	void on_fCalc_clicked();
@@ -42,7 +39,7 @@ private slots:
 	void on_action_Quitter_triggered();
     
     void loadUserInfos();
-    
+
     void cListRefresh();
     
     void fClientListRefresh();
@@ -58,7 +55,7 @@ private slots:
 signals:
     void DBConnected();
     
-    void clientSaved(); // nouveau client ou infos sur un client mises à jour
+    void clientSaved();
     void clientDeleted();
     
     void articleSaved();

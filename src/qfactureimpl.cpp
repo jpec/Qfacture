@@ -477,7 +477,7 @@ void QfactureImpl::cListRefresh()
     
 	while (query.next()) {
 		item = query.value(1).toString() 
-			+ QString(trUtf8(" | ")) + query.value(2).toString()
+			+ QString(trUtf8(" - ")) + query.value(2).toString()
 			+ QString(trUtf8(" ")) + query.value(3).toString()
 			+ QString(trUtf8(" ")) + query.value(4).toString()
 			+ QString(trUtf8(" ")) + query.value(5).toString()
@@ -514,7 +514,6 @@ void QfactureImpl::on_cList_itemClicked(QListWidgetItem* item)
 	
     query.bindValue(":id", item->data(Qt::UserRole).toInt());
 	query.exec();
-	
     query.next();
     
     cGroupBox->setEnabled(true);
@@ -731,7 +730,7 @@ void QfactureImpl::aListRefresh()
     
     while (query.next()) {
 		item = query.value(1).toString() 
-			+ QString(trUtf8(" | ")) + query.value(2).toString()
+			+ QString(trUtf8(" - ")) + query.value(2).toString()
 			+ QString(trUtf8("€ (")) + query.value(3).toString()
 			+ QString(trUtf8(")"));
         
@@ -899,7 +898,7 @@ void QfactureImpl::fClientListRefresh()
 	
     while (query.next()) {
 		item = query.value(1).toString() 
-			+ QString(trUtf8(" | ")) + query.value(2).toString()
+			+ QString(trUtf8(" - ")) + query.value(2).toString()
 			+ QString(trUtf8(" ")) + query.value(3).toString()
 			+ QString(trUtf8(" ")) + query.value(4).toString()
 			+ QString(trUtf8(" ")) + query.value(5).toString()
@@ -972,7 +971,7 @@ void QfactureImpl::fArtListRefresh()
     
 	while (query.next()) {
 		item = query.value(1).toString() 
-             + QString(trUtf8(" | ")) + query.value(2).toString()
+             + QString(trUtf8(" - ")) + query.value(2).toString()
 			 + QString(trUtf8("€ (")) + query.value(3).toString()
 			 + QString(trUtf8(")"));
         
@@ -1393,35 +1392,42 @@ void QfactureImpl::on_fNew_clicked()
 
 /* Tab stats - Statistiques **************************************************/
 
-void QfactureImpl::on_sListCa_itemDoubleClicked(QListWidgetItem* item)
-{
-	// TODO
-}
-
 bool QfactureImpl::sListCaRefresh()
 {
-	// TODO
+	// Rafraichit la liste Chiffre d'affaires / mois
 	
+	QSqlQuery query;
+	QString text;
+	QString Year;
+	Year =  sYearCa->text();
+	
+	if(Year == QString("") or Year.length() != 4 or !(9999 >= Year.toInt())){
+		sYearCa->setText(QString("2010"));
+		Year = QString("2010");
+	}
+	sListCa->clear();
+	query.prepare(
+		"SELECT LEFT(date, 7) AS month, SUM(amount) AS sum "
+		"FROM facture WHERE date LIKE :year GROUP BY month"
+	);
+	query.bindValue(":year", Year+QString("%"));
+	statusbar->showMessage(query.executedQuery(), 5000);
+	query.exec();
+	while(query.next()){
+		// Ajout ligne dans la liste
+		text = query.value(0).toString()
+			+QString(trUtf8(" : "))
+			+query.value(1).toString()
+			+QString(trUtf8("€"));
+		sListCa->addItem(text);
+	}
+	query.finish();
 	return true;
-}
-
-void QfactureImpl::on_sYearCa_textChanged(QString )
-{
-	// TODO
-	
-	sListCaRefresh();
-}
-
-void QfactureImpl::on_sYearCa_editingFinished()
-{
-	// TODO
-	
-	sListCaRefresh();
 }
 
 void QfactureImpl::on_sYearCa_lostFocus()
 {
-	// TODO
+	// Année changée
 	
 	sListCaRefresh();
 }
