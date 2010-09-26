@@ -674,6 +674,7 @@ void QfactureImpl::on_aSave_clicked()
     
     aSave->setEnabled(true);
     aDel->setEnabled(true);
+    artGroupBox->setEnabled(false);
     
     emit articleSaved();
 }
@@ -700,6 +701,7 @@ void QfactureImpl::on_aDel_clicked()
     aName->setText(QString(""));
     aPrice->setText(QString("0.00"));
     aCom->setText(QString(""));
+    
     aDel->setEnabled(false);
     aNew->setEnabled(true);
     aSave->setEnabled(false);
@@ -881,13 +883,16 @@ void QfactureImpl::on_fList_itemDoubleClicked(QListWidgetItem* item)
 
 /* Tab facture - éditer une facture ******************************************/
 
+/**
+ * Recharge la liste des clients de l'onglet facture
+ * 
+ * @return void
+ */
 void QfactureImpl::fClientListRefresh()
 {
     QSqlQuery query;
     QString item;
     
-	// Rafraichit la liste des clients de l'onglet facture
-	
 	fClientList->clear();
     
 	query.prepare(
@@ -897,16 +902,16 @@ void QfactureImpl::fClientListRefresh()
 	);
 	query.exec();
 	
-    while (query.next()) {
+    while(query.next()) {
 		item = query.value(1).toString() 
 			+ QString(trUtf8(" | ")) + query.value(2).toString()
 			+ QString(trUtf8(" ")) + query.value(3).toString()
 			+ QString(trUtf8(" ")) + query.value(4).toString()
 			+ QString(trUtf8(" ")) + query.value(5).toString()
 			+ QString(trUtf8(" - ")) + query.value(6).toString()
-			+ QString(trUtf8(" - ")) + query.value(7).toString()
-			;
-		fClientList->addItem(item);
+			+ QString(trUtf8(" - ")) + query.value(7).toString();
+		
+        fClientList->addItem(item);
         
         // chaque élément de la liste connait ainsi l'ID du client qu'il représente
         fClientList->item(fClientList->count()-1)->setData(Qt::UserRole, query.value(0).toInt());
@@ -1029,13 +1034,17 @@ void QfactureImpl::on_fArtList_itemDoubleClicked(QListWidgetItem* item)
 	statusbar->showMessage(trUtf8("Article ajouté sur la facture."), 3000);
 }
 
+/**
+ * Recharge la liste des liens de l'onglet facture
+ */
 void QfactureImpl::fArtLinkRefresh()
 {
-	// Rafraichit la liste des liens de l'onglet facture
-	
+    QSqlQuery query;
+    
 	fFlag = false; // verrou refresh facture activé
+    
 	fArtLink->clearContents();
-	QSqlQuery query;
+	
 	query.prepare(
 		"SELECT l.id, a.name, l.price, l.quantity, l.off, l.amount "
 		"FROM link AS l "
@@ -1044,30 +1053,43 @@ void QfactureImpl::fArtLinkRefresh()
 		"WHERE l.idfacture = :idFacture "
 		"ORDER BY l.id "
 	);
-	query.bindValue(":IdFacture", fNum->text());
-	query.exec();
-	fArtLink->setRowCount(query.size());
+	
+    query.bindValue(":IdFacture", fNum->text());
+	
+    query.exec();
+	
+    fArtLink->setRowCount(query.size());
 	fArtLink->setAlternatingRowColors(true);
 	//fArtLink->verticalHeader()->setVisible(false);
-	int i=0;
+	
+    int i=0;
 	while (query.next()) {
 		// Ajout d'une ligne à la liste pour chaque lien
-		QTableWidgetItem *Id = new QTableWidgetItem(query.value(0).toString());
-		fArtLink->setItem(i, 0, Id);
-		QTableWidgetItem *Name = new QTableWidgetItem(query.value(1).toString());
-		fArtLink->setItem(i, 1, Name);
-		QTableWidgetItem *Price = new QTableWidgetItem(query.value(2).toString());
-		fArtLink->setItem(i, 2, Price);
-		QTableWidgetItem *Nbr = new QTableWidgetItem(query.value(3).toString());
-		fArtLink->setItem(i, 3, Nbr);
-		QTableWidgetItem *Off = new QTableWidgetItem(query.value(4).toString());
-		fArtLink->setItem(i, 4, Off);
-		QTableWidgetItem *Mont = new QTableWidgetItem(query.value(5).toString());
-		fArtLink->setItem(i, 5, Mont);
-		i++;
+        
+        // id
+		fArtLink->setItem(i, 0, new QTableWidgetItem(query.value(0).toString()));
+		
+        // name
+		fArtLink->setItem(i, 1, new QTableWidgetItem(query.value(1).toString()));
+		
+        // price
+		fArtLink->setItem(i, 2, new QTableWidgetItem(query.value(2).toString()));
+		
+        // nbr
+		fArtLink->setItem(i, 3, new QTableWidgetItem(query.value(3).toString()));
+		
+        // off
+		fArtLink->setItem(i, 4, new QTableWidgetItem(query.value(4).toString()));
+		
+        // mont 
+		fArtLink->setItem(i, 5, new QTableWidgetItem(query.value(5).toString()));
+		
+        i++;
 	}
+    
 	query.finish();
-	fFlag = true; // verrou refresh facture non activé
+	
+    fFlag = true; // verrou refresh facture non activé
 }
 
 void QfactureImpl::on_fArtLink_itemChanged(QTableWidgetItem* Item)
