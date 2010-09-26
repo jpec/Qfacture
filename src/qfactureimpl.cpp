@@ -15,13 +15,20 @@
 //
 QfactureImpl::QfactureImpl( QWidget * parent, Qt::WFlags f) : QMainWindow(parent, f)
 {
-	setupUi(this);
+    setupUi(this);
 	
-	VERSION = QString(trUtf8("v0.1-alpha"));
-	db = QSqlDatabase::addDatabase("QMYSQL");
-	fFlag = true;
+    VERSION = QString(trUtf8("v0.1-alpha"));
+    db = QSqlDatabase::addDatabase("QMYSQL");
+    
+    settings = new QSettings("", "Qfacture");
     
     createActions();
+    readSettings();
+}
+
+QfactureImpl::~QfactureImpl()
+{
+    delete settings;
 }
 //
 
@@ -39,25 +46,25 @@ void QfactureImpl::createActions()
     
     // affichage des infos sur l'auto-entrepreneur
     connect(this, SIGNAL(DBConnected()), this, SLOT(loadUserInfos()));
-    
+
     // rechargement de la liste des clients à la connexion à la DB
     connect(this, SIGNAL(DBConnected()), this, SLOT(cListRefresh()));
     connect(this, SIGNAL(DBConnected()), this, SLOT(fClientListRefresh()));
-    
+
     // rechargement de la liste des articles
-	connect(this, SIGNAL(DBConnected()), this, SLOT(aListRefresh()));
-	connect(this, SIGNAL(DBConnected()), this, SLOT(fArtListRefresh()));
-	
-	// rechargement de la liste des factures
-	connect(this, SIGNAL(DBConnected()), this, SLOT(fListRefresh()));
-    
+    connect(this, SIGNAL(DBConnected()), this, SLOT(aListRefresh()));
+    connect(this, SIGNAL(DBConnected()), this, SLOT(fArtListRefresh()));
+
+    // rechargement de la liste des factures
+    connect(this, SIGNAL(DBConnected()), this, SLOT(fListRefresh()));
+
     /** Actions effectuées lors de la sauvegarde d'un client (nouveau ou mise à jour d'un déjà existant) **/
-    
+
     connect(this, SIGNAL(clientSaved()), this, SLOT(cListRefresh()));
-	connect(this, SIGNAL(clientSaved()), this, SLOT(fClientListRefresh()));
-    
+    connect(this, SIGNAL(clientSaved()), this, SLOT(fClientListRefresh()));
+
     /** Actions effectuées lors de la suppression d'un client **/
-    
+
     connect(this, SIGNAL(clientDeleted()), this, SLOT(cListRefresh()));
     connect(this, SIGNAL(clientDeleted()), this, SLOT(fClientListRefresh()));
     
@@ -92,26 +99,38 @@ void QfactureImpl::createActions()
  *
  * @return bool Témoin du succès de la connexion
  */
-bool QfactureImpl::MySQL_connect()
-{	
-	// Se connecter à la base MySQL
-	db.setHostName(aServer->text());
-	db.setPort(aPort->text().toInt());
-	db.setUserName(aUser->text());
-	db.setPassword(aPass->text());
-	db.setDatabaseName(aDb->text());
+void QfactureImpl::MySQL_connect()
+{
+    db.setHostName(aServer->text());
+    db.setPort(aPort->text().toInt());
+    db.setUserName(aUser->text());
+    db.setPassword(aPass->text());
+    db.setDatabaseName(aDb->text());
 	
-	if (db.open())
-		aFlag->setText(QString(trUtf8("Connexion en cours ...")));
-	else {
-		aFlag->setText(QString(trUtf8("Une erreur est survenue lors de la connexion !")));
-		return false;
-	}
+    if(db.open()) {
+        aFlag->setText(QString(trUtf8("Connexion en cours ...")));
+        
+        emit DBConnected();
+        
+        return;
+    }
     
-    // on signale à l'appli que la connexion à réussi
-    emit DBConnected();
-	
-	return true;
+    aFlag->setText(QString(trUtf8("Une erreur est survenue lors de la connexion !")));
+}
+
+/**
+ * Affiche une boite de dialogue permettant de confirmer ou non la
+ * réalisation d'une action. La boite de dialogue est composée d'un
+ * message (passé en paramètre) et de deux boutons : Oui ou Non.
+ * 
+ * @param msg Message à afficher
+ * 
+ * @return bool
+ */
+bool QfactureImpl::confirm(const char * msg)
+{
+    return (QMessageBox::warning(this, "Qfacture", QString(trUtf8(msg)),
+            QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes);
 }
 
 /**
@@ -159,41 +178,82 @@ QString QfactureImpl::dateToDB(QDateEdit *date)
          + date->text().mid(0,2);
 }
 
+/**
+ * Sauvegardes les paramètres de l'appli
+ */
+void QfactureImpl::writeSettings()
+{
+    // infos sur la fenêtre (taille et position)
+    settings->beginGroup("Window");
+    settings->setValue("size", size());
+    settings->setValue("pos", pos());
+    settings->endGroup();
+    
+    // infos de connexion à la DB
+    settings->beginGroup("DB");
+    settings->setValue("host", aServer->text());
+    settings->setValue("port", aPort->text().toInt());
+    settings->setValue("user", aUser->text());
+    settings->setValue("passwd", aPass->text());
+    settings->setValue("db_name", aDb->text());
+    settings->endGroup();
+}
+
+/**
+ * Lit les paramètres de l'appli
+ */
+void QfactureImpl::readSettings()
+{
+    // infos sur la fenêtre (taille et position)
+    settings->beginGroup("Window");
+    resize(settings->value("size", QSize(400, 400)).toSize());
+    move(settings->value("pos", QPoint(200, 200)).toPoint());
+    settings->endGroup();
+    
+    // infos de connexion à la DB
+    settings->beginGroup("DB");
+    aServer->setText(settings->value("host", "localhost").toString());
+    aPort->setText(settings->value("port", 3306).toString());
+    aUser->setText(settings->value("user", "qfacture").toString());
+    aPass->setText(settings->value("passwd", "").toString());
+    aDb->setText(settings->value("db_name", "qfacture").toString());
+    settings->endGroup();
+}
+
 
 /* Menu **********************************************************************/
 
+/**
+ * Méthode appelée lorsque l'utilisateur demande à quitter l'application
+ */
 void QfactureImpl::on_action_Quitter_triggered()
 {
-	// Quitter l'application
-	
-	QString msg = QString(trUtf8("Voulez vous quitter l'application ?"));
-	switch (QMessageBox::warning(this, "Qfacture", msg, QMessageBox::Yes, QMessageBox::No)) {
-		case QMessageBox::Yes:
-			if (true)
-				db.close();
-				qApp->quit();
-			break;
-		case QMessageBox::No:
-			break;
-  }
+    if(!confirm("Voulez vous quitter l'application ?"))
+        return;
+    
+    writeSettings();
+    
+    db.close();
+    qApp->quit();
 }
 
 void QfactureImpl::on_action_propos_activated()
 {
-	// A propos
-	QString msg = QString(trUtf8("Qfacture :VERSION\n"
-	"Le logiciel libre de facturation pour les Auto-Entrepreneurs!\n"
-	"--\n"
-	"Copyright 2010 : Julien PECQUEUR\n"
-	"Licence : GPL\n"
-	"Auteur : Julien PECQUEUR <jpec@julienpecqueur.com>\n"
-	"--\n"
-	"Contributeur(s) :\n"
-	" * Module génération PDF : Kévin GOMEZ <contact@kevingomez.fr>\n"
-	" * Logo : Kevin MACPHAIL <http://kmacphail.blogspot.com>\n"
-	"\n"));
-	msg.replace(":VERSION", VERSION);
-	QMessageBox::about(this, "Qfacture", msg);
+    /** À propos **/
+
+    QString msg = QString(trUtf8("Qfacture :VERSION\n"
+			         "Le logiciel libre de facturation pour les Auto-Entrepreneurs!\n"
+			         "--\n"
+			         "Copyright 2010 : Julien PECQUEUR\n"
+			         "Licence : GPL\n"
+			         "Auteur : Julien PECQUEUR <jpec@julienpecqueur.com>\n"
+			         "--\n"
+			         "Contributeur(s) :\n"
+			         " * Module génération PDF : Kévin GOMEZ <contact@kevingomez.fr>\n"
+			         " * Logo : Kevin MACPHAIL <http://kmacphail.blogspot.com>\n"
+			         "\n")).replace(":VERSION", VERSION);
+    
+    QMessageBox::about(this, "Qfacture", msg);
 }
 
 
@@ -208,26 +268,28 @@ void QfactureImpl::on_action_propos_activated()
 void QfactureImpl::loadUserInfos()
 {
     QSqlQuery query;
-	QPixmap pic;
+    QPixmap pic;
     
-    // Recupération des infos utilisateur
-	query.exec("SELECT Name, Siret, Adress, Adress2, Zip, City, Phone, Mail, Home, Logo FROM user WHERE id = 1 LIMIT 1;");
-	query.next();
+    query.exec(
+        "SELECT Name, Siret, Adress, Adress2, Zip, City, Phone, Mail, Home, Logo "
+        "FROM user WHERE id = 1 LIMIT 1;"
+    );
+    query.next();
+
+    /* Alimentation des widgets */
+    uName->setText(query.value(0).toString());
+    uSiret->setText(query.value(1).toString());
+    uAdress->setText(query.value(2).toString());
+    uAdress2->setText(query.value(3).toString());
+    uZip->setText(query.value(4).toString());
+    uCity->setText(query.value(5).toString());
+    uPhone->setText(query.value(6).toString());
+    uMail->setText(query.value(7).toString());
+    uHome->setText(query.value(8).toString());
 	
-	// infos de l'utilisateur
-	uName->setText(query.value(0).toString());
-	uSiret->setText(query.value(1).toString());
-	uAdress->setText(query.value(2).toString());
-	uAdress2->setText(query.value(3).toString());
-	uZip->setText(query.value(4).toString());
-	uCity->setText(query.value(5).toString());
-	uPhone->setText(query.value(6).toString());
-	uMail->setText(query.value(7).toString());
-	uHome->setText(query.value(8).toString());
-	
-	// affichage du logo
-	pic.loadFromData(query.value(9).toByteArray());
-	uLogo->setPixmap(pic);
+    /* Alimentation du widget logo */
+    pic.loadFromData(query.value(9).toByteArray());
+    uLogo->setPixmap(pic);
 }
 
 /**
@@ -240,49 +302,43 @@ void QfactureImpl::loadUserInfos()
  */
 void QfactureImpl::on_aConnect_clicked()
 {
-	bool connexion_state = db.isOpen();
+    bool connexion_state = db.isOpen();
+    QString Connected = QString(trUtf8("Connecté"));
+    QString Disconnected = QString(trUtf8("Déconnecté"));
+    QString Connect = QString(trUtf8("Connexion"));
+    QString Disconnect = QString(trUtf8("Déconnexion"));
 	
-	QString Connected = QString(trUtf8("Connecté"));
-	QString Disconnected = QString(trUtf8("Déconnecté"));
-	QString Connect = QString(trUtf8("Connexion"));
-	QString Disconnect = QString(trUtf8("Déconnexion"));
-	
-	if(!connexion_state) {
-		// Se connecter à la base
-		connexion_state = MySQL_connect();
-		
-		if(connexion_state) {
-			aFlag->setText(Connected);
-			aConnect->setText(Disconnect);
-		}
-	} else {
-		// Se déconnecter de la base
-		QString msg = QString(trUtf8("Voulez-vous réellement vous déconnecter du serveur?"));
-		
-		if(QMessageBox::warning(this, "Qfacture", msg, QMessageBox::Yes, QMessageBox::Cancel, QMessageBox::No) == QMessageBox::Yes) {
-			aFlag->setText(Disconnected);
-			aConnect->setText(Connect);
-			
-			db.close();
-		}
-	}
-	
-	connexion_state = db.isOpen();
-	
-	uSave->setEnabled(connexion_state);
-	uGroupBox->setEnabled(connexion_state);
-	aServer->setEnabled(!connexion_state);
-	aPort->setEnabled(!connexion_state);
-	aUser->setEnabled(!connexion_state);
-	aPass->setEnabled(!connexion_state);
-	aDb->setEnabled(!connexion_state);
+    /* Connexion */
+    if(!connexion_state)
+        MySQL_connect();
+    else {
+        /* Déconnexion */
+        
+        if(!confirm("Voulez-vous réellement vous déconnecter du serveur?"))
+            return;
+        
+        db.close();
+    }
+
+    connexion_state = db.isOpen();
+    
+    // mise à jour des widgets en fonction de l'état de la connexion
+    aFlag->setText(connexion_state ? Connected : Disconnected);
+    aConnect->setText(connexion_state ? Disconnect : Connect);
+    uSave->setEnabled(connexion_state);
+    uGroupBox->setEnabled(connexion_state);
+    aServer->setEnabled(!connexion_state);
+    aPort->setEnabled(!connexion_state);
+    aUser->setEnabled(!connexion_state);
+    aPass->setEnabled(!connexion_state);
+    aDb->setEnabled(!connexion_state);
 }
 
 void QfactureImpl::on_aPass_returnPressed()
 {
-	// Password saisi
+    /** Mot de passe saisi */
 	
-	on_aConnect_clicked();
+    on_aConnect_clicked();
 }
 
 /**
@@ -293,32 +349,29 @@ void QfactureImpl::on_aPass_returnPressed()
  */
 void QfactureImpl::on_uSave_clicked()
 {
-	QSqlQuery query;
-	
-	// création de la requête
-	query.prepare(
+    QSqlQuery query;
+    
+    query.prepare(
 		"UPDATE user "
 		"SET Name = :name, Siret = :siret, Adress = :adress, Adress2 = :adress2, "
-		"	Zip = :zip, City = :city, Phone = :phone, Mail = :mail, Home = :home "
+		"    Zip = :zip, City = :city, Phone = :phone, Mail = :mail, Home = :home "
 		"WHERE id = 1"
-	);
-	
-	// définition des paramètres
-	query.bindValue(":name", uName->text());
-	query.bindValue(":siret", uSiret->text());
-	query.bindValue(":adress", uAdress->text());
-	query.bindValue(":adress2", uAdress2->text());
-	query.bindValue(":zip", uZip->text());
-	query.bindValue(":city", uCity->text());
-	query.bindValue(":phone", uPhone->text());
-	query.bindValue(":mail", uMail->text());
-	query.bindValue(":home", uHome->text());
-	
-	// exécution de la requête
-	if(query.exec())
-		statusbar->showMessage(trUtf8("Modifications enregistrées avec succès."), 3000);
-	else
-		statusbar->showMessage(trUtf8("Erreur lors de la sauvegarde des paramètres !"));
+    );
+    
+    query.bindValue(":name", uName->text());
+    query.bindValue(":siret", uSiret->text());
+    query.bindValue(":adress", uAdress->text());
+    query.bindValue(":adress2", uAdress2->text());
+    query.bindValue(":zip", uZip->text());
+    query.bindValue(":city", uCity->text());
+    query.bindValue(":phone", uPhone->text());
+    query.bindValue(":mail", uMail->text());
+    query.bindValue(":home", uHome->text());
+    
+    if(query.exec())
+        statusbar->showMessage(trUtf8("Modifications enregistrées avec succès."), 3000);
+    else
+        statusbar->showMessage(trUtf8("Erreur lors de la sauvegarde des paramètres !"));
 }
 
 /**
@@ -329,46 +382,42 @@ void QfactureImpl::on_uSave_clicked()
  */
 void QfactureImpl::on_uChangeLogo_clicked()
 {
-	QString image;
-	QPixmap img_pixmap;
-	QFile img_file;
-	QSqlQuery query;
+    QString image;
+    QPixmap img_pixmap;
+    QFile img_file;
+    QSqlQuery query;
 	
-	// Sélection du logo
-	image = QFileDialog::getOpenFileName(
-										this,
-										QString(trUtf8("Qfacture - Importer un logo...")),
-										"", tr("Image Files (*.png *.jpg *.bmp)")
-										);
+    /* Sélection du logo */
+    image = QFileDialog::getOpenFileName(
+				         this,
+				         QString(trUtf8("Qfacture - Importer un logo...")),
+				         "", tr("Image Files (*.png *.jpg *.bmp)")
+				         );
+    
+    if (image.isNull())
+        return;
+    
+    uLogo->text().clear();
+    img_file.setFileName(image);
+    
+    if(!img_file.open(QIODevice::ReadOnly)) {
+        uLogo->setText("Impossible d'ouvrir le fichier contenant le logo !");
+        return;
+    }
 	
-	// pas d'image sélectionnée
-	if (image.isNull())
-		return;
+    /* Enregistrement de l'image dans la base SQL */
+    query.prepare("UPDATE user SET Logo = :logo WHERE id = 1;");
+    query.bindValue(":logo", img_file.readAll());
+    query.exec();
 	
-	// Effacer le texte
-	uLogo->text().clear();
+    /* Affichage de l'image */
+    img_pixmap.load(image);
+    uLogo->setPixmap(img_pixmap);
 	
-	// Lecture du fichier image
-	img_file.setFileName(image);
-	if(!img_file.open(QIODevice::ReadOnly)) {
-		uLogo->setText("Impossible d'ouvrir le fichier contenant le logo !");
-		return;
-	}
-	
-	// Enregistrement de l'image dans la base SQL
-	query.prepare("UPDATE user SET Logo = :logo WHERE id = 1;");
-	query.bindValue(":logo", img_file.readAll());
-	query.exec();
-	
-	// Affichage de l'image
-	img_pixmap.load(image);
-	uLogo->setPixmap(img_pixmap);
-	
-	// Fermeture du fichier
-	img_file.close();
-	
-	// Message status bar
-	statusbar->showMessage(trUtf8("Le logo a été enregistré avec succès."), 3000);
+    /* Fermeture du fichier */
+    img_file.close();
+    
+    statusbar->showMessage(trUtf8("Le logo a été enregistré avec succès."), 3000);
 }
 
 /* Tab Clients ***************************************************************/
@@ -383,19 +432,18 @@ void QfactureImpl::on_uChangeLogo_clicked()
  */
 void QfactureImpl::on_cNew_clicked()
 {
-	cGroupBox->setEnabled(true);
-	cSave->setEnabled(true);
-	cDel->setEnabled(false);
-	cId->setEnabled(false);
-    
-	cId->setText(QString(""));
-	cName->setText(QString(""));
-	cAdress->setText(QString(""));
-	cAdress2->setText(QString(""));
-	cZip->setText(QString(""));
-	cCity->setText(QString(""));
-	cPhone->setText(QString(""));
-	cMail->setText(QString(""));
+    cGroupBox->setEnabled(true);
+    cSave->setEnabled(true);
+    cDel->setEnabled(false);
+    cId->setEnabled(false);
+    cId->clear();
+    cName->clear();
+    cAdress->clear();
+    cAdress2->clear();
+    cZip->clear();
+    cCity->clear();
+    cPhone->clear();
+    cMail->clear();
 }
 
 /**
@@ -412,23 +460,22 @@ void QfactureImpl::on_cSave_clicked()
 {
     QSqlQuery query;
     
-    // Nouveau client
-	if (cId->text().isEmpty())
+    /* Nouveau client */
+    if (cId->text().isEmpty())
         query.prepare(
-            "INSERT INTO client(Name, Adress, Adress2, Zip, City, Phone, Mail) "
+		    "INSERT INTO client(Name, Adress, Adress2, Zip, City, Phone, Mail) "
             "VALUES(:name, :adress, :adress2, :zip, :city, :phone, :mail)"
         );
-    else { 
-        // Client existant (modification instance)
-        
+    else { /* Mise à jour d'un client */
         query.prepare(
             "UPDATE client "
-            "SET Name = :name, Adress = :adress, Adress2 = :adress2, Zip = :zip, City = :city, Phone = :phone, Mail = :mail "
+            "SET"
+            " Name = :name, Adress = :adress, Adress2 = :adress2,"
+            " Zip = :zip, City = :city, Phone = :phone, Mail = :mail "
             "WHERE Id = :id "
         );
-        
         query.bindValue(":id", cId->text());
-	}
+    }
     
     query.bindValue(":name", cName->text());
     query.bindValue(":adress", cAdress->text());
@@ -436,22 +483,21 @@ void QfactureImpl::on_cSave_clicked()
     query.bindValue(":zip", cZip->text());
     query.bindValue(":city", cCity->text());
     query.bindValue(":phone", cPhone->text());
-    query.bindValue(":mail", cMail->text());
+    query.bindValue(":mail", cMail->text()); 
     
     query.exec();
     
     if(!cId->text().isEmpty())
         statusbar->showMessage(trUtf8("Les modifications ont été enregistrées avec succès."), 3000);
     else {
-        // dans le cas d'un nouveau client, on récupère aussi son ID
+        /* Dans le cas d'un nouveau client, on récupère aussi son ID */
         cId->setText(query.lastInsertId().toString());
-        
         statusbar->showMessage(trUtf8("Le nouveau client a été enregistré avec succès."), 3000);
     }
-    
+
     cSave->setEnabled(true);
-    cDel->setEnabled(true);
-    
+    cDel->setEnabled(true); 
+
     emit clientSaved();
 }
 
@@ -464,34 +510,31 @@ void QfactureImpl::cListRefresh()
 {
     QSqlQuery query;
     QString item;
-	
-	cList->clear();
-	
-	query.prepare(
+    
+    cList->clear();
+    
+    query.prepare(
 		"SELECT Id, Name, Adress, Adress2, Zip, City, Phone, Mail "
 		"FROM client "
 		"ORDER BY Name"
-	);
+    );
+    query.exec();
     
-	query.exec();
+    while(query.next()) {
+        item = query.value(1).toString() 
+             + QString(trUtf8(" - ")) + query.value(2).toString()
+             + QString(trUtf8(" ")) + query.value(3).toString()
+             + QString(trUtf8(" ")) + query.value(4).toString()
+             + QString(trUtf8(" ")) + query.value(5).toString()
+             + QString(trUtf8(" - ")) + query.value(6).toString()
+             + QString(trUtf8(" - ")) + query.value(7).toString();
     
-	while (query.next()) {
-		item = query.value(1).toString() 
-			+ QString(trUtf8(" | ")) + query.value(2).toString()
-			+ QString(trUtf8(" ")) + query.value(3).toString()
-			+ QString(trUtf8(" ")) + query.value(4).toString()
-			+ QString(trUtf8(" ")) + query.value(5).toString()
-			+ QString(trUtf8(" - ")) + query.value(6).toString()
-			+ QString(trUtf8(" - ")) + query.value(7).toString()
-			;
+        cList->addItem(item); 
         
-		cList->addItem(item);
-        
-        // chaque élément de la liste connait ainsi l'ID du client qu'il représente
         cList->item(cList->count()-1)->setData(Qt::UserRole, query.value(0).toInt());
-	}
+    }
     
-	query.finish();
+    query.finish();
 }
 
 /**
@@ -504,17 +547,17 @@ void QfactureImpl::cListRefresh()
  */
 void QfactureImpl::on_cList_itemClicked(QListWidgetItem* item)
 {
-	QSqlQuery query;
+    QSqlQuery query;
     
-	query.prepare(
+    query.prepare(
 		"SELECT Id, Name, Adress, Adress2, Zip, City, Phone, Mail "
 		"FROM client "
 		"WHERE Id = :id"
-	);
-	
+    );
+    
     query.bindValue(":id", item->data(Qt::UserRole).toInt());
-	query.exec();
-	
+    
+    query.exec();
     query.next();
     
     cGroupBox->setEnabled(true);
@@ -531,7 +574,7 @@ void QfactureImpl::on_cList_itemClicked(QListWidgetItem* item)
     cPhone->setText(query.value(6).toString());
     cMail->setText(query.value(7).toString());
     
-	query.finish();
+    query.finish();
 }
 
 /**
@@ -542,9 +585,8 @@ void QfactureImpl::on_cList_itemClicked(QListWidgetItem* item)
 void QfactureImpl::on_cDel_clicked()
 {
     QSqlQuery query;
-	
-	QString msg = QString(trUtf8("Voulez-vous supprimer le client sélectionné ?\n\n"));
-	if(QMessageBox::warning(this, "Qfacture", msg , QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes) 
+    
+    if(!confirm("Voulez-vous supprimer le client sélectionné ?"))
         return;
     
     query.prepare("DELETE FROM client WHERE Id = :id");
@@ -552,14 +594,14 @@ void QfactureImpl::on_cDel_clicked()
     query.exec();
     query.finish();
     
-    cId->setText(QString(""));
-    cName->setText(QString(""));
-    cAdress->setText(QString(""));
-    cAdress2->setText(QString(""));
-    cZip->setText(QString(""));
-    cCity->setText(QString(""));
-    cPhone->setText(QString(""));
-    cMail->setText(QString(""));
+    cId->clear();
+    cName->clear();
+    cAdress->clear();
+    cAdress2->clear();
+    cZip->clear();
+    cCity->clear();
+    cPhone->clear();
+    cMail->clear();
     
     cDel->setEnabled(false);
     cNew->setEnabled(true);
@@ -581,14 +623,14 @@ void QfactureImpl::on_cDel_clicked()
 void QfactureImpl::on_aNew_clicked()
 {
     artGroupBox->setEnabled(true);
-	aSave->setEnabled(true);
-	aDel->setEnabled(false);
-	aId->setEnabled(false);
+    aSave->setEnabled(true);
+    aDel->setEnabled(false);
+    aId->setEnabled(false);
     
-	aId->setText(QString(""));
-	aName->setText(QString(""));
-	aPrice->setText(QString("0.00"));
-	aCom->setText(QString(""));
+    aId->clear();
+    aName->clear();
+    aPrice->setText(QString("0.00"));
+    aCom->clear();
 }
 
 /**
@@ -607,55 +649,52 @@ void QfactureImpl::on_aSave_clicked()
     QString msg = QString(trUtf8("Le nom d'article saisi existe déjà dans la base !"));
     int nb;
     
-	// Enregistrer nouvel article
-	if(aId->text().isEmpty()) {
+    // Enregistrer nouvel article
+    if(aId->text().isEmpty()) {
         // on vérifie qu'il n'existe pas déjà un article ayant la même désignation
-		query.prepare("SELECT 1 FROM article WHERE Name = :name");
-		query.bindValue(":name", aName->text());
+        query.prepare("SELECT 1 FROM article WHERE Name = :name");
+        query.bindValue(":name", aName->text());
+        query.exec();
         
-		query.exec();
+        nb = query.size();
         
-		nb = query.size();
+        query.finish();
         
-		query.finish();
-		
         if (nb > 0) {
-			QMessageBox::warning(this, "Qfacture", msg , QMessageBox::Ok);
-            
-            return;
-		}
-        
+            QMessageBox::warning(this, "Qfacture", msg , QMessageBox::Ok);
+            return; 
+        }
+
         query.prepare(
             "INSERT INTO article(Name, Price, Comment) "
             "VALUES(:name, :price, :comment)"
         );
-	} else {
-		// on vérifie qu'il n'existe pas déjà un article ayant la même désignation
-		query.prepare("SELECT 1 FROM article WHERE Name = :name AND Id != :id");
-		query.bindValue(":id", aId->text());
+    } else {
+        // on vérifie qu'il n'existe pas déjà un article ayant la même désignation
+        query.prepare("SELECT 1 FROM article WHERE Name = :name AND Id != :id");
+        query.bindValue(":id", aId->text());
         query.bindValue(":name", aName->text());
+    
+        query.exec(); 
         
-		query.exec();
+        nb = query.size();
         
-		nb = query.size();
-        
-		query.finish();
-		
+        query.finish();
+ 
         if (nb > 0) {
-			QMessageBox::warning(this, "Qfacture", msg , QMessageBox::Ok);
-            
+            QMessageBox::warning(this, "Qfacture", msg , QMessageBox::Ok);
             return;
-		}
-		
+        }
+
         query.prepare(
             "UPDATE article "
             "SET Name = :name, Price = :price, Comment = :comment "
             "WHERE Id = :id "
         );
-        
-        query.bindValue(":id", aId->text());
-	}
-    
+
+        query.bindValue(":id", aId->text()); 
+    }
+
     query.bindValue(":name", aName->text());
     query.bindValue(":price", aPrice->text());
     query.bindValue(":comment", aCom->text());
@@ -674,7 +713,6 @@ void QfactureImpl::on_aSave_clicked()
     
     aSave->setEnabled(true);
     aDel->setEnabled(true);
-    artGroupBox->setEnabled(false);
     
     emit articleSaved();
 }
@@ -697,10 +735,10 @@ void QfactureImpl::on_aDel_clicked()
     query.exec();
     query.finish();
     
-    aId->setText(QString(""));
-    aName->setText(QString(""));
+    aId->clear();
+    aName->clear();
     aPrice->setText(QString("0.00"));
-    aCom->setText(QString(""));
+    aCom->clear();
     
     aDel->setEnabled(false);
     aNew->setEnabled(true);
@@ -721,28 +759,26 @@ void QfactureImpl::aListRefresh()
     QSqlQuery query;
     QString item;
     
-	aList->clear();
+    aList->clear();
     
-	query.prepare(
+    query.prepare(
 		"SELECT Id, Name, Price, Comment "
 		"FROM article "
 		"ORDER BY Name"
-	);
+		);
+    query.exec();
     
-	query.exec();
+    while(query.next()) {
+        item = query.value(1).toString() 
+            + QString(trUtf8(" - ")) + query.value(2).toString()
+            + QString(trUtf8("€ (")) + query.value(3).toString()
+            + QString(trUtf8(")"));
     
-    while (query.next()) {
-		item = query.value(1).toString() 
-			+ QString(trUtf8(" | ")) + query.value(2).toString()
-			+ QString(trUtf8("€ (")) + query.value(3).toString()
-			+ QString(trUtf8(")"));
-        
-		aList->addItem(item);
-        
-        // chaque élément de la liste connait ainsi l'ID de l'article qu'il représente
+        aList->addItem(item);
+    
         aList->item(aList->count()-1)->setData(Qt::UserRole, query.value(0).toInt());
-	}
-	
+    }
+    
     query.finish();
 }
 
@@ -756,30 +792,29 @@ void QfactureImpl::aListRefresh()
  */
 void QfactureImpl::on_aList_itemClicked(QListWidgetItem* item)
 {
-	QSqlQuery query;
+    QSqlQuery query;
     
-	query.prepare(
+    query.prepare(
 		"SELECT Id, Name, Price, Comment "
 		"FROM article "
 		"WHERE Id = :id"
-	);
-	
-    query.bindValue(":id", item->data(Qt::UserRole).toInt());
-	query.exec();
+		);
     
-	query.next();
+    query.bindValue(":id", item->data(Qt::UserRole).toInt());
+    query.exec();
+    query.next();
     
     artGroupBox->setEnabled(true);
     aSave->setEnabled(true);
     aDel->setEnabled(true);
     aId->setEnabled(false);
-	
+    
     aId->setText(query.value(0).toString());
     aName->setText(query.value(1).toString());
     aPrice->setText(query.value(2).toString());
     aCom->setText(query.value(3).toString());
-	
-	query.finish();
+    
+    query.finish();
 }
 
 /* Tab facture - liste des factures ******************************************/
@@ -792,37 +827,36 @@ void QfactureImpl::on_aList_itemClicked(QListWidgetItem* item)
 void QfactureImpl::fListRefresh()
 {
     QSqlQuery query;
+    QString item;
     
-	fList->clear();
+    fList->clear();
     
-	query.prepare(
-		"SELECT "
-		"	f.id, f.Amount, f.Comment, f.Payment, f.Reference, f.Type, f.Date, "
-		"	c.Name "
+    query.prepare(
+		"SELECT f.id, f.Amount, f.Comment, f.Payment, f.Reference, "
+		"         f.Type, f.Date, c.Name "
 		"FROM facture AS f "
 		"LEFT JOIN client AS c "
 		"	ON f.idClient = c.id "
 		"ORDER BY Reference DESC"
-	);
-	query.exec();
-	
-    while (query.next()) {
-		QString Item = query.value(0).toString() 
-			+ QString(trUtf8(" | ")) + query.value(4).toString()
-			+ QString(trUtf8(" | ")) + query.value(5).toString()
-			+ QString(trUtf8(" | ")) + query.value(6).toString()
-			+ QString(trUtf8(" | ")) + query.value(7).toString()
-			+ QString(trUtf8(" | ")) + query.value(1).toString()
-			+ QString(trUtf8("€ (")) + query.value(3).toString()
-			+ QString(trUtf8(")"));
-        
-		fList->addItem(Item);
-        
-        // chaque élément de la liste connait ainsi l'ID de l'article qu'il représente
-        fList->item(fList->count()-1)->setData(Qt::UserRole, query.value(0).toInt());
-	}
+    );
+    query.exec();
     
-	query.finish();
+    while(query.next()) {
+        item = query.value(0).toString() 
+             + QString(trUtf8(" | ")) + query.value(4).toString()
+             + QString(trUtf8(" | ")) + query.value(5).toString()
+             + QString(trUtf8(" | ")) + query.value(6).toString()
+             + QString(trUtf8(" | ")) + query.value(7).toString()
+             + QString(trUtf8(" | ")) + query.value(1).toString()
+             + QString(trUtf8("€ (")) + query.value(3).toString()
+             + QString(trUtf8(")"));
+    
+        fList->addItem(item);
+        
+        fList->item(fList->count()-1)->setData(Qt::UserRole, query.value(0).toInt());
+    }
+    
+    query.finish();
 }
 
 /**
@@ -835,31 +869,26 @@ void QfactureImpl::fListRefresh()
  */
 void QfactureImpl::on_fList_itemDoubleClicked(QListWidgetItem* item)
 {
-	QSqlQuery query;
+    QSqlQuery query;
     QString id_client;
     
-	query.prepare(
+    query.prepare(
 		"SELECT f.Id, IdClient, Name, Amount, Comment, Payment, Reference, Type, Date "
 		"FROM facture f "
-        "LEFT JOIN client c "
-        "ON c.Id = f.IdClient "
+		"LEFT JOIN client c "
+		"ON c.Id = f.IdClient "
 		"WHERE f.Id = :Id"
-	);
+    );
     
-	query.bindValue(":id", item->data(Qt::UserRole).toInt());
-	query.exec();
-    
+    query.bindValue(":id", item->data(Qt::UserRole).toInt());
+    query.exec();
     query.next();
-	
+    
     fNum->setText(query.value(0).toString());
     fDate->setDate(query.value(8).toDate());
     fMontant->setText(query.value(3).toString());
     fClient->setText(query.value(2).toString());
-	
-    // on sélectionne le mode de paiement
     fRegl->setCurrentIndex(fRegl->findText(query.value(5).toString(), Qt::MatchExactly));
-    
-    // on sélectionne le type de document
     fType->setCurrentIndex(fType->findText(query.value(7).toString(), Qt::MatchExactly));
     
     query.finish();
@@ -873,11 +902,11 @@ void QfactureImpl::on_fList_itemDoubleClicked(QListWidgetItem* item)
     fDate->setEnabled(true);
     fType->setEnabled(true);
     fRegl->setEnabled(true);
-	
-	tabFacture->setCurrentIndex(0);
-	
+    
+    tabFacture->setCurrentIndex(0);
+    
     fArtLinkRefresh();
-	
+    
     statusbar->showMessage(trUtf8("La facture a été chargée avec succès."), 3000);
 }
 
@@ -925,8 +954,8 @@ void QfactureImpl::fClientListRefresh()
  * est alors réalisé et le champ fClient est alimenté.
  * 
  * \todo se débrouiller pour stocker l'ID du membre et afficher le nom
- *       pour ne travailler qu'avec l'ID (unique) par la suite et non
- *       le nom (pas forcément unique :-°)
+ *         pour ne travailler qu'avec l'ID (unique) par la suite et non
+ *         le nom (pas forcément unique :-°)
  * 
  * @param item Pointeur vers la ligne choisie.
  * 
@@ -934,24 +963,23 @@ void QfactureImpl::fClientListRefresh()
  */
 void QfactureImpl::on_fClientList_itemDoubleClicked(QListWidgetItem* item)
 {
-	QSqlQuery query;
+    QSqlQuery query;
     
-	query.prepare(
+    query.prepare(
 		"SELECT Id, Name "
 		"FROM client "
 		"WHERE Id = :id "
-	);
+    );
     
-	query.bindValue(":id", item->data(Qt::UserRole).toInt());
+    query.bindValue(":id", item->data(Qt::UserRole).toInt());
     
-	query.exec();
-    
-	query.next();
+    query.exec();
+    query.next();
     
     fClient->setText(query.value(1).toString());
-	
-	query.finish();
-	
+    
+    query.finish();
+    
     statusbar->showMessage(trUtf8("Client ajouté sur la facture."), 3000);
 }
 
@@ -963,31 +991,30 @@ void QfactureImpl::on_fClientList_itemDoubleClicked(QListWidgetItem* item)
 void QfactureImpl::fArtListRefresh()
 {
     QString item;
-	QSqlQuery query;
-    
+    QSqlQuery query;
+
     fArtList->clear();
-	
-	query.prepare(
+    
+    query.prepare(
 		"SELECT Id, Name, Price, Comment "
 		"FROM article "
 		"ORDER BY Name"
-	);
+    );
     
-	query.exec();
+    query.exec();
     
-	while (query.next()) {
-		item = query.value(1).toString() 
-             + QString(trUtf8(" | ")) + query.value(2).toString()
-			 + QString(trUtf8("€ (")) + query.value(3).toString()
-			 + QString(trUtf8(")"));
-        
-		fArtList->addItem(item);
-        
-        // chaque élément de la liste connait ainsi l'ID de l'article qu'il représente
+    while (query.next()) {
+        item = query.value(1).toString() 
+             + QString(trUtf8(" - ")) + query.value(2).toString()
+             + QString(trUtf8("€ (")) + query.value(3).toString()
+             + QString(trUtf8(")"));
+    
+        fArtList->addItem(item);
+    
         fArtList->item(fArtList->count()-1)->setData(Qt::UserRole, query.value(0).toInt());
-	}
+    }
     
-	query.finish();
+    query.finish();
 }
 
 /**
@@ -1000,38 +1027,36 @@ void QfactureImpl::fArtListRefresh()
  */
 void QfactureImpl::on_fArtList_itemDoubleClicked(QListWidgetItem* item)
 {
-	QSqlQuery query;
+    QSqlQuery query;
     QString art_id, art_price;
     
     art_id = item->data(Qt::UserRole).toString();
-	
+    
     query.prepare("SELECT Id, Price FROM article WHERE Id = :id");
-	query.bindValue(":id", art_id);
-	query.exec();
-	
+    query.bindValue(":id", art_id);
+    
+    query.exec();
     query.next();
-	
-	art_price = query.value(1).toString();
     
-	query.finish();
+    art_price = query.value(1).toString();
     
-	query.prepare(
+    query.finish();
+    query.prepare(
 		"INSERT INTO link(IdFacture, IdArticle, Quantity, Off, Price, Amount) "
 		"VALUES (:num, :art, 1, 0, :price, :amount)"
-	);
+    );
     
-	query.bindValue(":num", fNum->text());
-	query.bindValue(":art", art_id);
-	query.bindValue(":price", art_price);
-	query.bindValue(":amount", art_price);
-	
+    query.bindValue(":num", fNum->text());
+    query.bindValue(":art", art_id);
+    query.bindValue(":price", art_price);
+    query.bindValue(":amount", art_price);
+    
     query.exec();
-	
     query.finish();
     
     emit factureArticlesUpdated();
     
-	statusbar->showMessage(trUtf8("Article ajouté sur la facture."), 3000);
+    statusbar->showMessage(trUtf8("Article ajouté sur la facture."), 3000);
 }
 
 /**
@@ -1040,8 +1065,6 @@ void QfactureImpl::on_fArtList_itemDoubleClicked(QListWidgetItem* item)
 void QfactureImpl::fArtLinkRefresh()
 {
     QSqlQuery query;
-    
-	fFlag = false; // verrou refresh facture activé
     
 	fArtLink->clearContents();
 	
@@ -1063,10 +1086,8 @@ void QfactureImpl::fArtLinkRefresh()
 	//fArtLink->verticalHeader()->setVisible(false);
 	
     int i=0;
-	while (query.next()) {
-		// Ajout d'une ligne à la liste pour chaque lien
-        
-        // id
+	while(query.next()) {
+		// id
 		fArtLink->setItem(i, 0, new QTableWidgetItem(query.value(0).toString()));
 		
         // name
@@ -1088,88 +1109,80 @@ void QfactureImpl::fArtLinkRefresh()
 	}
     
 	query.finish();
-	
-    fFlag = true; // verrou refresh facture non activé
 }
 
 void QfactureImpl::on_fArtLink_itemChanged(QTableWidgetItem* Item)
 {
-	// Une cellule du tableau lien article est modifiée
+    /** Une cellule du tableau lien article est modifiée **/
 	
-	if (fFlag) {
-		// verrou refresh facture non activé
-		int Row = Item->row();
-		int Col = Item->column();
-		QString id = fArtLink->item(Row, 0)->text();
-		QSqlQuery query;
-		int quantity;
-		float price, off, amount, amount_bis;
-		switch (Col)
-		{
-			case 3: 
-			// Quantité mise à jour
-			quantity = Item->text().toInt();
-			if (quantity != 0) {
-				price = fArtLink->item(Row, 2)->text().toFloat();
-				off = fArtLink->item(Row, 4)->text().toFloat();
-				amount = fArtLink->item(Row, 5)->text().toFloat();
-				amount_bis = quantity * price * (1 - off / 100);
-				if (amount != amount_bis) {
-					query.prepare(
-						"UPDATE link "
-						"SET amount = :Amount, quantity = :Quantity "
-						"WHERE id = :Id"
-					);
-					query.bindValue(":Amount", amount_bis); 
-					query.bindValue(":Quantity", quantity); 
-					query.bindValue(":Id", id);
-					query.exec();
-					query.finish();
-				}
+    int Row = Item->row();
+    int Col = Item->column();
+    QString id = fArtLink->item(Row, 0)->text();
+    QSqlQuery query;
+    int quantity;
+    float price, off, amount, amount_bis;
+    switch (Col)
+    {
+        case 3: 
+	/* Quantité mise à jour */
+	quantity = Item->text().toInt();
+	if (quantity != 0) {
+	    price = fArtLink->item(Row, 2)->text().toFloat();
+	    off = fArtLink->item(Row, 4)->text().toFloat();
+	    amount = fArtLink->item(Row, 5)->text().toFloat();
+	    amount_bis = quantity * price * (1 - off / 100);
+	    if (amount != amount_bis) {
+	    query.prepare(
+			    "UPDATE link "
+			    "SET amount = :Amount, quantity = :Quantity "
+			    "WHERE id = :Id"
+			    );
+	    query.bindValue(":Amount", amount_bis); 
+	    query.bindValue(":Quantity", quantity); 
+	    query.bindValue(":Id", id);
+	    query.exec();
+	    query.finish();
+	    }
                 
-				statusbar->showMessage(trUtf8("La quantité a été modifiée avec succés."), 3000);
-			} else {
-				// Quantité = 0 => suppression de la ligne
-				query.prepare("DELETE FROM link WHERE id = :Id");
-				query.bindValue(":Id", id);
-				query.exec();
-				query.finish();
-				fArtLinkRefresh();
-				on_fCalc_clicked();
-				statusbar->showMessage(trUtf8("La ligne de la facture a été supprimée avec succés."), 3000);
-			}
-			break;
-			case 4: 
-			// Remise mise à jour
-			off = Item->text().toInt();
-			price = fArtLink->item(Row, 2)->text().toFloat();
-			quantity = fArtLink->item(Row, 3)->text().toInt();
-			amount = fArtLink->item(Row, 5)->text().toFloat();
-			amount_bis = quantity * price * (1 - off / 100);
-			fFlag = false;
-			if (amount != amount_bis) {
-				query.prepare(
-					"UPDATE link "
-					"SET amount = :Amount, off = :Off "
-					"WHERE id = :Id"
-				);
-				query.bindValue(":Amount", amount_bis); 
-				query.bindValue(":Off", off); 
-				query.bindValue(":Id", id);
-				query.exec();
-				query.finish();
-			}
-			fFlag = true;
-            
-			statusbar->showMessage(trUtf8("La remise a été modifiée avec succés."), 3000);
-			break;
-			default:
-			statusbar->showMessage(trUtf8("Cette cellule n'est pas modifiable."), 3000);
-			break;
-		}
-        
-        emit factureArticlesUpdated();
+	    statusbar->showMessage(trUtf8("La quantité a été modifiée avec succés."), 3000);
+	} else {
+	    /* Quantité = 0 => suppression du lien */
+	    query.prepare("DELETE FROM link WHERE id = :Id");
+	    query.bindValue(":Id", id);
+	    query.exec();
+	    query.finish();
+	    fArtLinkRefresh();
+	    on_fCalc_clicked();
+	    statusbar->showMessage(trUtf8("La ligne de la facture a été supprimée avec succés."), 3000);
 	}
+	break;
+        case 4: 
+	/* Remise mise à jour */
+	off = Item->text().toInt();
+	price = fArtLink->item(Row, 2)->text().toFloat();
+	quantity = fArtLink->item(Row, 3)->text().toInt();
+	amount = fArtLink->item(Row, 5)->text().toFloat();
+	amount_bis = quantity * price * (1 - off / 100);
+	if (amount != amount_bis) {
+	    query.prepare(
+			"UPDATE link "
+			"SET amount = :Amount, off = :Off "
+			"WHERE id = :Id"
+			);
+	    query.bindValue(":Amount", amount_bis); 
+	    query.bindValue(":Off", off); 
+	    query.bindValue(":Id", id);
+	    query.exec();
+	    query.finish();
+	}
+	statusbar->showMessage(trUtf8("La remise a été modifiée avec succés."), 3000);
+	break;
+        default:
+	statusbar->showMessage(trUtf8("Cette cellule n'est pas modifiable."), 3000);
+	break;
+    }
+    
+    emit factureArticlesUpdated();
 }
 
 /**
@@ -1177,17 +1190,15 @@ void QfactureImpl::on_fArtLink_itemChanged(QTableWidgetItem* Item)
  * montant de la facture.
  * 
  * \note Ne devrait plus exister (en principe le montant est automatiquement
- *       mis à jour)
+ *         mis à jour)
  * 
  * @return void
  */
 void QfactureImpl::on_fCalc_clicked()
 {
-	// Bouton calculer le montant total de la facture
+    /** Calcul le montant total de la facture **/
 	
     fUpdateAmount();
-	
-	//fArtLinkRefresh();
 }
 
 /**
@@ -1199,14 +1210,14 @@ void QfactureImpl::fUpdateAmount()
 {
     QSqlQuery query;
     
-	query.prepare("SELECT SUM(Amount) FROM link WHERE IdFacture = :id");
-	query.bindValue(":id", fNum->text());
-	query.exec();
-	
+    query.prepare("SELECT SUM(Amount) FROM link WHERE IdFacture = :id");
+    query.bindValue(":id", fNum->text());
+    
+    query.exec();
     query.next();
-	
+    
     fMontant->setText(query.value(0).toString());
-	
+    
     query.finish();
 }
 
@@ -1222,39 +1233,37 @@ void QfactureImpl::fUpdateAmount()
  */
 void QfactureImpl::on_fSave_clicked()
 {
-	QSqlQuery query;
+    QSqlQuery query;
     QString client_id, count;
     
-	if(fClient->text().isEmpty() or fDate->text().isEmpty()) {
-		QMessageBox::warning(this, "Qfacture",
+    if(fClient->text().isEmpty() or fDate->text().isEmpty()) {
+        QMessageBox::warning(this, "Qfacture",
                              QString(trUtf8("Tous les champs ne sont pas renseignés!")),
                              QMessageBox::Ok);
-        
         return;
     }
     
-    // récupération de l'id du client
+    /* Id client - A REIMPLEMENTER AVEC ID CLIENT AU LIEU DU NOM */
     query.prepare(
-        "SELECT Id "
-        "FROM client "
-        "WHERE Name = :name "
+		"SELECT Id "
+		"FROM client "
+		"WHERE Name = :name "
     );
-    
     query.bindValue(":name", fClient->text());
-    
     query.exec();
+    
     query.next();
     
     client_id = query.value(0).toString();
     
     query.finish();
     
-    // Nouvelle facture
+    /* Nouvelle facture */
     if(fNum->text().isEmpty()) {
-        
-        // récupération du numéro de la facture
+        /* Récupération du numéro de la facture */
         query.prepare("SELECT COUNT(1)+1 FROM facture WHERE Date = :date ");
         query.bindValue(":date", dateToDB(fDate));
+        
         query.exec();
         query.next();
         
@@ -1263,59 +1272,39 @@ void QfactureImpl::on_fSave_clicked()
         query.finish();
         
         query.prepare(
-            "INSERT INTO facture ( "
-            "	idclient, "
-            "	Amount, "
-            //"	Comment, " non implémenté
-            "	Payment, "
-            "	Reference, "
-            "	Type, "
-            "	Date  "
-            ") VALUES ("
-            "	:client, "
-            "	:amount, "
-            //"	NULL, " non implémenté
-            "	:pay, "
-            "	:ref, "
-            "	:type, "
-            "	:date "
-            ")"
+            "INSERT INTO facture"
+            " (idclient, Amount, Payment, Reference, Type, Date) "
+            "VALUES"
+            " (:client, :amount, :pay, :ref, :type, :date)"
         );
         
         query.bindValue(":ref", makeFactureReference(count, fDate->text()));
     } else {
-        // Mise à jour facture existante
-        
+        /* Mise à jour d'une facture */
         query.prepare(
             "UPDATE facture "
-            "SET idclient = :client, "
-            "	Amount = :amount, "
-            //"	Comment = NULL, " non implémenté
-            "	Payment = :pay, "
-            //"	Reference = :ref, "
-            "	Type = :type, "
-            "	Date = :date "
+            "SET"
+            " idclient = :client, Amount = :amount, Payment = :pay, "
+            " Type = :type, Date = :date "
             "WHERE Id = :id"
         );
         
         query.bindValue(":id", fNum->text());
     }
     
-    // on bind les valeurs pour la requête de la facture
     query.bindValue(":client", client_id);
     query.bindValue(":amount", fMontant->text());
     query.bindValue(":pay", fRegl->currentText());
     query.bindValue(":type", fType->currentText());
-    query.bindValue(":date", dateToDB(fDate));
+    query.bindValue(":date", dateToDB(fDate)); 
     
     query.exec();
     
-    // la facture est enregistrée
+    /* Modification d'une facture */
     if(!fNum->text().isEmpty())
         statusbar->showMessage(trUtf8("Les modifications sur la facture sont bien enregistrées."), 3000);
     else {
-        // pour les nouvelles factures
-        
+        /* Nouvelle facture */
         fNum->setText(query.lastInsertId().toString());
         
         query.finish();
@@ -1324,7 +1313,6 @@ void QfactureImpl::on_fSave_clicked()
         
         query.prepare("UPDATE link SET IdFacture = :id WHERE IdFacture = 0");
         query.bindValue(":id", fNum->text());
-        
         query.exec();
     }
     
@@ -1335,10 +1323,12 @@ void QfactureImpl::on_fSave_clicked()
 
 void QfactureImpl::on_fPrint_clicked()
 {
-	// Bouton imprimer la facture
+    /** Imprimer la facture **/
 	
-	// TO DO : générer fichier pdf et l'ouvrir dans le lecteur pdf (xdg-open ?)
-    // -> pas d'ouverture auto du pdf (puis xdg-open c'est pas portable =p)
+    /** TO DO : 
+     * générer fichier pdf et l'ouvrir dans le lecteur pdf (xdg-open ?)
+     * -> pas d'ouverture auto du pdf (puis xdg-open c'est pas portable =p)
+     */
 }
 
 /**
@@ -1350,21 +1340,24 @@ void QfactureImpl::on_fPrint_clicked()
 void QfactureImpl::on_fDel_clicked()
 {
     QSqlQuery query;
-	
-	QString msg = QString(trUtf8("Voulez-vous supprimer la facture sélectionnée ?\n\n"));
-	if(QMessageBox::warning(this, "Qfacture", msg , QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
+    
+    // on demande confirmation
+    if(!confirm("Voulez-vous supprimer la facture sélectionnée ?"))
         return;
     
+    /* Suppression des liens */
     query.prepare("DELETE FROM link WHERE IdFacture = :id");
     query.bindValue(":id", fNum->text());
     query.exec();
     query.finish();
     
+    /* Suppression de la facture */
     query.prepare("DELETE FROM facture WHERE Id = :id");
     query.bindValue(":id", fNum->text());
     query.exec();
     query.finish();
-	
+    
+    /* Mise à jour des widgets */
     fCalc->setEnabled(false);
     fSave->setEnabled(false);
     fPrint->setEnabled(false);
@@ -1375,10 +1368,10 @@ void QfactureImpl::on_fDel_clicked()
     fType->setEnabled(false);
     fRegl->setEnabled(false);
     
-    fNum->setText(QString(trUtf8("")));
+    fNum->clear();
     fDate->setDate(QDate::currentDate());
-    fMontant->setText("");
-    fClient->setText("");
+    fMontant->clear();
+    fClient->clear();
     
     statusbar->showMessage(trUtf8("La facture a bien été supprimée."), 3000);
     
@@ -1393,57 +1386,61 @@ void QfactureImpl::on_fDel_clicked()
  */
 void QfactureImpl::on_fNew_clicked()
 {
-    fNum->setText(QString(""));
-	fDate->setDate(QDate::currentDate());
-	
-    fMontant->setText("");
-
-	fCalc->setEnabled(true);
-	fSave->setEnabled(true);
-	fPrint->setEnabled(true);
-	fDel->setEnabled(true);
-	fArticleGroup->setEnabled(true);
-	fClientGroup->setEnabled(true);
+    fNum->clear();
+    fDate->setDate(QDate::currentDate());	
+    fMontant->clear();
+    
+    fCalc->setEnabled(true);
+    fSave->setEnabled(true);
+    fPrint->setEnabled(true);
+    fDel->setEnabled(true);
+    fArticleGroup->setEnabled(true);
+    fClientGroup->setEnabled(true);
     fDate->setEnabled(true);
-	fType->setEnabled(true);
-	fRegl->setEnabled(true);
-	
+    fType->setEnabled(true);
+    fRegl->setEnabled(true);
+    
     fArtLinkRefresh();
-	
+    
     statusbar->showMessage(trUtf8("Nouvelle facture créée."), 3000);
 }
 
 /* Tab stats - Statistiques **************************************************/
 
-void QfactureImpl::on_sListCa_itemDoubleClicked(QListWidgetItem* item)
-{
-	// TODO
-}
-
 bool QfactureImpl::sListCaRefresh()
 {
-	// TODO
-	
-	return true;
-}
-
-void QfactureImpl::on_sYearCa_textChanged(QString )
-{
-	// TODO
-	
-	sListCaRefresh();
-}
-
-void QfactureImpl::on_sYearCa_editingFinished()
-{
-	// TODO
-	
-	sListCaRefresh();
+    QSqlQuery query;
+    QString text;
+    QString Year;
+    
+    Year = sYearCa->text();
+    
+    if(Year == QString("") or Year.length() != 4 or !(9999 >= Year.toInt())){
+        sYearCa->setText(QString("2010"));
+        Year = QString("2010");
+    }
+    sListCa->clear();
+    query.prepare(
+		"SELECT LEFT(date, 7) AS month, SUM(amount) AS sum "
+		"FROM facture WHERE date LIKE :year GROUP BY month"
+		);
+    query.bindValue(":year", Year+QString("%"));
+    statusbar->showMessage(query.executedQuery(), 5000);
+    query.exec();
+    while(query.next()){
+    text = query.value(0).toString()
+        +QString(trUtf8(" : "))
+        +query.value(1).toString()
+        +QString(trUtf8("€"));
+    sListCa->addItem(text);
+    }
+    query.finish();
+    return true;
 }
 
 void QfactureImpl::on_sYearCa_lostFocus()
 {
-	// TODO
+    /** Année changée **/
 	
-	sListCaRefresh();
+    sListCaRefresh();
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
+ <author>Julien Pecqueur</author>
  <class>Qfacture</class>
  <widget class="QMainWindow" name="Qfacture">
   <property name="windowModality">
@@ -33,6 +34,10 @@
   </property>
   <property name="windowTitle">
    <string>Qfacture</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../art/qfacture_24.png</normaloff>../art/qfacture_24.png</iconset>
   </property>
   <property name="unifiedTitleAndToolBarOnMac">
    <bool>false</bool>
@@ -1787,7 +1792,7 @@ Logo</string>
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_Menu">

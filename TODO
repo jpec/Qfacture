@@ -1,7 +1,6 @@
 *** TODO LIST OF THE QFACTURE PROJECT ***
 
 ** IMPORTANT **
- * Implementing the Reporting tab (code) >> JPEC.
  * Implementing the Facture pdf generation >> KPHOEN.
  * Logo >> KEVIE.
 
@@ -20,3 +19,4 @@
 
 --
 [1] http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
+    KO pour le portage win32!
