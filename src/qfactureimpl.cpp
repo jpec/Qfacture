@@ -569,7 +569,7 @@ void QfactureImpl::on_aNew_clicked()
     
     aId->clear();
     aName->clear();
-    aPrice->setText(QString("0.00"));
+    aPrice->setValue(0);
     aCom->clear();
 }
 
@@ -677,7 +677,7 @@ void QfactureImpl::on_aDel_clicked()
     
     aId->clear();
     aName->clear();
-    aPrice->setText(QString("0.00"));
+    aPrice->setValue(0);
     aCom->clear();
     
     aDel->setEnabled(false);
@@ -751,7 +751,7 @@ void QfactureImpl::on_aList_itemClicked(QListWidgetItem* item)
     
     aId->setText(query.value(0).toString());
     aName->setText(query.value(1).toString());
-    aPrice->setText(query.value(2).toString());
+    aPrice->setValue(query.value(2).toInt());
     aCom->setText(query.value(3).toString());
     
     query.finish();

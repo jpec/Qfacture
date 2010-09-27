@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'Qfacture.ui'
 **
-** Created: Mon Sep 27 21:13:17 2010
+** Created: Mon Sep 27 22:16:56 2010
 **      by: Qt User Interface Compiler version 4.6.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -17,6 +17,7 @@
 #include <QtGui/QButtonGroup>
 #include <QtGui/QComboBox>
 #include <QtGui/QDateEdit>
+#include <QtGui/QDoubleSpinBox>
 #include <QtGui/QFormLayout>
 #include <QtGui/QFrame>
 #include <QtGui/QGridLayout>
@@ -128,7 +129,7 @@ public:
     QLabel *label_23;
     QLineEdit *aName;
     QLabel *label_26;
-    QLineEdit *aPrice;
+    QDoubleSpinBox *aPrice;
     QLabel *label_24;
     QLineEdit *aCom;
     QSpacerItem *horizontalSpacer_4;
@@ -488,7 +489,10 @@ public:
         gridLayout_5->setObjectName(QString::fromUtf8("gridLayout_5"));
         cList = new QTableView(clGroupBox);
         cList->setObjectName(QString::fromUtf8("cList"));
+        cList->setAutoScrollMargin(10);
         cList->setAlternatingRowColors(true);
+        cList->setSelectionMode(QAbstractItemView::SingleSelection);
+        cList->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
         cList->setSortingEnabled(true);
 
         gridLayout_5->addWidget(cList, 0, 0, 1, 1);
@@ -703,10 +707,14 @@ public:
 
         formLayout_4->setWidget(2, QFormLayout::LabelRole, label_26);
 
-        aPrice = new QLineEdit(artGroupBox);
+        aPrice = new QDoubleSpinBox(artGroupBox);
         aPrice->setObjectName(QString::fromUtf8("aPrice"));
         aPrice->setMinimumSize(QSize(100, 0));
         aPrice->setMaximumSize(QSize(100, 16777215));
+        aPrice->setMinimum(-999999);
+        aPrice->setMaximum(999999);
+        aPrice->setSingleStep(1);
+        aPrice->setValue(0);
 
         formLayout_4->setWidget(2, QFormLayout::FieldRole, aPrice);
 
@@ -1134,6 +1142,7 @@ public:
         label_25->setText(QApplication::translate("Qfacture", "Identifiant", 0, QApplication::UnicodeUTF8));
         label_23->setText(QApplication::translate("Qfacture", "D\303\251signation", 0, QApplication::UnicodeUTF8));
         label_26->setText(QApplication::translate("Qfacture", "Prix unitaire", 0, QApplication::UnicodeUTF8));
+        aPrice->setSuffix(QApplication::translate("Qfacture", "\342\202\254", 0, QApplication::UnicodeUTF8));
         label_24->setText(QApplication::translate("Qfacture", "Commentaire", 0, QApplication::UnicodeUTF8));
         artaGroupBox->setTitle(QApplication::translate("Qfacture", "Actions", 0, QApplication::UnicodeUTF8));
         aNew->setText(QApplication::translate("Qfacture", "Nouveau", 0, QApplication::UnicodeUTF8));
