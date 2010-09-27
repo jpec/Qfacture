@@ -47,13 +47,13 @@ class QfactureImpl : public QMainWindow, public Ui::Qfacture
     void doQuit();
     void loadUserInfos();
     void refreshCustomersList();
-    void fClientListRefresh();
+    void refreshInvoiceCustomersList();
     void fArtLinkRefresh();
-    void fArtListRefresh();
-    void fListRefresh();
-    void fUpdateAmount();
+    void refreshInvoiceProductsList();
+    void refreshInvoicesList();
+    void updateInvoiceAmount();
     void sListCaRefresh();
-    void aListRefresh();
+    void refreshProductsList();
 
  signals:
     void DBConnected();
@@ -73,7 +73,7 @@ class QfactureImpl : public QMainWindow, public Ui::Qfacture
     EditableSqlModel *clients_model;
     
     void createActions();
-    void MySQL_connect();
+    void MySQLConnect();
     void readSettings();
     void writeSettings();
     

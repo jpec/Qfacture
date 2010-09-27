@@ -52,49 +52,49 @@ void QfactureImpl::createActions()
 
     // rechargement de la liste des clients à la connexion à la DB
     connect(this, SIGNAL(DBConnected()), this, SLOT(refreshCustomersList()));
-    connect(this, SIGNAL(DBConnected()), this, SLOT(fClientListRefresh()));
+    connect(this, SIGNAL(DBConnected()), this, SLOT(refreshInvoiceCustomersList()));
 
     // rechargement de la liste des articles
-    connect(this, SIGNAL(DBConnected()), this, SLOT(aListRefresh()));
-    connect(this, SIGNAL(DBConnected()), this, SLOT(fArtListRefresh()));
+    connect(this, SIGNAL(DBConnected()), this, SLOT(refreshProductsList()));
+    connect(this, SIGNAL(DBConnected()), this, SLOT(refreshInvoiceProductsList()));
 
     // rechargement de la liste des factures
-    connect(this, SIGNAL(DBConnected()), this, SLOT(fListRefresh()));
+    connect(this, SIGNAL(DBConnected()), this, SLOT(refreshInvoicesList()));
 
     /** Actions effectuées lors de la sauvegarde d'un client (nouveau ou mise à jour d'un déjà existant) **/
 
     connect(this, SIGNAL(clientSaved()), this, SLOT(refreshCustomersList()));
-    connect(this, SIGNAL(clientSaved()), this, SLOT(fClientListRefresh()));
+    connect(this, SIGNAL(clientSaved()), this, SLOT(refreshInvoiceCustomersList()));
 
     /** Actions effectuées lors de la suppression d'un client **/
 
     connect(this, SIGNAL(clientDeleted()), this, SLOT(refreshCustomersList()));
-    connect(this, SIGNAL(clientDeleted()), this, SLOT(fClientListRefresh()));
+    connect(this, SIGNAL(clientDeleted()), this, SLOT(refreshInvoiceCustomersList()));
     
     /** Actions effectuées lors de la sauvegarde d'une facture **/
     
     connect(this, SIGNAL(factureSaved()), this, SLOT(fArtLinkRefresh()));
-    connect(this, SIGNAL(factureSaved()), this, SLOT(fListRefresh()));
+    connect(this, SIGNAL(factureSaved()), this, SLOT(refreshInvoicesList()));
     
     /** Actions effectuées lors de la suppression d'une facture **/
     
     connect(this, SIGNAL(factureDeleted()), this, SLOT(fArtLinkRefresh()));
-    connect(this, SIGNAL(factureDeleted()), this, SLOT(fListRefresh()));
+    connect(this, SIGNAL(factureDeleted()), this, SLOT(refreshInvoicesList()));
     
     /** Actions effectuées lors de l'ajout d'un article à une facture **/
     
     connect(this, SIGNAL(factureArticlesUpdated()), this, SLOT(fArtLinkRefresh()));
-    connect(this, SIGNAL(factureArticlesUpdated()), this, SLOT(fUpdateAmount()));
+    connect(this, SIGNAL(factureArticlesUpdated()), this, SLOT(updateInvoiceAmount()));
     
     /** Actions effectuées lors de la sauvegarde d'un article **/
     
-    connect(this, SIGNAL(articleSaved()), this, SLOT(aListRefresh()));
-    connect(this, SIGNAL(articleSaved()), this, SLOT(fArtListRefresh()));
+    connect(this, SIGNAL(articleSaved()), this, SLOT(refreshProductsList()));
+    connect(this, SIGNAL(articleSaved()), this, SLOT(refreshInvoiceProductsList()));
     
     /** Actions effectuées lors de la suppression d'un article **/
     
-    connect(this, SIGNAL(articleDeleted()), this, SLOT(aListRefresh()));
-    connect(this, SIGNAL(articleDeleted()), this, SLOT(fArtListRefresh()));
+    connect(this, SIGNAL(articleDeleted()), this, SLOT(refreshProductsList()));
+    connect(this, SIGNAL(articleDeleted()), this, SLOT(refreshInvoiceProductsList()));
 }
 
 /**
@@ -102,7 +102,7 @@ void QfactureImpl::createActions()
  *
  * @return bool Témoin du succès de la connexion
  */
-void QfactureImpl::MySQL_connect()
+void QfactureImpl::MySQLConnect()
 {
     db.setHostName(aServer->text());
     db.setPort(aPort->text().toInt());
@@ -318,7 +318,7 @@ void QfactureImpl::on_aConnect_clicked()
     
     /* Connexion */
     if(!connexion_state)
-        MySQL_connect();
+        MySQLConnect();
     else {
         /* Déconnexion */
         
@@ -694,7 +694,7 @@ void QfactureImpl::on_aDel_clicked()
  * 
  * @return void
  */
-void QfactureImpl::aListRefresh()
+void QfactureImpl::refreshProductsList()
 {
     QSqlQuery query;
     QString item;
@@ -764,7 +764,7 @@ void QfactureImpl::on_aList_itemClicked(QListWidgetItem* item)
  * 
  * @return void
  */
-void QfactureImpl::fListRefresh()
+void QfactureImpl::refreshInvoicesList()
 {
     QSqlQuery query;
     QString item;
@@ -857,7 +857,7 @@ void QfactureImpl::on_fList_itemDoubleClicked(QListWidgetItem* item)
  * 
  * @return void
  */
-void QfactureImpl::fClientListRefresh()
+void QfactureImpl::refreshInvoiceCustomersList()
 {
     QSqlQuery query;
     QString item;
@@ -928,7 +928,7 @@ void QfactureImpl::on_fClientList_itemDoubleClicked(QListWidgetItem* item)
  * 
  * @return void
  */
-void QfactureImpl::fArtListRefresh()
+void QfactureImpl::refreshInvoiceProductsList()
 {
     QString item;
     QSqlQuery query;
@@ -1027,23 +1027,12 @@ void QfactureImpl::fArtLinkRefresh()
     
     int i=0;
     while(query.next()) {
-        // id
-        fArtLink->setItem(i, 0, new QTableWidgetItem(query.value(0).toString()));
-        
-        // name
-        fArtLink->setItem(i, 1, new QTableWidgetItem(query.value(1).toString()));
-        
-        // price
-        fArtLink->setItem(i, 2, new QTableWidgetItem(query.value(2).toString()));
-        
-        // nbr
-        fArtLink->setItem(i, 3, new QTableWidgetItem(query.value(3).toString()));
-        
-        // off
-        fArtLink->setItem(i, 4, new QTableWidgetItem(query.value(4).toString()));
-        
-        // mont 
-        fArtLink->setItem(i, 5, new QTableWidgetItem(query.value(5).toString()));
+        fArtLink->setItem(i, 0, new QTableWidgetItem(query.value(0).toString())); // id
+        fArtLink->setItem(i, 1, new QTableWidgetItem(query.value(1).toString())); // name
+        fArtLink->setItem(i, 2, new QTableWidgetItem(query.value(2).toString())); // price
+        fArtLink->setItem(i, 3, new QTableWidgetItem(query.value(3).toString())); // nbr
+        fArtLink->setItem(i, 4, new QTableWidgetItem(query.value(4).toString())); // off
+        fArtLink->setItem(i, 5, new QTableWidgetItem(query.value(5).toString())); // mont
         
         i++;
     }
@@ -1138,7 +1127,7 @@ void QfactureImpl::on_fCalc_clicked()
 {
     /** Calcul le montant total de la facture **/
     
-    fUpdateAmount();
+    updateInvoiceAmount();
 }
 
 /**
@@ -1146,7 +1135,7 @@ void QfactureImpl::on_fCalc_clicked()
  * 
  * @return void
  */
-void QfactureImpl::fUpdateAmount()
+void QfactureImpl::updateInvoiceAmount()
 {
     QSqlQuery query;
     
