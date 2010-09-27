@@ -4,12 +4,14 @@
 #include <QRegExp>
 #include <QSqlDatabase>
 #include <QSqlQuery>
+#include <QSqlError>
 #include <QFileDialog>
 #include <QSqlTableModel>
 #include <QListWidget>
 #include <QModelIndex>
 #include <QTableWidget>
 #include <QDate>
+#include <iostream>
 #include "qfactureimpl.h"
 
 //
@@ -108,14 +110,13 @@ void QfactureImpl::MySQL_connect()
     db.setDatabaseName(aDb->text());
 	
     if(db.open()) {
-        aFlag->setText(QString(trUtf8("Connexion en cours ...")));
-        
         emit DBConnected();
         
         return;
     }
     
-    aFlag->setText(QString(trUtf8("Une erreur est survenue lors de la connexion !")));
+    QMessageBox::warning(this, "Qfacture", trUtf8("Une erreur est survenue lors de la connexion : %1").arg(db.lastError().databaseText()),
+                         QMessageBox::Ok);
 }
 
 /**
@@ -127,9 +128,9 @@ void QfactureImpl::MySQL_connect()
  * 
  * @return bool
  */
-bool QfactureImpl::confirm(const char * msg)
+bool QfactureImpl::confirm(const char *msg)
 {
-    return (QMessageBox::warning(this, "Qfacture", QString(trUtf8(msg)),
+    return (QMessageBox::question(this, "Qfacture", trUtf8(msg),
             QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes);
 }
 
@@ -220,38 +221,48 @@ void QfactureImpl::readSettings()
     settings->endGroup();
 }
 
-
-/* Menu **********************************************************************/
-
 /**
- * Méthode appelée lorsque l'utilisateur demande à quitter l'application
+ * Réalise les actions nécessaires à la fermeture de l'appli (clore la
+ * connexion à la DB, stocker les préférences, etc.) et ferme l'appli.
  */
-void QfactureImpl::on_action_Quitter_triggered()
+void QfactureImpl::doQuit()
 {
-    if(!confirm("Voulez vous quitter l'application ?"))
-        return;
-    
     writeSettings();
     
     db.close();
     qApp->quit();
 }
 
+
+/* Menu **********************************************************************/
+
+/**
+ * Méthode appelée lorsque l'utilisateur demande à quitter l'application
+ * (via le menu)
+ */
+void QfactureImpl::on_action_Quitter_triggered()
+{
+    if(!confirm("Voulez vous quitter l'application ?"))
+        return;
+    
+    doQuit();
+}
+
 void QfactureImpl::on_action_propos_activated()
 {
     /** À propos **/
 
-    QString msg = QString(trUtf8("Qfacture :VERSION\n"
-			         "Le logiciel libre de facturation pour les Auto-Entrepreneurs!\n"
-			         "--\n"
-			         "Copyright 2010 : Julien PECQUEUR\n"
-			         "Licence : GPL\n"
-			         "Auteur : Julien PECQUEUR <jpec@julienpecqueur.com>\n"
-			         "--\n"
-			         "Contributeur(s) :\n"
-			         " * Module génération PDF : Kévin GOMEZ <contact@kevingomez.fr>\n"
-			         " * Logo : Kevin MACPHAIL <http://kmacphail.blogspot.com>\n"
-			         "\n")).replace(":VERSION", VERSION);
+    QString msg = trUtf8("Qfacture :VERSION\n"
+                    "Le logiciel libre de facturation pour les Auto-Entrepreneurs!\n"
+			        "--\n"
+			        "Copyright 2010 : Julien PECQUEUR\n"
+			        "Licence : GPL\n"
+			        "Auteur : Julien PECQUEUR <jpec@julienpecqueur.com>\n"
+			        "--\n"
+			        "Contributeur(s) :\n"
+			        " * Module génération PDF : Kévin GOMEZ <contact@kevingomez.fr>\n"
+			        " * Logo : Kevin MACPHAIL <http://kmacphail.blogspot.com>\n"
+			        "\n").replace(":VERSION", VERSION);
     
     QMessageBox::about(this, "Qfacture", msg);
 }
@@ -303,10 +314,6 @@ void QfactureImpl::loadUserInfos()
 void QfactureImpl::on_aConnect_clicked()
 {
     bool connexion_state = db.isOpen();
-    QString Connected = QString(trUtf8("Connecté"));
-    QString Disconnected = QString(trUtf8("Déconnecté"));
-    QString Connect = QString(trUtf8("Connexion"));
-    QString Disconnect = QString(trUtf8("Déconnexion"));
 	
     /* Connexion */
     if(!connexion_state)
@@ -323,8 +330,7 @@ void QfactureImpl::on_aConnect_clicked()
     connexion_state = db.isOpen();
     
     // mise à jour des widgets en fonction de l'état de la connexion
-    aFlag->setText(connexion_state ? Connected : Disconnected);
-    aConnect->setText(connexion_state ? Disconnect : Connect);
+    aConnect->setText(connexion_state ? trUtf8("Déconnexion") : trUtf8("Connexion"));
     uSave->setEnabled(connexion_state);
     uGroupBox->setEnabled(connexion_state);
     aServer->setEnabled(!connexion_state);
@@ -388,13 +394,10 @@ void QfactureImpl::on_uChangeLogo_clicked()
     QSqlQuery query;
 	
     /* Sélection du logo */
-    image = QFileDialog::getOpenFileName(
-				         this,
-				         QString(trUtf8("Qfacture - Importer un logo...")),
-				         "", tr("Image Files (*.png *.jpg *.bmp)")
-				         );
+    image = QFileDialog::getOpenFileName(this, trUtf8("Qfacture - Importer un logo..."),
+                        "", trUtf8("Image Files (*.png *.jpg *.bmp)"));
     
-    if (image.isNull())
+    if(image.isNull())
         return;
     
     uLogo->text().clear();
@@ -522,12 +525,12 @@ void QfactureImpl::cListRefresh()
     
     while(query.next()) {
         item = query.value(1).toString() 
-             + QString(trUtf8(" - ")) + query.value(2).toString()
-             + QString(trUtf8(" ")) + query.value(3).toString()
-             + QString(trUtf8(" ")) + query.value(4).toString()
-             + QString(trUtf8(" ")) + query.value(5).toString()
-             + QString(trUtf8(" - ")) + query.value(6).toString()
-             + QString(trUtf8(" - ")) + query.value(7).toString();
+             + trUtf8(" - ") + query.value(2).toString()
+             + trUtf8(" ") + query.value(3).toString()
+             + trUtf8(" ") + query.value(4).toString()
+             + trUtf8(" ") + query.value(5).toString()
+             + trUtf8(" - ") + query.value(6).toString()
+             + trUtf8(" - ") + query.value(7).toString();
     
         cList->addItem(item); 
         
@@ -770,7 +773,7 @@ void QfactureImpl::aListRefresh()
     
     while(query.next()) {
         item = query.value(1).toString() 
-            + QString(trUtf8(" - ")) + query.value(2).toString()
+            + trUtf8(" - ") + query.value(2).toString()
             + QString(trUtf8("€ (")) + query.value(3).toString()
             + QString(trUtf8(")"));
     
@@ -934,11 +937,11 @@ void QfactureImpl::fClientListRefresh()
     while(query.next()) {
 		item = query.value(1).toString() 
 			+ QString(trUtf8(" | ")) + query.value(2).toString()
-			+ QString(trUtf8(" ")) + query.value(3).toString()
-			+ QString(trUtf8(" ")) + query.value(4).toString()
-			+ QString(trUtf8(" ")) + query.value(5).toString()
-			+ QString(trUtf8(" - ")) + query.value(6).toString()
-			+ QString(trUtf8(" - ")) + query.value(7).toString();
+			+ trUtf8(" ") + query.value(3).toString()
+			+ trUtf8(" ") + query.value(4).toString()
+			+ trUtf8(" ") + query.value(5).toString()
+			+ trUtf8(" - ") + query.value(6).toString()
+			+ trUtf8(" - ") + query.value(7).toString();
 		
         fClientList->addItem(item);
         
@@ -1005,9 +1008,9 @@ void QfactureImpl::fArtListRefresh()
     
     while (query.next()) {
         item = query.value(1).toString() 
-             + QString(trUtf8(" - ")) + query.value(2).toString()
-             + QString(trUtf8("€ (")) + query.value(3).toString()
-             + QString(trUtf8(")"));
+             + trUtf8(" - ") + query.value(2).toString()
+             + trUtf8("€ (") + query.value(3).toString()
+             + trUtf8(")");
     
         fArtList->addItem(item);
     
@@ -1415,9 +1418,9 @@ bool QfactureImpl::sListCaRefresh()
     
     Year = sYearCa->text();
     
-    if(Year == QString("") or Year.length() != 4 or !(9999 >= Year.toInt())){
-        sYearCa->setText(QString("2010"));
+    if(Year.isEmpty() or Year.length() != 4 or !(9999 >= Year.toInt())){
         Year = QString("2010");
+        sYearCa->setText(Year);
     }
     sListCa->clear();
     query.prepare(
@@ -1427,14 +1430,17 @@ bool QfactureImpl::sListCaRefresh()
     query.bindValue(":year", Year+QString("%"));
     statusbar->showMessage(query.executedQuery(), 5000);
     query.exec();
+
     while(query.next()){
-    text = query.value(0).toString()
-        +QString(trUtf8(" : "))
-        +query.value(1).toString()
-        +QString(trUtf8("€"));
-    sListCa->addItem(text);
+        text = query.value(0).toString()
+             + trUtf8(" : ")
+             + query.value(1).toString()
+             + trUtf8("€");
+        sListCa->addItem(text);
     }
+
     query.finish();
+
     return true;
 }
 

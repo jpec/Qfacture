@@ -16,7 +16,6 @@ class QfactureImpl : public QMainWindow, public Ui::Qfacture
     ~QfactureImpl();
 	
  private slots:
-    /* callbacks */
     void on_aPass_returnPressed();
     void on_sYearCa_lostFocus();
     void on_fArtLink_itemChanged(QTableWidgetItem* item);
@@ -42,7 +41,7 @@ class QfactureImpl : public QMainWindow, public Ui::Qfacture
     void on_aConnect_clicked();
     void on_action_Quitter_triggered();
     
-    /* methods */
+    void doQuit();
     void loadUserInfos();
     void cListRefresh();
     void fClientListRefresh();

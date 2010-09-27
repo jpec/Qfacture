@@ -66,7 +66,7 @@
         <string>Paramètres</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_3">
-        <item row="0" column="0" colspan="2">
+        <item row="0" column="0" colspan="3">
          <widget class="QGroupBox" name="uGroupBox">
           <property name="enabled">
            <bool>false</bool>
@@ -335,35 +335,10 @@ Logo</string>
              </property>
             </widget>
            </item>
-           <item row="10" column="1">
-            <widget class="QLabel" name="uLogo">
-             <property name="minimumSize">
-              <size>
-               <width>300</width>
-               <height>150</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>300</width>
-               <height>150</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Veuillez sélectionner une image de 300x150 Pixels.</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-             <property name="indent">
-              <number>-5</number>
-             </property>
-            </widget>
-           </item>
           </layout>
          </widget>
         </item>
-        <item row="0" column="3" rowspan="2">
+        <item row="0" column="4" rowspan="2">
          <spacer name="horizontalSpacer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -392,7 +367,7 @@ Logo</string>
           </property>
          </spacer>
         </item>
-        <item row="0" column="2">
+        <item row="0" column="3">
          <widget class="QGroupBox" name="aGroupBox">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
@@ -434,7 +409,7 @@ Logo</string>
               </size>
              </property>
              <property name="text">
-              <string>MySQL server</string>
+              <string>Hôte</string>
              </property>
              <property name="buddy">
               <cstring>aServer</cstring>
@@ -478,7 +453,7 @@ Logo</string>
               </size>
              </property>
              <property name="text">
-              <string>MySQL port</string>
+              <string>Port</string>
              </property>
              <property name="buddy">
               <cstring>aPort</cstring>
@@ -519,7 +494,7 @@ Logo</string>
               </size>
              </property>
              <property name="text">
-              <string>MySQL user</string>
+              <string>Utilisateur</string>
              </property>
              <property name="buddy">
               <cstring>aUser</cstring>
@@ -563,7 +538,7 @@ Logo</string>
               </size>
              </property>
              <property name="text">
-              <string>MySQL password</string>
+              <string>Mot de passe</string>
              </property>
              <property name="buddy">
               <cstring>aPass</cstring>
@@ -610,7 +585,7 @@ Logo</string>
               </size>
              </property>
              <property name="text">
-              <string>MySQL database</string>
+              <string>Base</string>
              </property>
              <property name="buddy">
               <cstring>aDb</cstring>
@@ -639,63 +614,20 @@ Logo</string>
              </property>
             </widget>
            </item>
-           <item row="6" column="0" colspan="2">
-            <widget class="QLabel" name="aFlag">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="palette">
-              <palette>
-               <active>
-                <colorrole role="WindowText">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>255</red>
-                   <green>0</green>
-                   <blue>0</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-               </active>
-               <inactive>
-                <colorrole role="WindowText">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>255</red>
-                   <green>0</green>
-                   <blue>0</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-               </inactive>
-               <disabled>
-                <colorrole role="WindowText">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>122</red>
-                   <green>122</green>
-                   <blue>122</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-               </disabled>
-              </palette>
+           <item row="5" column="0" colspan="2">
+            <widget class="QPushButton" name="aConnect">
+             <property name="maximumSize">
+              <size>
+               <width>16777214</width>
+               <height>16777215</height>
+              </size>
              </property>
              <property name="text">
-              <string>Qfacture n'est pas connectée au serveur MySQL</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-             <property name="buddy">
-              <cstring>aConnect</cstring>
+              <string>Connexion</string>
              </property>
             </widget>
            </item>
-           <item row="7" column="0" colspan="2">
+           <item row="6" column="0" colspan="2">
             <widget class="QPushButton" name="uSave">
              <property name="enabled">
               <bool>false</bool>
@@ -723,23 +655,10 @@ Logo</string>
              </property>
             </widget>
            </item>
-           <item row="5" column="0" colspan="2">
-            <widget class="QPushButton" name="aConnect">
-             <property name="maximumSize">
-              <size>
-               <width>16777214</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Connecter</string>
-             </property>
-            </widget>
-           </item>
           </layout>
          </widget>
         </item>
-        <item row="1" column="2">
+        <item row="1" column="3">
          <spacer name="verticalSpacer_2">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -751,6 +670,31 @@ Logo</string>
            </size>
           </property>
          </spacer>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLabel" name="uLogo">
+          <property name="minimumSize">
+           <size>
+            <width>300</width>
+            <height>150</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>300</width>
+            <height>150</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Sélectionnez une image de 300x150 pixels.</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <property name="indent">
+           <number>-5</number>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -1570,7 +1514,7 @@ Logo</string>
                <item row="4" column="0">
                 <widget class="QLabel" name="fReglLab">
                  <property name="text">
-                  <string>Réglement</string>
+                  <string>Règlement</string>
                  </property>
                 </widget>
                </item>
@@ -1792,7 +1736,7 @@ Logo</string>
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_Menu">
