@@ -3,7 +3,6 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
-#include <QFileDialog>
 #include <QListWidget>
 #include <QTableWidget>
 #include <QDate>
