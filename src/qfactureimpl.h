@@ -1,12 +1,16 @@
 #ifndef QFACTUREIMPL_H
 #define QFACTUREIMPL_H
-//
+
 #include <QMainWindow>
 #include <QString>
 #include <QSqlDatabase>
+#include <QSqlTableModel>
 #include <QSettings>
+
+#include "EditableSqlModel.h"
 #include "ui_Qfacture.h"
-//
+
+
 class QfactureImpl : public QMainWindow, public Ui::Qfacture
 {
     Q_OBJECT
@@ -14,7 +18,7 @@ class QfactureImpl : public QMainWindow, public Ui::Qfacture
  public:
     QfactureImpl(QWidget *parent=0, Qt::WFlags f=0);
     ~QfactureImpl();
-	
+    
  private slots:
     void on_aPass_returnPressed();
     void on_sYearCa_lostFocus();
@@ -32,7 +36,6 @@ class QfactureImpl : public QMainWindow, public Ui::Qfacture
     void on_aSave_clicked();
     void on_aDel_clicked();
     void on_cDel_clicked();
-    void on_cList_itemClicked(QListWidgetItem* item);
     void on_action_propos_activated();
     void on_cSave_clicked();
     void on_cNew_clicked();
@@ -43,13 +46,13 @@ class QfactureImpl : public QMainWindow, public Ui::Qfacture
     
     void doQuit();
     void loadUserInfos();
-    void cListRefresh();
+    void refreshCustomersList();
     void fClientListRefresh();
     void fArtLinkRefresh();
     void fArtListRefresh();
     void fListRefresh();
     void fUpdateAmount();
-    bool sListCaRefresh();
+    void sListCaRefresh();
     void aListRefresh();
 
  signals:
@@ -67,6 +70,8 @@ class QfactureImpl : public QMainWindow, public Ui::Qfacture
     QSqlDatabase db;
     QSettings *settings;
     
+    EditableSqlModel *clients_model;
+    
     void createActions();
     void MySQL_connect();
     void readSettings();
@@ -79,5 +84,3 @@ class QfactureImpl : public QMainWindow, public Ui::Qfacture
     QString makeFactureReference(QString number, QString date);
 };
 #endif
-
-

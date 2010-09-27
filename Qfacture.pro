@@ -6,5 +6,5 @@ OBJECTS_DIR = build
 MOC_DIR = build
 UI_DIR = build
 FORMS = ui/Qfacture.ui
-HEADERS = src/qfactureimpl.h
-SOURCES = src/qfactureimpl.cpp src/main.cpp
+HEADERS = src/qfactureimpl.h src/EditableSqlModel.h
+SOURCES = src/qfactureimpl.cpp src/main.cpp src/EditableSqlModel.cpp

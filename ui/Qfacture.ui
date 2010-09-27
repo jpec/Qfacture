@@ -37,7 +37,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../art/qfacture_24.png</normaloff>../art/qfacture_24.png</iconset>
+    <normaloff>../art/qfacture.png</normaloff>../art/qfacture.png</iconset>
   </property>
   <property name="unifiedTitleAndToolBarOnMac">
    <bool>false</bool>
@@ -108,7 +108,7 @@
              <property name="minimumSize">
               <size>
                <width>300</width>
-               <height>0</height>
+               <height>22</height>
               </size>
              </property>
              <property name="maximumSize">
@@ -327,11 +327,38 @@
              </property>
             </widget>
            </item>
-           <item row="10" column="0">
+           <item row="10" column="1">
+            <widget class="QPushButton" name="uSave">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>500</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Enregistrer</string>
+             </property>
+             <property name="checkable">
+              <bool>false</bool>
+             </property>
+             <property name="flat">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="1">
             <widget class="QPushButton" name="uChangeLogo">
              <property name="text">
-              <string>Changer
-Logo</string>
+              <string>Changer le logo</string>
              </property>
             </widget>
            </item>
@@ -610,7 +637,7 @@ Logo</string>
               <string notr="true"/>
              </property>
              <property name="text">
-              <string notr="true">qfacture_db</string>
+              <string notr="true">qfacture</string>
              </property>
             </widget>
            </item>
@@ -624,34 +651,6 @@ Logo</string>
              </property>
              <property name="text">
               <string>Connexion</string>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="0" colspan="2">
-            <widget class="QPushButton" name="uSave">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>500</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Enregistrer les paramètres utilisateur</string>
-             </property>
-             <property name="checkable">
-              <bool>false</bool>
-             </property>
-             <property name="flat">
-              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -710,8 +709,20 @@ Logo</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_5">
            <item row="0" column="0">
-            <widget class="QListWidget" name="cList">
+            <widget class="QTableView" name="cList">
+             <property name="autoScrollMargin">
+              <number>10</number>
+             </property>
              <property name="alternatingRowColors">
+              <bool>true</bool>
+             </property>
+             <property name="selectionMode">
+              <enum>QAbstractItemView::SingleSelection</enum>
+             </property>
+             <property name="horizontalScrollMode">
+              <enum>QAbstractItemView::ScrollPerPixel</enum>
+             </property>
+             <property name="sortingEnabled">
               <bool>true</bool>
              </property>
             </widget>
@@ -1000,19 +1011,6 @@ Logo</string>
               <string>Enregistrer</string>
              </property>
             </widget>
-           </item>
-           <item row="3" column="0">
-            <spacer name="horizontalSpacer_2">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
            </item>
            <item row="2" column="0" colspan="2">
             <widget class="QPushButton" name="cDel">
@@ -1782,8 +1780,6 @@ Logo</string>
   <tabstop>uPhone</tabstop>
   <tabstop>uMail</tabstop>
   <tabstop>uHome</tabstop>
-  <tabstop>uChangeLogo</tabstop>
-  <tabstop>uSave</tabstop>
   <tabstop>cList</tabstop>
   <tabstop>cId</tabstop>
   <tabstop>cName</tabstop>
