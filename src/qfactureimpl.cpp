@@ -1,25 +1,21 @@
 #include <QMessageBox>
 #include <QString>
-#include <QStringList>
-#include <QRegExp>
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QFileDialog>
-#include <QSqlTableModel>
 #include <QListWidget>
-#include <QModelIndex>
 #include <QTableWidget>
 #include <QDate>
-#include <iostream>
 #include "qfactureimpl.h"
 
 //
-QfactureImpl::QfactureImpl( QWidget * parent, Qt::WFlags f) : QMainWindow(parent, f)
+QfactureImpl::QfactureImpl(QWidget * parent, Qt::WFlags f) : QMainWindow(parent, f)
 {
     setupUi(this);
 	
-    VERSION = QString(trUtf8("v0.1-alpha"));
+    VERSION = trUtf8("v0.1-alpha");
+    
     db = QSqlDatabase::addDatabase("QMYSQL");
     
     settings = new QSettings("", "Qfacture");
