@@ -2,20 +2,17 @@
 
 ** IMPORTANT **
  * Implementing the Facture pdf generation >> KPHOEN.
- * Logo >> KEVIE.
 
 ** NOT IMPORTANT **
- * Cleaning the code >> ?.
- * Cleaning the GUI (adjustment with police size and 1024*600px compatible) >> ?.
+ * Cleaning the code >> IN PROGRESS.
+ * Cleaning the GUI (adjustment with police size and 1024*600px compatible) >> IN PROGRESS.
  * Implementing the Facture Latex generation >> KPHOEN.
  * Implementing the MySQL setting in config file (see xdg[1]) >> ?.
  * Implementing the automated MySQL installation >> ?.
  * Implementing the MySQL dump database >> ?.
 
 ** NOTES **
- * Pour les listes clients, j'utilise le Nom comme clé de recherche plutôt que l'Id...
-   Ça permet d'avoir moins d'informations dans la liste et ainsi avoir un affichage plus clair.
-   Je vais tester un peu comme ca (j'ai laissé l'Id sur les articles). À suivre.
+ * 
 
 --
 [1] http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
