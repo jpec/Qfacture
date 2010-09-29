@@ -187,8 +187,7 @@ void QfactureImpl::on_action_propos_activated()
 			       "Auteur : Julien PECQUEUR <jpec@julienpecqueur.com>\n"
 			       "--\n"
 			       "Contributeur(s) :\n"
-			       " * Module génération PDF : Kévin GOMEZ <contact@kevingomez.fr>\n"
-			       " * Logo : Kevin MACPHAIL <http://kmacphail.blogspot.com>\n"
+			       " * Kévin GOMEZ <contact@kevingomez.fr>\n"
 			       "\n"));
   msg.replace(":VERSION", VERSION);
   QMessageBox::about(this, "Qfacture", msg);
