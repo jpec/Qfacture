@@ -30,7 +30,7 @@ CREATE TABLE  `qfacture_db`.`article` (
   `Price` decimal(10,2) NOT NULL COMMENT 'Prix unitaire',
   `Comment` text NOT NULL COMMENT 'Commentaire',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8 COMMENT='Table des articles';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='Table des articles';
 
 --
 -- Definition of table `qfacture_db`.`client`
@@ -45,7 +45,7 @@ CREATE TABLE  `qfacture_db`.`client` (
   `Phone` varchar(14) DEFAULT NULL COMMENT 'Téléphone',
   `Mail` varchar(255) DEFAULT NULL COMMENT 'Email',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8 COMMENT='Table des clients';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='Table des clients';
 
 --
 -- Definition of table `qfacture_db`.`facture`
@@ -63,7 +63,7 @@ CREATE TABLE  `qfacture_db`.`facture` (
   UNIQUE KEY `Reference` (`Reference`),
   KEY `idClient` (`idClient`),
   CONSTRAINT `facture_ibfk_1` FOREIGN KEY (`idClient`) REFERENCES `client` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COMMENT='Table des factures';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='Table des factures';
 
 --
 -- Definition of table `qfacture_db`.`link`
@@ -80,7 +80,7 @@ CREATE TABLE  `qfacture_db`.`link` (
   KEY `idArticle` (`idArticle`),
   KEY `idFacture` (`idFacture`),
   CONSTRAINT `link_ibfk_2` FOREIGN KEY (`idArticle`) REFERENCES `article` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8 COMMENT='Liens facture - article';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='Liens facture - article';
 
 --
 -- Definition of table `qfacture_db`.`user`
