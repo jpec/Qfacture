@@ -1,0 +1,68 @@
+*--------------------------------------------------------------------*
+* NOTES POUR L'INSTALLATION DE QFACTURE                              *
+*--------------------------------------------------------------------*
+
+* TABLE DES MATIERES
+1. Près-requis
+2. Installation du programme Qfacture
+3. Installation de la base de données MySQL
+
+1. Près-requis :
+
+Pour pouvoir installer le programme Qfacture, vous devez avoir
+installé Qt4 sur votre système. Pour celà, veuillez installer le
+package de votre distribution Linux. Si vous n'utilisez pas Linux
+(c'est un tord!), veuillez installer manuellement l'environnement Qt4
+pour votre système d'exploitation.
+
+Pour obtenir Qt4 (téléchargement):
+>>> http://qt.nokia.com/downloads
+
+2. Installation du programme Qfacture :
+
+2.1. Sous GNU/Linux, *BSD :
+
+La meilleur solution est de compiler le programme. C'est rapide. Il
+vous suffit d'utiliser l'outil qmake.
+
+2.2. Sous Mac OSX :
+
+TO-DO !
+
+2.3. Sous Windows :
+
+TO-DO !
+
+3. Installation de la base de donnée MySQL :
+
+Le programme Qfacture stocke ses informations dans une base de données
+MySQL. Deux options s'offrent à vous : soit vous installez un service
+MySQL sur votre machine (utilisation monoposte) ou vous utilisez une
+base de données MySQL sur un serveur distant.
+
+Pour installer MySQL sur votre machine, utilisez le gestionnaire de
+paquets de votre distribution Linux. Si vous n'utilisez pas Linux,
+veuillez installer manuellement le service MySQL pour votre système
+d'exploitation.
+
+Pour obtenir MySQL (téléchargement):
+>>> http://www.mysql.fr/downloads/mysql/
+
+Une fois votre service MySQL correctement installé et configuré (je
+vous conseille de créer un utilisateur "qfacture" avec tous les droits
+sur une base de donnée "qfacture_db" et un mot de passe), vous allez
+pouvoir initialiser la base de donnée avec le script fournit avec
+Qfacture.
+
+>>> qfacture_create_database.sql
+
+Pour les personnes ne sachant pas utiliser MySQL - RTFM :) - et voici
+la commande magique :
+
+>>> mysql -h localhost -u qfacture -p motdepasse qfacture_db < \
+>>> qfacture_create_database.sql
+
+Bien sur il faut remplacer le champ "motdepasse" par votre mot de
+passe de la base de donnée, et si vous utilisez une base de donnée
+distante remplacez "localhost" par l'IP du serveur.
+
