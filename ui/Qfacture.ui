@@ -37,7 +37,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../art/qfacture_24.png</normaloff>../art/qfacture_24.png</iconset>
+    <normaloff>../art/qfacture.png</normaloff>../art/qfacture.png</iconset>
   </property>
   <property name="unifiedTitleAndToolBarOnMac">
    <bool>false</bool>
@@ -66,7 +66,7 @@
         <string>Paramètres</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_3">
-        <item row="0" column="0" colspan="2">
+        <item row="0" column="0" colspan="3">
          <widget class="QGroupBox" name="uGroupBox">
           <property name="enabled">
            <bool>false</bool>
@@ -108,7 +108,7 @@
              <property name="minimumSize">
               <size>
                <width>300</width>
-               <height>0</height>
+               <height>22</height>
               </size>
              </property>
              <property name="maximumSize">
@@ -327,43 +327,45 @@
              </property>
             </widget>
            </item>
-           <item row="10" column="0">
-            <widget class="QPushButton" name="uChangeLogo">
-             <property name="text">
-              <string>Changer
-Logo</string>
-             </property>
-            </widget>
-           </item>
            <item row="10" column="1">
-            <widget class="QLabel" name="uLogo">
+            <widget class="QPushButton" name="uSave">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="minimumSize">
               <size>
-               <width>300</width>
-               <height>150</height>
+               <width>0</width>
+               <height>0</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>300</width>
-               <height>150</height>
+               <width>500</width>
+               <height>16777215</height>
               </size>
              </property>
              <property name="text">
-              <string>Veuillez sélectionner une image de 300x150 Pixels.</string>
+              <string>Enregistrer</string>
              </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
+             <property name="checkable">
+              <bool>false</bool>
              </property>
-             <property name="indent">
-              <number>-5</number>
+             <property name="flat">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="1">
+            <widget class="QPushButton" name="uChangeLogo">
+             <property name="text">
+              <string>Changer le logo</string>
              </property>
             </widget>
            </item>
           </layout>
          </widget>
         </item>
-        <item row="0" column="3" rowspan="2">
+        <item row="0" column="4" rowspan="2">
          <spacer name="horizontalSpacer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -392,7 +394,7 @@ Logo</string>
           </property>
          </spacer>
         </item>
-        <item row="0" column="2">
+        <item row="0" column="3">
          <widget class="QGroupBox" name="aGroupBox">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
@@ -434,7 +436,7 @@ Logo</string>
               </size>
              </property>
              <property name="text">
-              <string>MySQL server</string>
+              <string>Hôte</string>
              </property>
              <property name="buddy">
               <cstring>aServer</cstring>
@@ -478,7 +480,7 @@ Logo</string>
               </size>
              </property>
              <property name="text">
-              <string>MySQL port</string>
+              <string>Port</string>
              </property>
              <property name="buddy">
               <cstring>aPort</cstring>
@@ -519,7 +521,7 @@ Logo</string>
               </size>
              </property>
              <property name="text">
-              <string>MySQL user</string>
+              <string>Utilisateur</string>
              </property>
              <property name="buddy">
               <cstring>aUser</cstring>
@@ -563,7 +565,7 @@ Logo</string>
               </size>
              </property>
              <property name="text">
-              <string>MySQL password</string>
+              <string>Mot de passe</string>
              </property>
              <property name="buddy">
               <cstring>aPass</cstring>
@@ -610,7 +612,7 @@ Logo</string>
               </size>
              </property>
              <property name="text">
-              <string>MySQL database</string>
+              <string>Base</string>
              </property>
              <property name="buddy">
               <cstring>aDb</cstring>
@@ -635,91 +637,7 @@ Logo</string>
               <string notr="true"/>
              </property>
              <property name="text">
-              <string notr="true">qfacture_db</string>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="0" colspan="2">
-            <widget class="QLabel" name="aFlag">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="palette">
-              <palette>
-               <active>
-                <colorrole role="WindowText">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>255</red>
-                   <green>0</green>
-                   <blue>0</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-               </active>
-               <inactive>
-                <colorrole role="WindowText">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>255</red>
-                   <green>0</green>
-                   <blue>0</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-               </inactive>
-               <disabled>
-                <colorrole role="WindowText">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>122</red>
-                   <green>122</green>
-                   <blue>122</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-               </disabled>
-              </palette>
-             </property>
-             <property name="text">
-              <string>Qfacture n'est pas connectée au serveur MySQL</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-             <property name="buddy">
-              <cstring>aConnect</cstring>
-             </property>
-            </widget>
-           </item>
-           <item row="7" column="0" colspan="2">
-            <widget class="QPushButton" name="uSave">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>500</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Enregistrer les paramètres utilisateur</string>
-             </property>
-             <property name="checkable">
-              <bool>false</bool>
-             </property>
-             <property name="flat">
-              <bool>false</bool>
+              <string notr="true">qfacture</string>
              </property>
             </widget>
            </item>
@@ -732,14 +650,14 @@ Logo</string>
               </size>
              </property>
              <property name="text">
-              <string>Connecter</string>
+              <string>Connexion</string>
              </property>
             </widget>
            </item>
           </layout>
          </widget>
         </item>
-        <item row="1" column="2">
+        <item row="1" column="3">
          <spacer name="verticalSpacer_2">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -751,6 +669,31 @@ Logo</string>
            </size>
           </property>
          </spacer>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLabel" name="uLogo">
+          <property name="minimumSize">
+           <size>
+            <width>300</width>
+            <height>150</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>300</width>
+            <height>150</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Sélectionnez une image de 300x150 pixels.</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <property name="indent">
+           <number>-5</number>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -766,8 +709,20 @@ Logo</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_5">
            <item row="0" column="0">
-            <widget class="QListWidget" name="cList">
+            <widget class="QTableView" name="cList">
+             <property name="autoScrollMargin">
+              <number>10</number>
+             </property>
              <property name="alternatingRowColors">
+              <bool>true</bool>
+             </property>
+             <property name="selectionMode">
+              <enum>QAbstractItemView::SingleSelection</enum>
+             </property>
+             <property name="horizontalScrollMode">
+              <enum>QAbstractItemView::ScrollPerPixel</enum>
+             </property>
+             <property name="sortingEnabled">
               <bool>true</bool>
              </property>
             </widget>
@@ -1057,19 +1012,6 @@ Logo</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="0">
-            <spacer name="horizontalSpacer_2">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
            <item row="2" column="0" colspan="2">
             <widget class="QPushButton" name="cDel">
              <property name="enabled">
@@ -1230,7 +1172,7 @@ Logo</string>
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QLineEdit" name="aPrice">
+            <widget class="QDoubleSpinBox" name="aPrice">
              <property name="minimumSize">
               <size>
                <width>100</width>
@@ -1242,6 +1184,21 @@ Logo</string>
                <width>100</width>
                <height>16777215</height>
               </size>
+             </property>
+             <property name="suffix">
+              <string> €</string>
+             </property>
+             <property name="minimum">
+              <double>-999999.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>999999.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>1.000000000000000</double>
+             </property>
+             <property name="value">
+              <double>0.000000000000000</double>
              </property>
             </widget>
            </item>
@@ -1570,7 +1527,7 @@ Logo</string>
                <item row="4" column="0">
                 <widget class="QLabel" name="fReglLab">
                  <property name="text">
-                  <string>Réglement</string>
+                  <string>Règlement</string>
                  </property>
                 </widget>
                </item>
@@ -1792,7 +1749,7 @@ Logo</string>
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_Menu">
@@ -1838,8 +1795,6 @@ Logo</string>
   <tabstop>uPhone</tabstop>
   <tabstop>uMail</tabstop>
   <tabstop>uHome</tabstop>
-  <tabstop>uChangeLogo</tabstop>
-  <tabstop>uSave</tabstop>
   <tabstop>cList</tabstop>
   <tabstop>cId</tabstop>
   <tabstop>cName</tabstop>
