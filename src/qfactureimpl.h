@@ -54,6 +54,8 @@ class QfactureImpl : public QMainWindow, public Ui::Qfacture
     void updateInvoiceAmount();
     void sListCaRefresh();
     void refreshProductsList();
+    
+    void enableDelCustomerButton();
 
  signals:
     void DBConnected();

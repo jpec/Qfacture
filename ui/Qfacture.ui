@@ -713,6 +713,9 @@
              <property name="autoScrollMargin">
               <number>10</number>
              </property>
+             <property name="editTriggers">
+              <set>QAbstractItemView::DoubleClicked</set>
+             </property>
              <property name="alternatingRowColors">
               <bool>true</bool>
              </property>
@@ -1823,8 +1826,8 @@
    <slot>update()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>561</x>
-     <y>259</y>
+     <x>763</x>
+     <y>290</y>
     </hint>
     <hint type="destinationlabel">
      <x>434</x>
@@ -1839,8 +1842,8 @@
    <slot>update()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>581</x>
-     <y>255</y>
+     <x>763</x>
+     <y>290</y>
     </hint>
     <hint type="destinationlabel">
      <x>643</x>
@@ -1855,12 +1858,12 @@
    <slot>update()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>507</x>
-     <y>257</y>
+     <x>763</x>
+     <y>290</y>
     </hint>
     <hint type="destinationlabel">
-     <x>450</x>
-     <y>73</y>
+     <x>772</x>
+     <y>138</y>
     </hint>
    </hints>
   </connection>

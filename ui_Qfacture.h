@@ -1,14 +1,14 @@
 /********************************************************************************
 ** Form generated from reading UI file 'Qfacture.ui'
 **
-** Created: Mon Sep 27 22:16:56 2010
+** Created: Thu Sep 30 22:29:45 2010
 **      by: Qt User Interface Compiler version 4.6.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef UI_QFACTURE_H
-#define UI_QFACTURE_H
+#ifndef QFACTURE_H
+#define QFACTURE_H
 
 #include <QtCore/QDate>
 #include <QtCore/QVariant>
@@ -490,6 +490,7 @@ public:
         cList = new QTableView(clGroupBox);
         cList->setObjectName(QString::fromUtf8("cList"));
         cList->setAutoScrollMargin(10);
+        cList->setEditTriggers(QAbstractItemView::DoubleClicked);
         cList->setAlternatingRowColors(true);
         cList->setSelectionMode(QAbstractItemView::SingleSelection);
         cList->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
@@ -1142,7 +1143,7 @@ public:
         label_25->setText(QApplication::translate("Qfacture", "Identifiant", 0, QApplication::UnicodeUTF8));
         label_23->setText(QApplication::translate("Qfacture", "D\303\251signation", 0, QApplication::UnicodeUTF8));
         label_26->setText(QApplication::translate("Qfacture", "Prix unitaire", 0, QApplication::UnicodeUTF8));
-        aPrice->setSuffix(QApplication::translate("Qfacture", "\342\202\254", 0, QApplication::UnicodeUTF8));
+        aPrice->setSuffix(QApplication::translate("Qfacture", " \342\202\254", 0, QApplication::UnicodeUTF8));
         label_24->setText(QApplication::translate("Qfacture", "Commentaire", 0, QApplication::UnicodeUTF8));
         artaGroupBox->setTitle(QApplication::translate("Qfacture", "Actions", 0, QApplication::UnicodeUTF8));
         aNew->setText(QApplication::translate("Qfacture", "Nouveau", 0, QApplication::UnicodeUTF8));
@@ -1205,4 +1206,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // UI_QFACTURE_H
+#endif // QFACTURE_H
