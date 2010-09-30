@@ -218,7 +218,7 @@ void QfactureImpl::readSettings()
     aPort->setText(settings->value("port", 3306).toString());
     aUser->setText(settings->value("user", "qfacture").toString());
     aPass->setText(settings->value("passwd", "").toString());
-    aDb->setText(settings->value("db_name", "qfacture").toString());
+    aDb->setText(settings->value("db_name", "qfacture_db").toString());
     settings->endGroup();
 }
 
@@ -338,6 +338,7 @@ void QfactureImpl::on_aConnect_clicked()
     aUser->setEnabled(!connexion_state);
     aPass->setEnabled(!connexion_state);
     aDb->setEnabled(!connexion_state);
+    fFlag = false;
 }
 
 void QfactureImpl::on_aPass_returnPressed()
@@ -1024,6 +1025,7 @@ void QfactureImpl::fArtLinkRefresh()
     fArtLink->setAlternatingRowColors(true);
     //fArtLink->verticalHeader()->setVisible(false);
     
+    fFlag = false;
     int i=0;
     while(query.next()) {
         fArtLink->setItem(i, 0, new QTableWidgetItem(query.value(0).toString())); // id
@@ -1035,82 +1037,83 @@ void QfactureImpl::fArtLinkRefresh()
         
         i++;
     }
-    
+    fFlag = true;
     query.finish();
 }
 
 void QfactureImpl::on_fArtLink_itemChanged(QTableWidgetItem* Item)
 {
     /** Une cellule du tableau lien article est modifiée **/
-    
-    int Row = Item->row();
-    int Col = Item->column();
-    QString id = fArtLink->item(Row, 0)->text();
-    QSqlQuery query;
-    int quantity;
-    float price, off, amount, amount_bis;
-    switch (Col)
-    {
-        case 3: 
-    /* Quantité mise à jour */
-    quantity = Item->text().toInt();
-    if (quantity != 0) {
-        price = fArtLink->item(Row, 2)->text().toFloat();
-        off = fArtLink->item(Row, 4)->text().toFloat();
-        amount = fArtLink->item(Row, 5)->text().toFloat();
-        amount_bis = quantity * price * (1 - off / 100);
-        if (amount != amount_bis) {
-        query.prepare(
-                "UPDATE link "
-                "SET amount = :Amount, quantity = :Quantity "
-                "WHERE id = :Id"
-                );
-        query.bindValue(":Amount", amount_bis); 
-        query.bindValue(":Quantity", quantity); 
-        query.bindValue(":Id", id);
-        query.exec();
-        query.finish();
-        }
-                
-        statusbar->showMessage(trUtf8("La quantité a été modifiée avec succés."), 3000);
-    } else {
-        /* Quantité = 0 => suppression du lien */
-        query.prepare("DELETE FROM link WHERE id = :Id");
-        query.bindValue(":Id", id);
-        query.exec();
-        query.finish();
-        fArtLinkRefresh();
-        on_fCalc_clicked();
-        statusbar->showMessage(trUtf8("La ligne de la facture a été supprimée avec succés."), 3000);
-    }
-    break;
-        case 4: 
-    /* Remise mise à jour */
-    off = Item->text().toInt();
-    price = fArtLink->item(Row, 2)->text().toFloat();
-    quantity = fArtLink->item(Row, 3)->text().toInt();
-    amount = fArtLink->item(Row, 5)->text().toFloat();
-    amount_bis = quantity * price * (1 - off / 100);
-    if (amount != amount_bis) {
-        query.prepare(
-            "UPDATE link "
-            "SET amount = :Amount, off = :Off "
-            "WHERE id = :Id"
-            );
-        query.bindValue(":Amount", amount_bis); 
-        query.bindValue(":Off", off); 
-        query.bindValue(":Id", id);
-        query.exec();
-        query.finish();
-    }
-    statusbar->showMessage(trUtf8("La remise a été modifiée avec succés."), 3000);
-    break;
-        default:
-    statusbar->showMessage(trUtf8("Cette cellule n'est pas modifiable."), 3000);
-    break;
-    }
-    
-    emit factureArticlesUpdated();
+    if (fFlag) {
+	    int Row = Item->row();
+	    int Col = Item->column();
+	    QString id = fArtLink->item(Row, 0)->text();
+	    QSqlQuery query;
+	    int quantity;
+	    float price, off, amount, amount_bis;
+	    switch (Col)
+	    {
+	        case 3: 
+	    /* Quantité mise à jour */
+	    quantity = Item->text().toInt();
+	    if (quantity != 0) {
+	        price = fArtLink->item(Row, 2)->text().toFloat();
+	        off = fArtLink->item(Row, 4)->text().toFloat();
+	        amount = fArtLink->item(Row, 5)->text().toFloat();
+	        amount_bis = quantity * price * (1 - off / 100);
+	        if (amount != amount_bis) {
+	        query.prepare(
+	                "UPDATE link "
+	                "SET amount = :Amount, quantity = :Quantity "
+	                "WHERE id = :Id"
+	                );
+	        query.bindValue(":Amount", amount_bis); 
+	        query.bindValue(":Quantity", quantity); 
+	        query.bindValue(":Id", id);
+	        query.exec();
+	        query.finish();
+	        }
+	                
+	        statusbar->showMessage(trUtf8("La quantité a été modifiée avec succés."), 3000);
+	    } else {
+	        /* Quantité = 0 => suppression du lien */
+	        query.prepare("DELETE FROM link WHERE id = :Id");
+	        query.bindValue(":Id", id);
+	        query.exec();
+	        query.finish();
+	        fArtLinkRefresh();
+	        on_fCalc_clicked();
+	        statusbar->showMessage(trUtf8("La ligne de la facture a été supprimée avec succés."), 3000);
+	    }
+	    break;
+	        case 4: 
+	    /* Remise mise à jour */
+	    off = Item->text().toInt();
+	    price = fArtLink->item(Row, 2)->text().toFloat();
+	    quantity = fArtLink->item(Row, 3)->text().toInt();
+	    amount = fArtLink->item(Row, 5)->text().toFloat();
+	    amount_bis = quantity * price * (1 - off / 100);
+	    if (amount != amount_bis) {
+	        query.prepare(
+	            "UPDATE link "
+	            "SET amount = :Amount, off = :Off "
+	            "WHERE id = :Id"
+	            );
+	        query.bindValue(":Amount", amount_bis); 
+	        query.bindValue(":Off", off); 
+	        query.bindValue(":Id", id);
+	        query.exec();
+	        query.finish();
+	    }
+	    statusbar->showMessage(trUtf8("La remise a été modifiée avec succés."), 3000);
+	    break;
+	        default:
+	    statusbar->showMessage(trUtf8("Cette cellule n'est pas modifiable."), 3000);
+	    break;
+	    }
+	    
+	    emit factureArticlesUpdated();
+   }
 }
 
 /**
