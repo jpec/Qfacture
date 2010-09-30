@@ -72,6 +72,8 @@ class QfactureImpl : public QMainWindow, public Ui::Qfacture
     QSqlDatabase db;
     QSettings *settings;
     
+    bool fFlag;
+    
     EditableSqlModel *clients_model;
     
     void createActions();

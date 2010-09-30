@@ -210,20 +210,21 @@ void QfactureImpl::writeSettings()
  */
 void QfactureImpl::readSettings()
 {
-	// infos sur la fenêtre (taille et position)
-	settings->beginGroup("Window");
-	resize(settings->value("size", QSize(400, 400)).toSize());
-	move(settings->value("pos", QPoint(200, 200)).toPoint());
-	settings->endGroup();
-	
-	// infos de connexion à la DB
-	settings->beginGroup("DB");
-	aServer->setText(settings->value("host", "localhost").toString());
-	aPort->setText(settings->value("port", 3306).toString());
-	aUser->setText(settings->value("user", "qfacture").toString());
-	aPass->setText(settings->value("passwd", "").toString());
-	aDb->setText(settings->value("db_name", "qfacture").toString());
-	settings->endGroup();
+
+    // infos sur la fenêtre (taille et position)
+    settings->beginGroup("Window");
+    resize(settings->value("size", QSize(400, 400)).toSize());
+    move(settings->value("pos", QPoint(200, 200)).toPoint());
+    settings->endGroup();
+    
+    // infos de connexion à la DB
+    settings->beginGroup("DB");
+    aServer->setText(settings->value("host", "localhost").toString());
+    aPort->setText(settings->value("port", 3306).toString());
+    aUser->setText(settings->value("user", "qfacture").toString());
+    aPass->setText(settings->value("passwd", "").toString());
+    aDb->setText(settings->value("db_name", "qfacture_db").toString());
+    settings->endGroup();
 }
 
 /**
@@ -317,31 +318,32 @@ void QfactureImpl::loadUserInfos()
  */
 void QfactureImpl::on_aConnect_clicked()
 {
-	bool connexion_state = db.isOpen();
-	
-	/* Connexion */
-	if(!connexion_state)
-		MySQLConnect();
-	else {
-		/* Déconnexion */
-		
-		if(!confirm("Voulez-vous réellement vous déconnecter du serveur?"))
-			return;
-		
-		db.close();
-	}
+    bool connexion_state = db.isOpen();
+    
+    /* Connexion */
+    if(!connexion_state)
+        MySQLConnect();
+    else {
+        /* Déconnexion */
+        
+        if(!confirm("Voulez-vous réellement vous déconnecter du serveur?"))
+            return;
+        
+        db.close();
+    }
 
-	connexion_state = db.isOpen();
-	
-	// mise à jour des widgets en fonction de l'état de la connexion
-	aConnect->setText(connexion_state ? trUtf8("Déconnexion") : trUtf8("Connexion"));
-	uSave->setEnabled(connexion_state);
-	uGroupBox->setEnabled(connexion_state);
-	aServer->setEnabled(!connexion_state);
-	aPort->setEnabled(!connexion_state);
-	aUser->setEnabled(!connexion_state);
-	aPass->setEnabled(!connexion_state);
-	aDb->setEnabled(!connexion_state);
+    connexion_state = db.isOpen();
+    
+    // mise à jour des widgets en fonction de l'état de la connexion
+    aConnect->setText(connexion_state ? trUtf8("Déconnexion") : trUtf8("Connexion"));
+    uSave->setEnabled(connexion_state);
+    uGroupBox->setEnabled(connexion_state);
+    aServer->setEnabled(!connexion_state);
+    aPort->setEnabled(!connexion_state);
+    aUser->setEnabled(!connexion_state);
+    aPass->setEnabled(!connexion_state);
+    aDb->setEnabled(!connexion_state);
+    fFlag = false;
 }
 
 void QfactureImpl::on_aPass_returnPressed()
@@ -1015,114 +1017,116 @@ void QfactureImpl::on_fArtList_itemDoubleClicked(QListWidgetItem* item)
  */
 void QfactureImpl::fArtLinkRefresh()
 {
-	QSqlQuery query;
-	
-	fArtLink->clearContents();
-	
-	query.prepare(
-		"SELECT l.id, a.name, l.price, l.quantity, l.off, l.amount "
-		"FROM link AS l "
-		"LEFT JOIN article AS a "
-		"ON a.id = l.idarticle "
-		"WHERE l.idfacture = :idFacture "
-		"ORDER BY l.id "
-	);
-	
-	query.bindValue(":IdFacture", fNum->text());
-	
-	query.exec();
-	
-	fArtLink->setRowCount(query.size());
-	fArtLink->setAlternatingRowColors(true);
-	//fArtLink->verticalHeader()->setVisible(false);
-	
-	int i=0;
-	while(query.next()) {
-		fArtLink->setItem(i, 0, new QTableWidgetItem(query.value(0).toString())); // id
-		fArtLink->setItem(i, 1, new QTableWidgetItem(query.value(1).toString())); // name
-		fArtLink->setItem(i, 2, new QTableWidgetItem(query.value(2).toString())); // price
-		fArtLink->setItem(i, 3, new QTableWidgetItem(query.value(3).toString())); // nbr
-		fArtLink->setItem(i, 4, new QTableWidgetItem(query.value(4).toString())); // off
-		fArtLink->setItem(i, 5, new QTableWidgetItem(query.value(5).toString())); // mont
-		
-		i++;
-	}
-	
-	query.finish();
+    QSqlQuery query;
+    
+    fArtLink->clearContents();
+    
+    query.prepare(
+        "SELECT l.id, a.name, l.price, l.quantity, l.off, l.amount "
+        "FROM link AS l "
+        "LEFT JOIN article AS a "
+        "ON a.id = l.idarticle "
+        "WHERE l.idfacture = :idFacture "
+        "ORDER BY l.id "
+    );
+    
+    query.bindValue(":IdFacture", fNum->text());
+    
+    query.exec();
+    
+    fArtLink->setRowCount(query.size());
+    fArtLink->setAlternatingRowColors(true);
+    //fArtLink->verticalHeader()->setVisible(false);
+    
+    fFlag = false;
+    int i=0;
+    while(query.next()) {
+        fArtLink->setItem(i, 0, new QTableWidgetItem(query.value(0).toString())); // id
+        fArtLink->setItem(i, 1, new QTableWidgetItem(query.value(1).toString())); // name
+        fArtLink->setItem(i, 2, new QTableWidgetItem(query.value(2).toString())); // price
+        fArtLink->setItem(i, 3, new QTableWidgetItem(query.value(3).toString())); // nbr
+        fArtLink->setItem(i, 4, new QTableWidgetItem(query.value(4).toString())); // off
+        fArtLink->setItem(i, 5, new QTableWidgetItem(query.value(5).toString())); // mont
+        
+        i++;
+    }
+    fFlag = true;
+    query.finish();
 }
 
 void QfactureImpl::on_fArtLink_itemChanged(QTableWidgetItem* Item)
 {
-	/** Une cellule du tableau lien article est modifiée **/
-	
-	int Row = Item->row();
-	int Col = Item->column();
-	QString id = fArtLink->item(Row, 0)->text();
-	QSqlQuery query;
-	int quantity;
-	float price, off, amount, amount_bis;
-	switch (Col)
-	{
-		case 3: 
-	/* Quantité mise à jour */
-	quantity = Item->text().toInt();
-	if (quantity != 0) {
-		price = fArtLink->item(Row, 2)->text().toFloat();
-		off = fArtLink->item(Row, 4)->text().toFloat();
-		amount = fArtLink->item(Row, 5)->text().toFloat();
-		amount_bis = quantity * price * (1 - off / 100);
-		if (amount != amount_bis) {
-		query.prepare(
-				"UPDATE link "
-				"SET amount = :Amount, quantity = :Quantity "
-				"WHERE id = :Id"
-				);
-		query.bindValue(":Amount", amount_bis); 
-		query.bindValue(":Quantity", quantity); 
-		query.bindValue(":Id", id);
-		query.exec();
-		query.finish();
-		}
-				
-		statusbar->showMessage(trUtf8("La quantité a été modifiée avec succés."), 3000);
-	} else {
-		/* Quantité = 0 => suppression du lien */
-		query.prepare("DELETE FROM link WHERE id = :Id");
-		query.bindValue(":Id", id);
-		query.exec();
-		query.finish();
-		fArtLinkRefresh();
-		on_fCalc_clicked();
-		statusbar->showMessage(trUtf8("La ligne de la facture a été supprimée avec succés."), 3000);
-	}
-	break;
-		case 4: 
-	/* Remise mise à jour */
-	off = Item->text().toInt();
-	price = fArtLink->item(Row, 2)->text().toFloat();
-	quantity = fArtLink->item(Row, 3)->text().toInt();
-	amount = fArtLink->item(Row, 5)->text().toFloat();
-	amount_bis = quantity * price * (1 - off / 100);
-	if (amount != amount_bis) {
-		query.prepare(
-			"UPDATE link "
-			"SET amount = :Amount, off = :Off "
-			"WHERE id = :Id"
-			);
-		query.bindValue(":Amount", amount_bis); 
-		query.bindValue(":Off", off); 
-		query.bindValue(":Id", id);
-		query.exec();
-		query.finish();
-	}
-	statusbar->showMessage(trUtf8("La remise a été modifiée avec succés."), 3000);
-	break;
-		default:
-	statusbar->showMessage(trUtf8("Cette cellule n'est pas modifiable."), 3000);
-	break;
-	}
-	
-	emit factureArticlesUpdated();
+    /** Une cellule du tableau lien article est modifiée **/
+    if (fFlag) {
+	    int Row = Item->row();
+	    int Col = Item->column();
+	    QString id = fArtLink->item(Row, 0)->text();
+	    QSqlQuery query;
+	    int quantity;
+	    float price, off, amount, amount_bis;
+	    switch (Col)
+	    {
+	        case 3: 
+	    /* Quantité mise à jour */
+	    quantity = Item->text().toInt();
+	    if (quantity != 0) {
+	        price = fArtLink->item(Row, 2)->text().toFloat();
+	        off = fArtLink->item(Row, 4)->text().toFloat();
+	        amount = fArtLink->item(Row, 5)->text().toFloat();
+	        amount_bis = quantity * price * (1 - off / 100);
+	        if (amount != amount_bis) {
+	        query.prepare(
+	                "UPDATE link "
+	                "SET amount = :Amount, quantity = :Quantity "
+	                "WHERE id = :Id"
+	                );
+	        query.bindValue(":Amount", amount_bis); 
+	        query.bindValue(":Quantity", quantity); 
+	        query.bindValue(":Id", id);
+	        query.exec();
+	        query.finish();
+	        }
+	                
+	        statusbar->showMessage(trUtf8("La quantité a été modifiée avec succés."), 3000);
+	    } else {
+	        /* Quantité = 0 => suppression du lien */
+	        query.prepare("DELETE FROM link WHERE id = :Id");
+	        query.bindValue(":Id", id);
+	        query.exec();
+	        query.finish();
+	        fArtLinkRefresh();
+	        on_fCalc_clicked();
+	        statusbar->showMessage(trUtf8("La ligne de la facture a été supprimée avec succés."), 3000);
+	    }
+	    break;
+	        case 4: 
+	    /* Remise mise à jour */
+	    off = Item->text().toInt();
+	    price = fArtLink->item(Row, 2)->text().toFloat();
+	    quantity = fArtLink->item(Row, 3)->text().toInt();
+	    amount = fArtLink->item(Row, 5)->text().toFloat();
+	    amount_bis = quantity * price * (1 - off / 100);
+	    if (amount != amount_bis) {
+	        query.prepare(
+	            "UPDATE link "
+	            "SET amount = :Amount, off = :Off "
+	            "WHERE id = :Id"
+	            );
+	        query.bindValue(":Amount", amount_bis); 
+	        query.bindValue(":Off", off); 
+	        query.bindValue(":Id", id);
+	        query.exec();
+	        query.finish();
+	    }
+	    statusbar->showMessage(trUtf8("La remise a été modifiée avec succés."), 3000);
+	    break;
+	        default:
+	    statusbar->showMessage(trUtf8("Cette cellule n'est pas modifiable."), 3000);
+	    break;
+	    }
+	    
+	    emit factureArticlesUpdated();
+   }
 }
 
 /**
