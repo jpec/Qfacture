@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'Qfacture.ui'
 **
-** Created: Fri Oct 1 19:42:12 2010
+** Created: Fri Oct 1 21:57:55 2010
 **      by: Qt User Interface Compiler version 4.6.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -172,7 +172,7 @@ public:
     QPushButton *fNew;
     QWidget *tabFact2;
     QGridLayout *gridLayout_8;
-    QListWidget *fList;
+    QTableWidget *fList;
     QWidget *tStat;
     QGridLayout *gridLayout_13;
     QGroupBox *sGroupCa;
@@ -665,6 +665,7 @@ public:
         aList->setMinimumSize(QSize(0, 280));
         aList->setEditTriggers(QAbstractItemView::DoubleClicked);
         aList->setAlternatingRowColors(true);
+        aList->setSortingEnabled(true);
 
         gridLayout_6->addWidget(aList, 0, 0, 1, 1);
 
@@ -949,9 +950,28 @@ public:
         tabFact2->setObjectName(QString::fromUtf8("tabFact2"));
         gridLayout_8 = new QGridLayout(tabFact2);
         gridLayout_8->setObjectName(QString::fromUtf8("gridLayout_8"));
-        fList = new QListWidget(tabFact2);
+        fList = new QTableWidget(tabFact2);
+        if (fList->columnCount() < 7)
+            fList->setColumnCount(7);
+        QTableWidgetItem *__qtablewidgetitem6 = new QTableWidgetItem();
+        fList->setHorizontalHeaderItem(0, __qtablewidgetitem6);
+        QTableWidgetItem *__qtablewidgetitem7 = new QTableWidgetItem();
+        fList->setHorizontalHeaderItem(1, __qtablewidgetitem7);
+        QTableWidgetItem *__qtablewidgetitem8 = new QTableWidgetItem();
+        fList->setHorizontalHeaderItem(2, __qtablewidgetitem8);
+        QTableWidgetItem *__qtablewidgetitem9 = new QTableWidgetItem();
+        fList->setHorizontalHeaderItem(3, __qtablewidgetitem9);
+        QTableWidgetItem *__qtablewidgetitem10 = new QTableWidgetItem();
+        fList->setHorizontalHeaderItem(4, __qtablewidgetitem10);
+        QTableWidgetItem *__qtablewidgetitem11 = new QTableWidgetItem();
+        fList->setHorizontalHeaderItem(5, __qtablewidgetitem11);
+        QTableWidgetItem *__qtablewidgetitem12 = new QTableWidgetItem();
+        fList->setHorizontalHeaderItem(6, __qtablewidgetitem12);
         fList->setObjectName(QString::fromUtf8("fList"));
+        fList->setEditTriggers(QAbstractItemView::NoEditTriggers);
         fList->setAlternatingRowColors(true);
+        fList->setSortingEnabled(true);
+        fList->setColumnCount(7);
 
         gridLayout_8->addWidget(fList, 0, 0, 1, 1);
 
@@ -1092,7 +1112,7 @@ public:
         QObject::connect(aConnect, SIGNAL(clicked()), aGroupBox, SLOT(update()));
 
         tabWidget->setCurrentIndex(0);
-        tabFacture->setCurrentIndex(0);
+        tabFacture->setCurrentIndex(1);
 
 
         QMetaObject::connectSlotsByName(Qfacture);
@@ -1190,6 +1210,20 @@ public:
         fDel->setText(QApplication::translate("Qfacture", "Supprimer", 0, QApplication::UnicodeUTF8));
         fNew->setText(QApplication::translate("Qfacture", "Cr\303\251er", 0, QApplication::UnicodeUTF8));
         tabFacture->setTabText(tabFacture->indexOf(tabFact1), QApplication::translate("Qfacture", "Editer une facture", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem6 = fList->horizontalHeaderItem(0);
+        ___qtablewidgetitem6->setText(QApplication::translate("Qfacture", "R\303\251f\303\251rence", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem7 = fList->horizontalHeaderItem(1);
+        ___qtablewidgetitem7->setText(QApplication::translate("Qfacture", "Date", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem8 = fList->horizontalHeaderItem(2);
+        ___qtablewidgetitem8->setText(QApplication::translate("Qfacture", "Client", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem9 = fList->horizontalHeaderItem(3);
+        ___qtablewidgetitem9->setText(QApplication::translate("Qfacture", "Montant", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem10 = fList->horizontalHeaderItem(4);
+        ___qtablewidgetitem10->setText(QApplication::translate("Qfacture", "Paiement", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem11 = fList->horizontalHeaderItem(5);
+        ___qtablewidgetitem11->setText(QApplication::translate("Qfacture", "Type", 0, QApplication::UnicodeUTF8));
+        QTableWidgetItem *___qtablewidgetitem12 = fList->horizontalHeaderItem(6);
+        ___qtablewidgetitem12->setText(QApplication::translate("Qfacture", "Commentaire", 0, QApplication::UnicodeUTF8));
         tabFacture->setTabText(tabFacture->indexOf(tabFact2), QApplication::translate("Qfacture", "Liste des factures", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tFacture), QApplication::translate("Qfacture", "Factures", 0, QApplication::UnicodeUTF8));
         sGroupCa->setTitle(QApplication::translate("Qfacture", "Chiffre d'affaires", 0, QApplication::UnicodeUTF8));

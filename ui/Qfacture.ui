@@ -1317,7 +1317,7 @@
            <enum>QTabWidget::West</enum>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="tabFact1">
            <attribute name="title">
@@ -1631,10 +1631,54 @@
            </attribute>
            <layout class="QGridLayout" name="gridLayout_8">
             <item row="0" column="0">
-             <widget class="QListWidget" name="fList">
+             <widget class="QTableWidget" name="fList">
+              <property name="editTriggers">
+               <set>QAbstractItemView::NoEditTriggers</set>
+              </property>
               <property name="alternatingRowColors">
                <bool>true</bool>
               </property>
+              <property name="sortingEnabled">
+               <bool>true</bool>
+              </property>
+              <property name="columnCount">
+               <number>7</number>
+              </property>
+              <column>
+               <property name="text">
+                <string>Référence</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Date</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Client</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Montant</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Paiement</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Type</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Commentaire</string>
+               </property>
+              </column>
              </widget>
             </item>
            </layout>

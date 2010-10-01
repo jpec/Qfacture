@@ -756,11 +756,10 @@ void QfactureImpl::enableDelProductButton()
 void QfactureImpl::refreshInvoicesList()
 {
 	QSqlQuery query;
-	QString item;
-	
-	fList->clear();
-	
-	query.prepare(
+    
+    fList->clearContents();
+    
+    query.prepare(
 		"SELECT f.id, f.Amount, f.Comment, f.Payment, f.Reference, "
 		"		 f.Type, f.Date, c.Name "
 		"FROM facture AS f "
@@ -768,23 +767,25 @@ void QfactureImpl::refreshInvoicesList()
 		"   ON f.idClient = c.id "
 		"ORDER BY Reference DESC"
 	);
-	query.exec();
-	
-	while(query.next()) {
-		item = query.value(0).toString() 
-			 + QString(trUtf8(" | ")) + query.value(4).toString()
-			 + QString(trUtf8(" | ")) + query.value(5).toString()
-			 + QString(trUtf8(" | ")) + query.value(6).toString()
-			 + QString(trUtf8(" | ")) + query.value(7).toString()
-			 + QString(trUtf8(" | ")) + query.value(1).toString()
-			 + QString(trUtf8("€ (")) + query.value(3).toString()
-			 + QString(trUtf8(")"));
-	
-		fList->addItem(item);
-		
-		fList->item(fList->count()-1)->setData(Qt::UserRole, query.value(0).toInt());
-	}
-	
+    query.exec();
+    
+    fList->setRowCount(query.size());
+    
+    int i=0;
+    while(query.next()) {
+        fList->setItem(i, 0, new QTableWidgetItem(query.value(4).toString())); // ref
+        fList->setItem(i, 1, new QTableWidgetItem(query.value(6).toString())); // date
+        fList->setItem(i, 2, new QTableWidgetItem(query.value(7).toString())); // client
+        fList->setItem(i, 3, new QTableWidgetItem(query.value(1).toString())); // montant
+        fList->setItem(i, 4, new QTableWidgetItem(query.value(3).toString())); // paiement
+        fList->setItem(i, 5, new QTableWidgetItem(query.value(5).toString())); // type
+        fList->setItem(i, 6, new QTableWidgetItem(query.value(2).toString())); // commentaire
+        
+        fList->item(i, 0)->setData(Qt::UserRole, query.value(0).toInt());
+        
+        i++;
+    }
+    
 	query.finish();
 }
 
@@ -796,11 +797,11 @@ void QfactureImpl::refreshInvoicesList()
  * 
  * @return void
  */
-void QfactureImpl::on_fList_itemDoubleClicked(QListWidgetItem* item)
+void QfactureImpl::on_fList_itemDoubleClicked(QTableWidgetItem* item)
 {
 	QSqlQuery query;
-	QString id_client;
-	
+	int id;
+    
 	query.prepare(
 		"SELECT f.Id, IdClient, Name, Amount, Comment, Payment, Reference, Type, Date "
 		"FROM facture f "
@@ -808,8 +809,10 @@ void QfactureImpl::on_fList_itemDoubleClicked(QListWidgetItem* item)
 		"ON c.Id = f.IdClient "
 		"WHERE f.Id = :Id"
 	);
+    
+    id = fList->item(item->row(), 0)->data(Qt::UserRole).toInt();
 	
-	query.bindValue(":id", item->data(Qt::UserRole).toInt());
+	query.bindValue(":Id", id);
 	query.exec();
 	query.next();
 	
