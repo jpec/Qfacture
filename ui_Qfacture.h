@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'Qfacture.ui'
 **
-** Created: Thu Sep 30 22:29:45 2010
+** Created: Fri Oct 1 19:42:12 2010
 **      by: Qt User Interface Compiler version 4.6.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -121,7 +121,7 @@ public:
     QGridLayout *gridLayout;
     QGroupBox *artlGroupBox;
     QGridLayout *gridLayout_6;
-    QListWidget *aList;
+    QTableView *aList;
     QGroupBox *artGroupBox;
     QFormLayout *formLayout_4;
     QLabel *label_25;
@@ -658,11 +658,12 @@ public:
         artlGroupBox->setSizePolicy(sizePolicy);
         gridLayout_6 = new QGridLayout(artlGroupBox);
         gridLayout_6->setObjectName(QString::fromUtf8("gridLayout_6"));
-        aList = new QListWidget(artlGroupBox);
+        aList = new QTableView(artlGroupBox);
         aList->setObjectName(QString::fromUtf8("aList"));
         sizePolicy.setHeightForWidth(aList->sizePolicy().hasHeightForWidth());
         aList->setSizePolicy(sizePolicy);
         aList->setMinimumSize(QSize(0, 280));
+        aList->setEditTriggers(QAbstractItemView::DoubleClicked);
         aList->setAlternatingRowColors(true);
 
         gridLayout_6->addWidget(aList, 0, 0, 1, 1);

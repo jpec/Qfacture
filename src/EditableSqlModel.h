@@ -12,9 +12,6 @@ class EditableSqlModel : public QSqlTableModel
         EditableSqlModel(QObject *parent, QSqlDatabase &db);
 
         Qt::ItemFlags flags(const QModelIndex &index) const;
-    
-    public slots:
-        void refresh();
  };
 
  #endif

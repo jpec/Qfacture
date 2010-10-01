@@ -31,7 +31,6 @@ class QfactureImpl : public QMainWindow, public Ui::Qfacture
     void on_fNew_clicked();
     void on_fArtList_itemDoubleClicked(QListWidgetItem* item);
     void on_fClientList_itemDoubleClicked(QListWidgetItem* item);
-    void on_aList_itemClicked(QListWidgetItem* item);
     void on_aNew_clicked();
     void on_aSave_clicked();
     void on_aDel_clicked();
@@ -56,6 +55,7 @@ class QfactureImpl : public QMainWindow, public Ui::Qfacture
     void refreshProductsList();
     
     void enableDelCustomerButton();
+    void enableDelProductButton();
 
  signals:
     void DBConnected();
@@ -75,6 +75,7 @@ class QfactureImpl : public QMainWindow, public Ui::Qfacture
     bool fFlag;
     
     EditableSqlModel *clients_model;
+    EditableSqlModel *products_model;
     
     void createActions();
     void MySQLConnect();

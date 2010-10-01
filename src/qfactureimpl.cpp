@@ -23,6 +23,7 @@ QfactureImpl::QfactureImpl(QWidget * parent, Qt::WFlags f) : QMainWindow(parent,
 	settings = new QSettings("", "Qfacture");
 	
 	clients_model = new EditableSqlModel(this, db);
+    products_model = new EditableSqlModel(this, db);
 	
 	createActions();
 	readSettings();
@@ -94,6 +95,10 @@ void QfactureImpl::createActions()
 	
 	connect(this, SIGNAL(articleSaved()), this, SLOT(refreshProductsList()));
 	connect(this, SIGNAL(articleSaved()), this, SLOT(refreshInvoiceProductsList()));
+    
+    /** Lorsqu'un article est sélectionné, on active la possibilité de suppression **/
+    
+    connect(aList, SIGNAL(clicked(QModelIndex)), this, SLOT(enableDelProductButton()));
 	
 	/** Actions effectuées lors de la suppression d'un article **/
 	
@@ -517,7 +522,20 @@ void QfactureImpl::on_cSave_clicked()
  */
 void QfactureImpl::refreshCustomersList()
 {
-	clients_model->refresh();
+	clients_model->clear();
+    
+    clients_model->setTable("client");
+    
+    clients_model->setHeaderData(0, Qt::Horizontal, trUtf8("ID"));
+    clients_model->setHeaderData(1, Qt::Horizontal, trUtf8("Nom"));
+    clients_model->setHeaderData(2, Qt::Horizontal, trUtf8("Adresse"));
+    clients_model->setHeaderData(3, Qt::Horizontal, trUtf8("Complément"));
+    clients_model->setHeaderData(4, Qt::Horizontal, trUtf8("Code postal"));
+    clients_model->setHeaderData(5, Qt::Horizontal, trUtf8("Ville"));
+    clients_model->setHeaderData(6, Qt::Horizontal, trUtf8("Téléphone"));
+    clients_model->setHeaderData(7, Qt::Horizontal, trUtf8("Mail"));
+    
+    clients_model->select();
 	
 	cList->setModel(clients_model);
 }
@@ -535,7 +553,7 @@ void QfactureImpl::enableDelCustomerButton()
  * 
  * @return void
  */
-#include <iostream>
+
 void QfactureImpl::on_cDel_clicked()
 {
 	QSqlQuery query;
@@ -677,16 +695,13 @@ void QfactureImpl::on_aSave_clicked()
  */
 void QfactureImpl::on_aDel_clicked()
 {
-	QSqlQuery query;
-	
-	QString msg = QString(trUtf8("Voulez-vous supprimer l'article sélectionné ?\n\n"));
+    QString msg = trUtf8("Voulez-vous supprimer l'article sélectionné ?");
 	if(QMessageBox::warning(this, "Qfacture", msg , QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
 		return;
 	
-	query.prepare("DELETE FROM article WHERE Id = :id");
-	query.bindValue(":id", aId->text());
-	query.exec();
-	query.finish();
+	// temporaire
+	if(!products_model->removeRows(aList->currentIndex().row(), 1))
+        QMessageBox::warning(this, "Qfacture", products_model->lastError().databaseText());
 	
 	aId->clear();
 	aName->clear();
@@ -709,65 +724,26 @@ void QfactureImpl::on_aDel_clicked()
  */
 void QfactureImpl::refreshProductsList()
 {
-	QSqlQuery query;
-	QString item;
+    products_model->clear();
+    
+    products_model->setTable("article");
+    
+    products_model->setHeaderData(0, Qt::Horizontal, trUtf8("ID"));
+    products_model->setHeaderData(1, Qt::Horizontal, trUtf8("Nom"));
+    products_model->setHeaderData(2, Qt::Horizontal, trUtf8("Prix"));
+    products_model->setHeaderData(3, Qt::Horizontal, trUtf8("Commentaire"));
+    
+    products_model->select();
 	
-	aList->clear();
-	
-	query.prepare(
-		"SELECT Id, Name, Price, Comment "
-		"FROM article "
-		"ORDER BY Name"
-		);
-	query.exec();
-	
-	while(query.next()) {
-		item = query.value(1).toString() 
-			+ trUtf8(" - ") + query.value(2).toString()
-			+ QString(trUtf8("€ (")) + query.value(3).toString()
-			+ QString(trUtf8(")"));
-	
-		aList->addItem(item);
-	
-		aList->item(aList->count()-1)->setData(Qt::UserRole, query.value(0).toInt());
-	}
-	
-	query.finish();
+	aList->setModel(products_model);
 }
 
 /**
- * Affiche les infos d'un article dans le formulaire d'édition au clic
- * sur ce dernier dans la liste
- * 
- * @param item Pointeur vers la ligne représentant l'article
- * 
- * @return void
+ * Active le bouton de suppression d'un client
  */
-void QfactureImpl::on_aList_itemClicked(QListWidgetItem* item)
+void QfactureImpl::enableDelProductButton()
 {
-	QSqlQuery query;
-	
-	query.prepare(
-		"SELECT Id, Name, Price, Comment "
-		"FROM article "
-		"WHERE Id = :id"
-		);
-	
-	query.bindValue(":id", item->data(Qt::UserRole).toInt());
-	query.exec();
-	query.next();
-	
-	artGroupBox->setEnabled(true);
-	aSave->setEnabled(true);
-	aDel->setEnabled(true);
-	aId->setEnabled(false);
-	
-	aId->setText(query.value(0).toString());
-	aName->setText(query.value(1).toString());
-	aPrice->setValue(query.value(2).toInt());
-	aCom->setText(query.value(3).toString());
-	
-	query.finish();
+    aDel->setEnabled(true);
 }
 
 /* Tab facture - liste des factures ******************************************/
