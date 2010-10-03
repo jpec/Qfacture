@@ -54,7 +54,8 @@ class QfactureImpl : public QMainWindow, public Ui::Qfacture
     void sListCaRefresh();
     void refreshProductsList();
     
-    void enableDelCustomerButton();
+    void onCustomerSelected(const QModelIndex &item);
+    
     void enableDelProductButton();
 
  signals:

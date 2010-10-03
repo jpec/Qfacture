@@ -69,7 +69,7 @@ void QfactureImpl::createActions()
     
     /** Lorsqu'un client est sélectionné, on active la possibilité de suppression **/
     
-    connect(cList, SIGNAL(clicked(QModelIndex)), this, SLOT(enableDelCustomerButton()));
+    connect(cList, SIGNAL(clicked(QModelIndex)), this, SLOT(onCustomerSelected(QModelIndex)));
 
 	/** Actions effectuées lors de la suppression d'un client **/
 
@@ -461,6 +461,47 @@ void QfactureImpl::on_cNew_clicked()
 }
 
 /**
+ * Affiche les infos d'un client dans le formulaire lors du clic sur ce
+ * dernier
+ * 
+ * @param item Pointeur vers la ligne représentant le client
+ * 
+ * @return void
+ */
+void QfactureImpl::onCustomerSelected(const QModelIndex &item)
+{
+    QString id;
+    QSqlQuery query;
+    
+    // récupération de l'id du client sélectionné
+    id = item.sibling(item.row(), 0).data().toString();
+	
+    // récupération des infos du client
+    query.prepare(
+			"SELECT Name, Adress, Adress2, Zip, City, Phone, Mail FROM client "
+            "WHERE Id = :id "
+    );
+        
+    query.bindValue(":id", id);
+    query.exec();
+    query.next();
+    
+    cGroupBox->setEnabled(true);
+	cSave->setEnabled(true);
+	cDel->setEnabled(true);
+	cId->setEnabled(false);
+    
+	cId->setText(id);
+	cName->setText(query.value(0).toString());
+	cAdress->setText(query.value(1).toString());
+	cAdress2->setText(query.value(2).toString());
+	cZip->setText(query.value(3).toString());
+	cCity->setText(query.value(4).toString());
+	cPhone->setText(query.value(5).toString());
+	cMail->setText(query.value(6).toString());
+}
+
+/**
  * Méthode appelée lors du clic sur le bouton de sauvegarde d'un client.
  * On réalise l'enregistrement d'un nouveau client si le champ de l'ID
  * est vide, ou la mise à jour des informations d'un client déjà existant
@@ -544,19 +585,10 @@ void QfactureImpl::refreshCustomersList()
 }
 
 /**
- * Active le bouton de suppression d'un client
- */
-void QfactureImpl::enableDelCustomerButton()
-{
-    cDel->setEnabled(true);
-}
-
-/**
  * Supprime le client actuellement sélectionné dans la liste
  * 
  * @return void
  */
-
 void QfactureImpl::on_cDel_clicked()
 {
 	QSqlQuery query;
