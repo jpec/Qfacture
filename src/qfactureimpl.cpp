@@ -538,6 +538,9 @@ void QfactureImpl::refreshCustomersList()
     clients_model->select();
 	
 	cList->setModel(clients_model);
+    
+    // pour que la largeur des colonnes soit automatiquement mise à jour
+    cList->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
 }
 
 /**
@@ -736,6 +739,9 @@ void QfactureImpl::refreshProductsList()
     products_model->select();
 	
 	aList->setModel(products_model);
+    
+    // pour que la largeur des colonnes soit automatiquement mise à jour
+    aList->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
 }
 
 /**
@@ -758,6 +764,9 @@ void QfactureImpl::refreshInvoicesList()
 	QSqlQuery query;
     
     fList->clearContents();
+    
+    // pour que la largeur des colonnes soit automatiquement mise à jour
+    fList->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
     
     query.prepare(
 		"SELECT f.id, f.Amount, f.Comment, f.Payment, f.Reference, "
