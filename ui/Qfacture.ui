@@ -728,6 +728,12 @@
              <property name="sortingEnabled">
               <bool>true</bool>
              </property>
+             <attribute name="horizontalHeaderCascadingSectionResizes">
+              <bool>false</bool>
+             </attribute>
+             <attribute name="horizontalHeaderCascadingSectionResizes">
+              <bool>false</bool>
+             </attribute>
             </widget>
            </item>
           </layout>
@@ -1092,6 +1098,9 @@
              <property name="alternatingRowColors">
               <bool>true</bool>
              </property>
+             <property name="selectionMode">
+              <enum>QAbstractItemView::SingleSelection</enum>
+             </property>
              <property name="sortingEnabled">
               <bool>true</bool>
              </property>
@@ -1317,7 +1326,7 @@
            <enum>QTabWidget::West</enum>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tabFact1">
            <attribute name="title">
@@ -1407,10 +1416,39 @@
                 </widget>
                </item>
                <item row="0" column="0">
-                <widget class="QListWidget" name="fArtList">
+                <widget class="QTableWidget" name="fArtList">
+                 <property name="editTriggers">
+                  <set>QAbstractItemView::NoEditTriggers</set>
+                 </property>
                  <property name="alternatingRowColors">
                   <bool>true</bool>
                  </property>
+                 <property name="selectionMode">
+                  <enum>QAbstractItemView::SingleSelection</enum>
+                 </property>
+                 <property name="sortingEnabled">
+                  <bool>true</bool>
+                 </property>
+                 <column>
+                  <property name="text">
+                   <string>ID</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>Nom</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>Prix</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>Commentaire</string>
+                  </property>
+                 </column>
                 </widget>
                </item>
               </layout>
@@ -1425,17 +1463,17 @@
                <string>Client</string>
               </property>
               <layout class="QGridLayout" name="gridLayout_10">
-               <item row="0" column="0">
-                <widget class="QListWidget" name="fClientList">
-                 <property name="alternatingRowColors">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
                <item row="1" column="0">
                 <widget class="QLineEdit" name="fClient">
                  <property name="enabled">
                   <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QListWidget" name="fClientList">
+                 <property name="alternatingRowColors">
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>

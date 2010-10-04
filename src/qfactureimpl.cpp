@@ -981,8 +981,8 @@ void QfactureImpl::refreshInvoiceProductsList()
 	QString item;
 	QSqlQuery query;
 
-	fArtList->clear();
-	
+	fArtList->clearContents();
+    
 	query.prepare(
 		"SELECT Id, Name, Price, Comment "
 		"FROM article "
@@ -990,17 +990,22 @@ void QfactureImpl::refreshInvoiceProductsList()
 	);
 	
 	query.exec();
-	
-	while (query.next()) {
-		item = query.value(1).toString() 
-			 + trUtf8(" - ") + query.value(2).toString()
-			 + trUtf8("€ (") + query.value(3).toString()
-			 + trUtf8(")");
-	
-		fArtList->addItem(item);
-	
-		fArtList->item(fArtList->count()-1)->setData(Qt::UserRole, query.value(0).toInt());
-	}
+    
+    fArtList->setRowCount(query.size());
+    
+    int i=0;
+    while(query.next()) {
+        fArtList->setItem(i, 0, new QTableWidgetItem(query.value(0).toString())); // id
+        fArtList->setItem(i, 1, new QTableWidgetItem(query.value(1).toString())); // name
+        fArtList->setItem(i, 2, new QTableWidgetItem(query.value(2).toString())); // price
+        fArtList->setItem(i, 3, new QTableWidgetItem(query.value(3).toString())); // comment
+        
+        i++;
+    }
+    
+    // pour que la largeur des colonnes soit automatiquement mise à jour
+    // pour s'accorder au contenu
+    fArtList->resizeColumnsToContents();
 	
 	query.finish();
 }
@@ -1013,12 +1018,12 @@ void QfactureImpl::refreshInvoiceProductsList()
  * 
  * @return void
  */
-void QfactureImpl::on_fArtList_itemDoubleClicked(QListWidgetItem* item)
+void QfactureImpl::on_fArtList_itemDoubleClicked(QTableWidgetItem* item)
 {
 	QSqlQuery query;
 	QString art_id, art_price;
 	
-	art_id = item->data(Qt::UserRole).toString();
+	art_id = fArtList->item(item->row(), 0)->text();
 	
 	query.prepare("SELECT Id, Price FROM article WHERE Id = :id");
 	query.bindValue(":id", art_id);
@@ -1070,8 +1075,6 @@ void QfactureImpl::fArtLinkRefresh()
     query.exec();
     
     fArtLink->setRowCount(query.size());
-    fArtLink->setAlternatingRowColors(true);
-    //fArtLink->verticalHeader()->setVisible(false);
     
     fFlag = false;
     int i=0;

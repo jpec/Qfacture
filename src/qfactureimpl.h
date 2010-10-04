@@ -29,7 +29,7 @@ class QfactureImpl : public QMainWindow, public Ui::Qfacture
     void on_fPrint_clicked();
     void on_fDel_clicked();
     void on_fNew_clicked();
-    void on_fArtList_itemDoubleClicked(QListWidgetItem* item);
+    void on_fArtList_itemDoubleClicked(QTableWidgetItem* item);
     void on_fClientList_itemDoubleClicked(QListWidgetItem* item);
     void on_aNew_clicked();
     void on_aSave_clicked();
