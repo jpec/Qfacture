@@ -1412,6 +1412,11 @@ void QfactureImpl::on_fNew_clicked()
 
 /* Tab stats - Statistiques **************************************************/
 
+/**
+ * Méthode rafraichissant la liste des chiffres d'affaires cumulés par mois.
+ * 
+ * @return void
+ */
 void QfactureImpl::sListCaRefresh()
 {
 	QSqlQuery query;
@@ -1420,9 +1425,14 @@ void QfactureImpl::sListCaRefresh()
 	
 	year = sYearCa->text();
 	
-	// en cas de date invalide, on ne fait rien
-	if(year.isEmpty() or year.length() != 4 or year.toInt() == 0)
-		return;
+	if(year.isEmpty() or year.length() != 4 or year.toInt() == 0) {
+		/* Date invalide */
+		QMessageBox::warning(this, "Qfacture",
+							 QString(trUtf8("La date saisie n'est pas valide!")),
+							 QMessageBox::Ok);
+		year = QDate::currentDate().toString(QString(trUtf8("yyyy")));
+		sYearCa->setText(year);
+	}
 	
 	sListCa->clear();
 	
@@ -1449,6 +1459,11 @@ void QfactureImpl::sListCaRefresh()
 	query.finish();
 }
 
+/**
+ * Méthode de callback appellée lorsque l'année est modifiée.
+ * 
+ * @return void
+ */
 void QfactureImpl::on_sYearCa_lostFocus()
 {
 	/** Année changée **/
