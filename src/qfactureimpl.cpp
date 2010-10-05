@@ -910,7 +910,6 @@ void QfactureImpl::on_fList_itemDoubleClicked(QTableWidgetItem* item)
 	
 	query.finish();
 	
-	fCalc->setEnabled(true);
 	fSave->setEnabled(true);
 	fPrint->setEnabled(true);
 	fDel->setEnabled(true);
@@ -1165,7 +1164,7 @@ void QfactureImpl::on_fArtLink_itemChanged(QTableWidgetItem* Item)
 	        query.exec();
 	        query.finish();
 	        fArtLinkRefresh();
-	        on_fCalc_clicked();
+	        updateInvoiceAmount();
 	        statusbar->showMessage(trUtf8("La ligne de la facture a été supprimée avec succés."), 3000);
 	    }
 	    break;
@@ -1197,22 +1196,6 @@ void QfactureImpl::on_fArtLink_itemChanged(QTableWidgetItem* Item)
 	    
 	    emit factureArticlesUpdated();
    }
-}
-
-/**
- * Méthode callback appelée lors du clic sur le bouton de calcul du
- * montant de la facture.
- * 
- * \note Ne devrait plus exister (en principe le montant est automatiquement
- *		 mis à jour)
- * 
- * @return void
- */
-void QfactureImpl::on_fCalc_clicked()
-{
-	/** Calcul le montant total de la facture **/
-	
-	updateInvoiceAmount();
 }
 
 /**
@@ -1382,7 +1365,6 @@ void QfactureImpl::on_fDel_clicked()
 	query.finish();
 	
 	/* Mise à jour des widgets */
-	fCalc->setEnabled(false);
 	fSave->setEnabled(false);
 	fPrint->setEnabled(false);
 	fDel->setEnabled(false);
@@ -1414,7 +1396,6 @@ void QfactureImpl::on_fNew_clicked()
 	fDate->setDate(QDate::currentDate());   
 	fMontant->clear();
 	
-	fCalc->setEnabled(true);
 	fSave->setEnabled(true);
 	fPrint->setEnabled(true);
 	fDel->setEnabled(true);

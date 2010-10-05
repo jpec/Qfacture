@@ -24,7 +24,6 @@ class QfactureImpl : public QMainWindow, public Ui::Qfacture
     void on_sYearCa_lostFocus();
     void on_fArtLink_itemChanged(QTableWidgetItem* item);
     void on_fList_itemDoubleClicked(QTableWidgetItem* item);
-    void on_fCalc_clicked();
     void on_fSave_clicked();
     void on_fPrint_clicked();
     void on_fDel_clicked();
