@@ -731,6 +731,9 @@
              <attribute name="horizontalHeaderCascadingSectionResizes">
               <bool>false</bool>
              </attribute>
+             <attribute name="verticalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
             </widget>
            </item>
           </layout>
@@ -1101,6 +1104,9 @@
              <property name="sortingEnabled">
               <bool>true</bool>
              </property>
+             <attribute name="verticalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
             </widget>
            </item>
           </layout>
@@ -1356,6 +1362,9 @@
                  <property name="sortingEnabled">
                   <bool>true</bool>
                  </property>
+                 <attribute name="verticalHeaderVisible">
+                  <bool>false</bool>
+                 </attribute>
                  <column>
                   <property name="text">
                    <string>Id</string>
@@ -1402,6 +1411,9 @@
                  <property name="sortingEnabled">
                   <bool>true</bool>
                  </property>
+                 <attribute name="verticalHeaderVisible">
+                  <bool>false</bool>
+                 </attribute>
                  <column>
                   <property name="text">
                    <string>ID</string>
@@ -1645,6 +1657,9 @@
               <property name="columnCount">
                <number>7</number>
               </property>
+              <attribute name="verticalHeaderVisible">
+               <bool>false</bool>
+              </attribute>
               <column>
                <property name="text">
                 <string>Référence</string>
