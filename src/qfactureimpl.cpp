@@ -807,14 +807,6 @@ void QfactureImpl::refreshInvoicesList()
     
     fList->clearContents();
     
-    // pour que la largeur des colonnes soit automatiquement mise à jour
-    // pour s'accorder au contenu
-    fList->resizeColumnsToContents();
-    
-    // pour que la largeur des colonnes soit automatiquement mise à jour
-    // pour s'accorder à la taille de la fenêtre
-    // fList->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
-    
     query.prepare(
 		"SELECT f.id, f.Amount, f.Comment, f.Payment, f.Reference, "
 		"		 f.Type, f.Date, c.Name "
@@ -841,6 +833,14 @@ void QfactureImpl::refreshInvoicesList()
         
         i++;
     }
+    
+    // pour que la largeur des colonnes soit automatiquement mise à jour
+    // pour s'accorder au contenu
+    fList->resizeColumnsToContents();
+    
+    // pour que la largeur des colonnes soit automatiquement mise à jour
+    // pour s'accorder à la taille de la fenêtre
+    // fList->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
     
 	query.finish();
 }
