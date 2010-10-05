@@ -55,8 +55,7 @@ class QfactureImpl : public QMainWindow, public Ui::Qfacture
     void refreshProductsList();
     
     void onCustomerSelected(const QModelIndex &item);
-    
-    void enableDelProductButton();
+    void onProductSelected(const QModelIndex &item);
 
  signals:
     void DBConnected();

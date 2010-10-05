@@ -67,7 +67,7 @@ void QfactureImpl::createActions()
 	connect(this, SIGNAL(clientSaved()), this, SLOT(refreshCustomersList()));
 	connect(this, SIGNAL(clientSaved()), this, SLOT(refreshInvoiceCustomersList()));
     
-    /** Lorsqu'un client est sélectionné, on active la possibilité de suppression **/
+    /** Lorsqu'un client est sélectionné, on active la possibilité de suppression et l'édition **/
     
     connect(cList, SIGNAL(clicked(QModelIndex)), this, SLOT(onCustomerSelected(QModelIndex)));
 
@@ -96,9 +96,9 @@ void QfactureImpl::createActions()
 	connect(this, SIGNAL(articleSaved()), this, SLOT(refreshProductsList()));
 	connect(this, SIGNAL(articleSaved()), this, SLOT(refreshInvoiceProductsList()));
     
-    /** Lorsqu'un article est sélectionné, on active la possibilité de suppression **/
+    /** Lorsqu'un article est sélectionné, on active la possibilité de suppression et d'édition **/
     
-    connect(aList, SIGNAL(clicked(QModelIndex)), this, SLOT(enableDelProductButton()));
+    connect(aList, SIGNAL(clicked(QModelIndex)), this, SLOT(onProductSelected(QModelIndex)));
 	
 	/** Actions effectuées lors de la suppression d'un article **/
 	
@@ -645,6 +645,43 @@ void QfactureImpl::on_aNew_clicked()
 }
 
 /**
+ * Affiche les infos d'un article dans le formulaire lors du clic sur ce
+ * dernier
+ * 
+ * @param item Pointeur vers la ligne représentant l'article
+ * 
+ * @return void
+ */
+void QfactureImpl::onProductSelected(const QModelIndex &item)
+{
+    QString id;
+    QSqlQuery query;
+    
+    // récupération de l'id du produit sélectionné
+    id = item.sibling(item.row(), 0).data().toString();
+	
+    // récupération des infos du produit
+    query.prepare(
+			"SELECT id, Name, Price, Comment FROM article "
+            "WHERE id = :id "
+    );
+      
+    query.bindValue(":id", id);
+    query.exec();
+    query.next();
+    
+    artGroupBox->setEnabled(true);
+	aSave->setEnabled(true);
+	aDel->setEnabled(true);
+	aId->setEnabled(false);
+    
+	aId->setText(id);
+	aName->setText(query.value(1).toString());
+	aPrice->setValue(query.value(2).toFloat());
+	aCom->setText(query.value(3).toString());
+}
+
+/**
  * Méthode appelée lors du clic sur le bouton de sauvegarde d'un article.
  * On réalise l'enregistrement d'un nouvel article si le champ de l'ID
  * est vide, ou la mise à jour des informations d'un article déjà existant
@@ -707,7 +744,7 @@ void QfactureImpl::on_aSave_clicked()
 	}
 
 	query.bindValue(":name", aName->text());
-	query.bindValue(":price", aPrice->text());
+	query.bindValue(":price", aPrice->value());
 	query.bindValue(":comment", aCom->text());
 	
 	query.exec();
@@ -784,14 +821,6 @@ void QfactureImpl::refreshProductsList()
     // pour que la largeur des colonnes soit automatiquement mise à jour
     // pour s'accorder à la taille de la fenêtre
     // aList->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
-}
-
-/**
- * Active le bouton de suppression d'un client
- */
-void QfactureImpl::enableDelProductButton()
-{
-    aDel->setEnabled(true);
 }
 
 /* Tab facture - liste des factures ******************************************/
