@@ -1447,7 +1447,10 @@ void QfactureImpl::sListCaRefresh()
 	
 	query.prepare(
 		"SELECT LEFT(date, 7) AS month, SUM(amount) AS sum "
-		"FROM facture WHERE date LIKE :year GROUP BY month"
+		"FROM facture "
+		"WHERE date LIKE :year "
+		"  AND type = 'FACTU'" 
+		"GROUP BY month"
 	);
 	query.bindValue(":year", year+QString("%"));
 	
