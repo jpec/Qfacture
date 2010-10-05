@@ -6,3 +6,5 @@ CREATE TABLE  `qfacture_db`.`template` (
   `Content` text NOT NULL COMMENT 'Contenu du template',
   PRIMARY KEY (`Id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='Table des templates de facture';
+
+INSERT INTO `qfacture_db`.`template` VALUES ( '', 'html', 'x', 'Thème par défaut', '<html>test</html>');
