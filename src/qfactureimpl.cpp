@@ -1119,6 +1119,9 @@ void QfactureImpl::fArtLinkRefresh()
     }
     fFlag = true;
     query.finish();
+    
+    /* Ajustement automatique largeur des colonnes */
+    fArtLink->resizeColumnsToContents();
 }
 
 void QfactureImpl::on_fArtLink_itemChanged(QTableWidgetItem* Item)
