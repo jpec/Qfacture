@@ -1303,14 +1303,24 @@ void QfactureImpl::on_fSave_clicked()
 	emit factureSaved();
 }
 
+/**
+ * Edite la facture actuellement sélectionnée dans la liste (ou plutôt
+ * en cours d'édition)
+ * 
+ * @return void
+ */
 void QfactureImpl::on_fPrint_clicked()
 {
 	/** Imprimer la facture **/
 	
-	/** TO DO : 
-	 * générer fichier pdf et l'ouvrir dans le lecteur pdf (xdg-open ?)
-	 * -> pas d'ouverture auto du pdf (puis xdg-open c'est pas portable =p)
-	 */
+	if (fNum->text() == "" ) {
+		/* On ne peut imprimer qu'une facture sauvegardée */
+		QMessageBox::warning(this, "Qfacture",
+							 QString(trUtf8("La facture n'est pas sauvegardée!")),
+							 QMessageBox::Ok);
+		return;
+	}
+	
 }
 
 /**

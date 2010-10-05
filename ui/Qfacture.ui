@@ -731,9 +731,6 @@
              <attribute name="horizontalHeaderCascadingSectionResizes">
               <bool>false</bool>
              </attribute>
-             <attribute name="horizontalHeaderCascadingSectionResizes">
-              <bool>false</bool>
-             </attribute>
             </widget>
            </item>
           </layout>
@@ -1371,18 +1368,6 @@
                  <attribute name="verticalHeaderMinimumSectionSize">
                   <number>15</number>
                  </attribute>
-                 <attribute name="verticalHeaderDefaultSectionSize">
-                  <number>20</number>
-                 </attribute>
-                 <attribute name="horizontalHeaderCascadingSectionResizes">
-                  <bool>true</bool>
-                 </attribute>
-                 <attribute name="verticalHeaderCascadingSectionResizes">
-                  <bool>true</bool>
-                 </attribute>
-                 <attribute name="verticalHeaderMinimumSectionSize">
-                  <number>15</number>
-                 </attribute>
                  <column>
                   <property name="text">
                    <string>Id</string>
@@ -1840,7 +1825,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>25</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_Menu">
