@@ -11,7 +11,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>590</height>
+    <height>646</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -362,6 +362,31 @@
              </property>
             </widget>
            </item>
+           <item row="11" column="1">
+            <widget class="QLabel" name="uLogo">
+             <property name="minimumSize">
+              <size>
+               <width>300</width>
+               <height>150</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>300</width>
+               <height>150</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Sélectionnez une image de 300x150 pixels.</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="indent">
+              <number>-5</number>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </item>
@@ -669,31 +694,6 @@
            </size>
           </property>
          </spacer>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLabel" name="uLogo">
-          <property name="minimumSize">
-           <size>
-            <width>300</width>
-            <height>150</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>300</width>
-            <height>150</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Sélectionnez une image de 300x150 pixels.</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-          <property name="indent">
-           <number>-5</number>
-          </property>
-         </widget>
         </item>
        </layout>
       </widget>
@@ -1356,18 +1356,6 @@
                  <property name="sortingEnabled">
                   <bool>true</bool>
                  </property>
-                 <attribute name="horizontalHeaderCascadingSectionResizes">
-                  <bool>true</bool>
-                 </attribute>
-                 <attribute name="verticalHeaderCascadingSectionResizes">
-                  <bool>true</bool>
-                 </attribute>
-                 <attribute name="verticalHeaderDefaultSectionSize">
-                  <number>20</number>
-                 </attribute>
-                 <attribute name="verticalHeaderMinimumSectionSize">
-                  <number>15</number>
-                 </attribute>
                  <column>
                   <property name="text">
                    <string>Id</string>
