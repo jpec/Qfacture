@@ -8,6 +8,9 @@
 #include <QListWidget>
 #include <QTableWidget>
 #include <QDate>
+#include <QWebView>
+#include <QPrinter>
+#include <QPrintDialog>
 
 #include "qfactureimpl.h"
 
@@ -23,7 +26,7 @@ QfactureImpl::QfactureImpl(QWidget * parent, Qt::WFlags f) : QMainWindow(parent,
 	settings = new QSettings("", "Qfacture");
 	
 	clients_model = new EditableSqlModel(this, db);
-    products_model = new EditableSqlModel(this, db);
+	products_model = new EditableSqlModel(this, db);
 	
 	createActions();
 	readSettings();
@@ -66,10 +69,10 @@ void QfactureImpl::createActions()
 
 	connect(this, SIGNAL(clientSaved()), this, SLOT(refreshCustomersList()));
 	connect(this, SIGNAL(clientSaved()), this, SLOT(refreshInvoiceCustomersList()));
-    
-    /** Lorsqu'un client est sélectionné, on active la possibilité de suppression et l'édition **/
-    
-    connect(cList, SIGNAL(clicked(QModelIndex)), this, SLOT(onCustomerSelected(QModelIndex)));
+	
+	/** Lorsqu'un client est sélectionné, on active la possibilité de suppression et l'édition **/
+	
+	connect(cList, SIGNAL(clicked(QModelIndex)), this, SLOT(onCustomerSelected(QModelIndex)));
 
 	/** Actions effectuées lors de la suppression d'un client **/
 
@@ -95,10 +98,10 @@ void QfactureImpl::createActions()
 	
 	connect(this, SIGNAL(articleSaved()), this, SLOT(refreshProductsList()));
 	connect(this, SIGNAL(articleSaved()), this, SLOT(refreshInvoiceProductsList()));
-    
-    /** Lorsqu'un article est sélectionné, on active la possibilité de suppression et d'édition **/
-    
-    connect(aList, SIGNAL(clicked(QModelIndex)), this, SLOT(onProductSelected(QModelIndex)));
+	
+	/** Lorsqu'un article est sélectionné, on active la possibilité de suppression et d'édition **/
+	
+	connect(aList, SIGNAL(clicked(QModelIndex)), this, SLOT(onProductSelected(QModelIndex)));
 	
 	/** Actions effectuées lors de la suppression d'un article **/
 	
@@ -216,20 +219,20 @@ void QfactureImpl::writeSettings()
 void QfactureImpl::readSettings()
 {
 
-    // infos sur la fenêtre (taille et position)
-    settings->beginGroup("Window");
-    resize(settings->value("size", QSize(400, 400)).toSize());
-    move(settings->value("pos", QPoint(200, 200)).toPoint());
-    settings->endGroup();
-    
-    // infos de connexion à la DB
-    settings->beginGroup("DB");
-    aServer->setText(settings->value("host", "localhost").toString());
-    aPort->setText(settings->value("port", 3306).toString());
-    aUser->setText(settings->value("user", "qfacture").toString());
-    aPass->setText(settings->value("passwd", "").toString());
-    aDb->setText(settings->value("db_name", "qfacture_db").toString());
-    settings->endGroup();
+	// infos sur la fenêtre (taille et position)
+	settings->beginGroup("Window");
+	resize(settings->value("size", QSize(400, 400)).toSize());
+	move(settings->value("pos", QPoint(200, 200)).toPoint());
+	settings->endGroup();
+	
+	// infos de connexion à la DB
+	settings->beginGroup("DB");
+	aServer->setText(settings->value("host", "localhost").toString());
+	aPort->setText(settings->value("port", 3306).toString());
+	aUser->setText(settings->value("user", "qfacture").toString());
+	aPass->setText(settings->value("passwd", "").toString());
+	aDb->setText(settings->value("db_name", "qfacture_db").toString());
+	settings->endGroup();
 }
 
 /**
@@ -323,32 +326,32 @@ void QfactureImpl::loadUserInfos()
  */
 void QfactureImpl::on_aConnect_clicked()
 {
-    bool connexion_state = db.isOpen();
-    
-    /* Connexion */
-    if(!connexion_state)
-        MySQLConnect();
-    else {
-        /* Déconnexion */
-        
-        if(!confirm("Voulez-vous réellement vous déconnecter du serveur?"))
-            return;
-        
-        db.close();
-    }
+	bool connexion_state = db.isOpen();
+	
+	/* Connexion */
+	if(!connexion_state)
+		MySQLConnect();
+	else {
+		/* Déconnexion */
+		
+		if(!confirm("Voulez-vous réellement vous déconnecter du serveur?"))
+			return;
+		
+		db.close();
+	}
 
-    connexion_state = db.isOpen();
-    
-    // mise à jour des widgets en fonction de l'état de la connexion
-    aConnect->setText(connexion_state ? trUtf8("Déconnexion") : trUtf8("Connexion"));
-    uSave->setEnabled(connexion_state);
-    uGroupBox->setEnabled(connexion_state);
-    aServer->setEnabled(!connexion_state);
-    aPort->setEnabled(!connexion_state);
-    aUser->setEnabled(!connexion_state);
-    aPass->setEnabled(!connexion_state);
-    aDb->setEnabled(!connexion_state);
-    fFlag = false;
+	connexion_state = db.isOpen();
+	
+	// mise à jour des widgets en fonction de l'état de la connexion
+	aConnect->setText(connexion_state ? trUtf8("Déconnexion") : trUtf8("Connexion"));
+	uSave->setEnabled(connexion_state);
+	uGroupBox->setEnabled(connexion_state);
+	aServer->setEnabled(!connexion_state);
+	aPort->setEnabled(!connexion_state);
+	aUser->setEnabled(!connexion_state);
+	aPass->setEnabled(!connexion_state);
+	aDb->setEnabled(!connexion_state);
+	fFlag = false;
 }
 
 void QfactureImpl::on_aPass_returnPressed()
@@ -470,27 +473,27 @@ void QfactureImpl::on_cNew_clicked()
  */
 void QfactureImpl::onCustomerSelected(const QModelIndex &item)
 {
-    QString id;
-    QSqlQuery query;
-    
-    // récupération de l'id du client sélectionné
-    id = item.sibling(item.row(), 0).data().toString();
+	QString id;
+	QSqlQuery query;
 	
-    // récupération des infos du client
-    query.prepare(
+	// récupération de l'id du client sélectionné
+	id = item.sibling(item.row(), 0).data().toString();
+	
+	// récupération des infos du client
+	query.prepare(
 			"SELECT Name, Adress, Adress2, Zip, City, Phone, Mail FROM client "
-            "WHERE Id = :id "
-    );
-        
-    query.bindValue(":id", id);
-    query.exec();
-    query.next();
-    
-    cGroupBox->setEnabled(true);
+			"WHERE Id = :id "
+	);
+		
+	query.bindValue(":id", id);
+	query.exec();
+	query.next();
+	
+	cGroupBox->setEnabled(true);
 	cSave->setEnabled(true);
 	cDel->setEnabled(true);
 	cId->setEnabled(false);
-    
+	
 	cId->setText(id);
 	cName->setText(query.value(0).toString());
 	cAdress->setText(query.value(1).toString());
@@ -564,29 +567,29 @@ void QfactureImpl::on_cSave_clicked()
 void QfactureImpl::refreshCustomersList()
 {
 	clients_model->clear();
-    
-    clients_model->setTable("client");
-    
-    clients_model->setHeaderData(0, Qt::Horizontal, trUtf8("ID"));
-    clients_model->setHeaderData(1, Qt::Horizontal, trUtf8("Nom"));
-    clients_model->setHeaderData(2, Qt::Horizontal, trUtf8("Adresse"));
-    clients_model->setHeaderData(3, Qt::Horizontal, trUtf8("Complément"));
-    clients_model->setHeaderData(4, Qt::Horizontal, trUtf8("Code postal"));
-    clients_model->setHeaderData(5, Qt::Horizontal, trUtf8("Ville"));
-    clients_model->setHeaderData(6, Qt::Horizontal, trUtf8("Téléphone"));
-    clients_model->setHeaderData(7, Qt::Horizontal, trUtf8("Mail"));
-    
-    clients_model->select();
+	
+	clients_model->setTable("client");
+	
+	clients_model->setHeaderData(0, Qt::Horizontal, trUtf8("ID"));
+	clients_model->setHeaderData(1, Qt::Horizontal, trUtf8("Nom"));
+	clients_model->setHeaderData(2, Qt::Horizontal, trUtf8("Adresse"));
+	clients_model->setHeaderData(3, Qt::Horizontal, trUtf8("Complément"));
+	clients_model->setHeaderData(4, Qt::Horizontal, trUtf8("Code postal"));
+	clients_model->setHeaderData(5, Qt::Horizontal, trUtf8("Ville"));
+	clients_model->setHeaderData(6, Qt::Horizontal, trUtf8("Téléphone"));
+	clients_model->setHeaderData(7, Qt::Horizontal, trUtf8("Mail"));
+	
+	clients_model->select();
 	
 	cList->setModel(clients_model);
-    
-    // pour que la largeur des colonnes soit automatiquement mise à jour
-    // pour s'accorder au contenu
-    cList->resizeColumnsToContents();
-    
-    // pour que la largeur des colonnes soit automatiquement mise à jour
-    // pour s'accorder à la taille de la fenêtre
-    // cList->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+	
+	// pour que la largeur des colonnes soit automatiquement mise à jour
+	// pour s'accorder au contenu
+	cList->resizeColumnsToContents();
+	
+	// pour que la largeur des colonnes soit automatiquement mise à jour
+	// pour s'accorder à la taille de la fenêtre
+	// cList->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
 }
 
 /**
@@ -600,10 +603,10 @@ void QfactureImpl::on_cDel_clicked()
 	
 	if(!confirm("Voulez-vous supprimer le client sélectionné ?"))
 		return;
-    
-    // temporaire
+	
+	// temporaire
 	if(!clients_model->removeRows(cList->currentIndex().row(), 1))
-        QMessageBox::warning(this, "Qfacture", clients_model->lastError().databaseText());
+		QMessageBox::warning(this, "Qfacture", clients_model->lastError().databaseText());
 	
 	cId->clear();
 	cName->clear();
@@ -654,27 +657,27 @@ void QfactureImpl::on_aNew_clicked()
  */
 void QfactureImpl::onProductSelected(const QModelIndex &item)
 {
-    QString id;
-    QSqlQuery query;
-    
-    // récupération de l'id du produit sélectionné
-    id = item.sibling(item.row(), 0).data().toString();
+	QString id;
+	QSqlQuery query;
 	
-    // récupération des infos du produit
-    query.prepare(
+	// récupération de l'id du produit sélectionné
+	id = item.sibling(item.row(), 0).data().toString();
+	
+	// récupération des infos du produit
+	query.prepare(
 			"SELECT id, Name, Price, Comment FROM article "
-            "WHERE id = :id "
-    );
-      
-    query.bindValue(":id", id);
-    query.exec();
-    query.next();
-    
-    artGroupBox->setEnabled(true);
+			"WHERE id = :id "
+	);
+	  
+	query.bindValue(":id", id);
+	query.exec();
+	query.next();
+	
+	artGroupBox->setEnabled(true);
 	aSave->setEnabled(true);
 	aDel->setEnabled(true);
 	aId->setEnabled(false);
-    
+	
 	aId->setText(id);
 	aName->setText(query.value(1).toString());
 	aPrice->setValue(query.value(2).toFloat());
@@ -772,13 +775,13 @@ void QfactureImpl::on_aSave_clicked()
  */
 void QfactureImpl::on_aDel_clicked()
 {
-    QString msg = trUtf8("Voulez-vous supprimer l'article sélectionné ?");
+	QString msg = trUtf8("Voulez-vous supprimer l'article sélectionné ?");
 	if(QMessageBox::warning(this, "Qfacture", msg , QMessageBox::Yes, QMessageBox::No) != QMessageBox::Yes)
 		return;
 	
 	// temporaire
 	if(!products_model->removeRows(aList->currentIndex().row(), 1))
-        QMessageBox::warning(this, "Qfacture", products_model->lastError().databaseText());
+		QMessageBox::warning(this, "Qfacture", products_model->lastError().databaseText());
 	
 	aId->clear();
 	aName->clear();
@@ -801,26 +804,26 @@ void QfactureImpl::on_aDel_clicked()
  */
 void QfactureImpl::refreshProductsList()
 {
-    products_model->clear();
-    
-    products_model->setTable("article");
-    
-    products_model->setHeaderData(0, Qt::Horizontal, trUtf8("ID"));
-    products_model->setHeaderData(1, Qt::Horizontal, trUtf8("Nom"));
-    products_model->setHeaderData(2, Qt::Horizontal, trUtf8("Prix"));
-    products_model->setHeaderData(3, Qt::Horizontal, trUtf8("Commentaire"));
-    
-    products_model->select();
+	products_model->clear();
+	
+	products_model->setTable("article");
+	
+	products_model->setHeaderData(0, Qt::Horizontal, trUtf8("ID"));
+	products_model->setHeaderData(1, Qt::Horizontal, trUtf8("Nom"));
+	products_model->setHeaderData(2, Qt::Horizontal, trUtf8("Prix"));
+	products_model->setHeaderData(3, Qt::Horizontal, trUtf8("Commentaire"));
+	
+	products_model->select();
 	
 	aList->setModel(products_model);
-    
-    // pour que la largeur des colonnes soit automatiquement mise à jour
-    // pour s'accorder au contenu
-    aList->resizeColumnsToContents();
-    
-    // pour que la largeur des colonnes soit automatiquement mise à jour
-    // pour s'accorder à la taille de la fenêtre
-    // aList->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+	
+	// pour que la largeur des colonnes soit automatiquement mise à jour
+	// pour s'accorder au contenu
+	aList->resizeColumnsToContents();
+	
+	// pour que la largeur des colonnes soit automatiquement mise à jour
+	// pour s'accorder à la taille de la fenêtre
+	// aList->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
 }
 
 /* Tab facture - liste des factures ******************************************/
@@ -833,10 +836,10 @@ void QfactureImpl::refreshProductsList()
 void QfactureImpl::refreshInvoicesList()
 {
 	QSqlQuery query;
-    
-    fList->clearContents();
-    
-    query.prepare(
+	
+	fList->clearContents();
+	
+	query.prepare(
 		"SELECT f.id, f.Amount, f.Comment, f.Payment, f.Reference, "
 		"		 f.Type, f.Date, c.Name "
 		"FROM facture AS f "
@@ -844,33 +847,33 @@ void QfactureImpl::refreshInvoicesList()
 		"   ON f.idClient = c.id "
 		"ORDER BY Reference DESC"
 	);
-    query.exec();
-    
-    fList->setRowCount(query.size());
-    
-    int i=0;
-    while(query.next()) {
-        fList->setItem(i, 0, new QTableWidgetItem(query.value(4).toString())); // ref
-        fList->setItem(i, 1, new QTableWidgetItem(query.value(6).toString())); // date
-        fList->setItem(i, 2, new QTableWidgetItem(query.value(7).toString())); // client
-        fList->setItem(i, 3, new QTableWidgetItem(query.value(1).toString())); // montant
-        fList->setItem(i, 4, new QTableWidgetItem(query.value(3).toString())); // paiement
-        fList->setItem(i, 5, new QTableWidgetItem(query.value(5).toString())); // type
-        fList->setItem(i, 6, new QTableWidgetItem(query.value(2).toString())); // commentaire
-        
-        fList->item(i, 0)->setData(Qt::UserRole, query.value(0).toInt());
-        
-        i++;
-    }
-    
-    // pour que la largeur des colonnes soit automatiquement mise à jour
-    // pour s'accorder au contenu
-    fList->resizeColumnsToContents();
-    
-    // pour que la largeur des colonnes soit automatiquement mise à jour
-    // pour s'accorder à la taille de la fenêtre
-    // fList->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
-    
+	query.exec();
+	
+	fList->setRowCount(query.size());
+	
+	int i=0;
+	while(query.next()) {
+		fList->setItem(i, 0, new QTableWidgetItem(query.value(4).toString())); // ref
+		fList->setItem(i, 1, new QTableWidgetItem(query.value(6).toString())); // date
+		fList->setItem(i, 2, new QTableWidgetItem(query.value(7).toString())); // client
+		fList->setItem(i, 3, new QTableWidgetItem(query.value(1).toString())); // montant
+		fList->setItem(i, 4, new QTableWidgetItem(query.value(3).toString())); // paiement
+		fList->setItem(i, 5, new QTableWidgetItem(query.value(5).toString())); // type
+		fList->setItem(i, 6, new QTableWidgetItem(query.value(2).toString())); // commentaire
+		
+		fList->item(i, 0)->setData(Qt::UserRole, query.value(0).toInt());
+		
+		i++;
+	}
+	
+	// pour que la largeur des colonnes soit automatiquement mise à jour
+	// pour s'accorder au contenu
+	fList->resizeColumnsToContents();
+	
+	// pour que la largeur des colonnes soit automatiquement mise à jour
+	// pour s'accorder à la taille de la fenêtre
+	// fList->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+	
 	query.finish();
 }
 
@@ -886,7 +889,7 @@ void QfactureImpl::on_fList_itemDoubleClicked(QTableWidgetItem* item)
 {
 	QSqlQuery query;
 	int id;
-    
+	
 	query.prepare(
 		"SELECT f.Id, IdClient, Name, Amount, Comment, Payment, Reference, Type, Date "
 		"FROM facture f "
@@ -894,8 +897,8 @@ void QfactureImpl::on_fList_itemDoubleClicked(QTableWidgetItem* item)
 		"ON c.Id = f.IdClient "
 		"WHERE f.Id = :Id"
 	);
-    
-    id = fList->item(item->row(), 0)->data(Qt::UserRole).toInt();
+	
+	id = fList->item(item->row(), 0)->data(Qt::UserRole).toInt();
 	
 	query.bindValue(":Id", id);
 	query.exec();
@@ -1010,7 +1013,7 @@ void QfactureImpl::refreshInvoiceProductsList()
 	QSqlQuery query;
 
 	fArtList->clearContents();
-    
+	
 	query.prepare(
 		"SELECT Id, Name, Price, Comment "
 		"FROM article "
@@ -1018,22 +1021,22 @@ void QfactureImpl::refreshInvoiceProductsList()
 	);
 	
 	query.exec();
-    
-    fArtList->setRowCount(query.size());
-    
-    int i=0;
-    while(query.next()) {
-        fArtList->setItem(i, 0, new QTableWidgetItem(query.value(0).toString())); // id
-        fArtList->setItem(i, 1, new QTableWidgetItem(query.value(1).toString())); // name
-        fArtList->setItem(i, 2, new QTableWidgetItem(query.value(2).toString())); // price
-        fArtList->setItem(i, 3, new QTableWidgetItem(query.value(3).toString())); // comment
-        
-        i++;
-    }
-    
-    // pour que la largeur des colonnes soit automatiquement mise à jour
-    // pour s'accorder au contenu
-    fArtList->resizeColumnsToContents();
+	
+	fArtList->setRowCount(query.size());
+	
+	int i=0;
+	while(query.next()) {
+		fArtList->setItem(i, 0, new QTableWidgetItem(query.value(0).toString())); // id
+		fArtList->setItem(i, 1, new QTableWidgetItem(query.value(1).toString())); // name
+		fArtList->setItem(i, 2, new QTableWidgetItem(query.value(2).toString())); // price
+		fArtList->setItem(i, 3, new QTableWidgetItem(query.value(3).toString())); // comment
+		
+		i++;
+	}
+	
+	// pour que la largeur des colonnes soit automatiquement mise à jour
+	// pour s'accorder au contenu
+	fArtList->resizeColumnsToContents();
 	
 	query.finish();
 }
@@ -1085,116 +1088,116 @@ void QfactureImpl::on_fArtList_itemDoubleClicked(QTableWidgetItem* item)
  */
 void QfactureImpl::fArtLinkRefresh()
 {
-    QSqlQuery query;
-    
-    fArtLink->clearContents();
-    
-    query.prepare(
-        "SELECT l.id, a.name, l.price, l.quantity, l.off, l.amount "
-        "FROM link AS l "
-        "LEFT JOIN article AS a "
-        "ON a.id = l.idarticle "
-        "WHERE l.idfacture = :idFacture "
-        "ORDER BY l.id "
-    );
-    
-    query.bindValue(":IdFacture", fNum->text());
-    
-    query.exec();
-    
-    fArtLink->setRowCount(query.size());
-    
-    fFlag = false;
-    int i=0;
-    while(query.next()) {
-        fArtLink->setItem(i, 0, new QTableWidgetItem(query.value(0).toString())); // id
-        fArtLink->setItem(i, 1, new QTableWidgetItem(query.value(1).toString())); // name
-        fArtLink->setItem(i, 2, new QTableWidgetItem(query.value(2).toString())); // price
-        fArtLink->setItem(i, 3, new QTableWidgetItem(query.value(3).toString())); // nbr
-        fArtLink->setItem(i, 4, new QTableWidgetItem(query.value(4).toString())); // off
-        fArtLink->setItem(i, 5, new QTableWidgetItem(query.value(5).toString())); // mont
-        
-        i++;
-    }
-    fFlag = true;
-    query.finish();
-    
-    /* Ajustement automatique largeur des colonnes */
-    fArtLink->resizeColumnsToContents();
+	QSqlQuery query;
+	
+	fArtLink->clearContents();
+	
+	query.prepare(
+		"SELECT l.id, a.name, l.price, l.quantity, l.off, l.amount "
+		"FROM link AS l "
+		"LEFT JOIN article AS a "
+		"ON a.id = l.idarticle "
+		"WHERE l.idfacture = :idFacture "
+		"ORDER BY l.id "
+	);
+	
+	query.bindValue(":IdFacture", fNum->text());
+	
+	query.exec();
+	
+	fArtLink->setRowCount(query.size());
+	
+	fFlag = false;
+	int i=0;
+	while(query.next()) {
+		fArtLink->setItem(i, 0, new QTableWidgetItem(query.value(0).toString())); // id
+		fArtLink->setItem(i, 1, new QTableWidgetItem(query.value(1).toString())); // name
+		fArtLink->setItem(i, 2, new QTableWidgetItem(query.value(2).toString())); // price
+		fArtLink->setItem(i, 3, new QTableWidgetItem(query.value(3).toString())); // nbr
+		fArtLink->setItem(i, 4, new QTableWidgetItem(query.value(4).toString())); // off
+		fArtLink->setItem(i, 5, new QTableWidgetItem(query.value(5).toString())); // mont
+		
+		i++;
+	}
+	fFlag = true;
+	query.finish();
+	
+	/* Ajustement automatique largeur des colonnes */
+	fArtLink->resizeColumnsToContents();
 }
 
 void QfactureImpl::on_fArtLink_itemChanged(QTableWidgetItem* Item)
 {
-    /** Une cellule du tableau lien article est modifiée **/
-    if (fFlag) {
-	    int Row = Item->row();
-	    int Col = Item->column();
-	    QString id = fArtLink->item(Row, 0)->text();
-	    QSqlQuery query;
-	    int quantity;
-	    float price, off, amount, amount_bis;
-	    switch (Col)
-	    {
-	        case 3: 
-	    /* Quantité mise à jour */
-	    quantity = Item->text().toInt();
-	    if (quantity != 0) {
-	        price = fArtLink->item(Row, 2)->text().toFloat();
-	        off = fArtLink->item(Row, 4)->text().toFloat();
-	        amount = fArtLink->item(Row, 5)->text().toFloat();
-	        amount_bis = quantity * price * (1 - off / 100);
-	        if (amount != amount_bis) {
-	        query.prepare(
-	                "UPDATE link "
-	                "SET amount = :Amount, quantity = :Quantity "
-	                "WHERE id = :Id"
-	                );
-	        query.bindValue(":Amount", amount_bis); 
-	        query.bindValue(":Quantity", quantity); 
-	        query.bindValue(":Id", id);
-	        query.exec();
-	        query.finish();
-	        }
-	                
-	        statusbar->showMessage(trUtf8("La quantité a été modifiée avec succés."), 3000);
-	    } else {
-	        /* Quantité = 0 => suppression du lien */
-	        query.prepare("DELETE FROM link WHERE id = :Id");
-	        query.bindValue(":Id", id);
-	        query.exec();
-	        query.finish();
-	        fArtLinkRefresh();
-	        updateInvoiceAmount();
-	        statusbar->showMessage(trUtf8("La ligne de la facture a été supprimée avec succés."), 3000);
-	    }
-	    break;
-	        case 4: 
-	    /* Remise mise à jour */
-	    off = Item->text().toInt();
-	    price = fArtLink->item(Row, 2)->text().toFloat();
-	    quantity = fArtLink->item(Row, 3)->text().toInt();
-	    amount = fArtLink->item(Row, 5)->text().toFloat();
-	    amount_bis = quantity * price * (1 - off / 100);
-	    if (amount != amount_bis) {
-	        query.prepare(
-	            "UPDATE link "
-	            "SET amount = :Amount, off = :Off "
-	            "WHERE id = :Id"
-	            );
-	        query.bindValue(":Amount", amount_bis); 
-	        query.bindValue(":Off", off); 
-	        query.bindValue(":Id", id);
-	        query.exec();
-	        query.finish();
-	    }
-	    statusbar->showMessage(trUtf8("La remise a été modifiée avec succés."), 3000);
-	    break;
-	        default:
-	    statusbar->showMessage(trUtf8("Cette cellule n'est pas modifiable."), 3000);
-	    break;
-	    }
-	    
-	    emit factureArticlesUpdated();
+	/** Une cellule du tableau lien article est modifiée **/
+	if (fFlag) {
+		int Row = Item->row();
+		int Col = Item->column();
+		QString id = fArtLink->item(Row, 0)->text();
+		QSqlQuery query;
+		int quantity;
+		float price, off, amount, amount_bis;
+		switch (Col)
+		{
+			case 3: 
+		/* Quantité mise à jour */
+		quantity = Item->text().toInt();
+		if (quantity != 0) {
+			price = fArtLink->item(Row, 2)->text().toFloat();
+			off = fArtLink->item(Row, 4)->text().toFloat();
+			amount = fArtLink->item(Row, 5)->text().toFloat();
+			amount_bis = quantity * price * (1 - off / 100);
+			if (amount != amount_bis) {
+			query.prepare(
+					"UPDATE link "
+					"SET amount = :Amount, quantity = :Quantity "
+					"WHERE id = :Id"
+					);
+			query.bindValue(":Amount", amount_bis); 
+			query.bindValue(":Quantity", quantity); 
+			query.bindValue(":Id", id);
+			query.exec();
+			query.finish();
+			}
+					
+			statusbar->showMessage(trUtf8("La quantité a été modifiée avec succés."), 3000);
+		} else {
+			/* Quantité = 0 => suppression du lien */
+			query.prepare("DELETE FROM link WHERE id = :Id");
+			query.bindValue(":Id", id);
+			query.exec();
+			query.finish();
+			fArtLinkRefresh();
+			updateInvoiceAmount();
+			statusbar->showMessage(trUtf8("La ligne de la facture a été supprimée avec succés."), 3000);
+		}
+		break;
+			case 4: 
+		/* Remise mise à jour */
+		off = Item->text().toInt();
+		price = fArtLink->item(Row, 2)->text().toFloat();
+		quantity = fArtLink->item(Row, 3)->text().toInt();
+		amount = fArtLink->item(Row, 5)->text().toFloat();
+		amount_bis = quantity * price * (1 - off / 100);
+		if (amount != amount_bis) {
+			query.prepare(
+				"UPDATE link "
+				"SET amount = :Amount, off = :Off "
+				"WHERE id = :Id"
+				);
+			query.bindValue(":Amount", amount_bis); 
+			query.bindValue(":Off", off); 
+			query.bindValue(":Id", id);
+			query.exec();
+			query.finish();
+		}
+		statusbar->showMessage(trUtf8("La remise a été modifiée avec succés."), 3000);
+		break;
+			default:
+		statusbar->showMessage(trUtf8("Cette cellule n'est pas modifiable."), 3000);
+		break;
+		}
+		
+		emit factureArticlesUpdated();
    }
 }
 
@@ -1336,6 +1339,19 @@ void QfactureImpl::on_fPrint_clicked()
 		return;
 	}
 	
+	QWebView view;
+	QPrinter printer;
+	
+	// configuration du printer
+	printer.setPageSize(QPrinter::A4);
+	printer.setOutputFormat(QPrinter::PdfFormat);
+	printer.setOutputFileName("test.pdf");
+
+	view.setHtml("<head><title>test titre</title></head><body><h1>titre</h1><p>contenu</p></body></html>");
+	
+	QPrintDialog printDialog(&printer, this);
+	if (printDialog.exec() == QDialog::Accepted)
+        view.print(&printer);
 }
 
 /**

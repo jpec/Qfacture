@@ -1,5 +1,5 @@
 TEMPLATE = app
-QT = gui core sql
+QT = gui core sql webkit
 CONFIG += qt release warn_on console
 DESTDIR = bin
 OBJECTS_DIR = build
