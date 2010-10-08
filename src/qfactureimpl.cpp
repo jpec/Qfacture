@@ -1329,29 +1329,13 @@ void QfactureImpl::on_fSave_clicked()
  */
 void QfactureImpl::on_fPrint_clicked()
 {
-	/** Imprimer la facture **/
-	
-	if (fNum->text() == "" ) {
+    if(fNum->text().isEmpty()) {
 		/* On ne peut imprimer qu'une facture sauvegardée */
 		QMessageBox::warning(this, "Qfacture",
-							 QString(trUtf8("La facture n'est pas sauvegardée!")),
+							 trUtf8("La facture n'est pas sauvegardée!"),
 							 QMessageBox::Ok);
 		return;
 	}
-	
-	QSqlQuery query;
-	QString name;
-	
-	query.prepare(
-		"SELECT CONCAT(Reference, '-', Type) "
-		"FROM facture "
-		"WHERE Id = :id"
-	);
-	query.bindValue(":id", fNum->text());
-	query.exec();
-	query.next();
-	name = query.value(0).toString();
-	query.finish();
 	
 	QWebView view;
 	QPrinter printer;
@@ -1359,11 +1343,12 @@ void QfactureImpl::on_fPrint_clicked()
 	// configuration du printer
 	printer.setPageSize(QPrinter::A4);
 	printer.setOutputFormat(QPrinter::PdfFormat);
-	printer.setOutputFileName( name + QString(".pdf")); /* Nom fichier = Réf facture */
+	printer.setOutputFileName(makeFactureReference(fNum->text(), fDate->text()) + " - " + fType->currentText() + ".pdf");
 
 	view.setHtml("<head><title>test titre</title></head><body><h1>titre</h1><p>contenu</p></body></html>");
+
 	QPrintDialog printDialog(&printer, this);
-	if (printDialog.exec() == QDialog::Accepted)
+	if(printDialog.exec() == QDialog::Accepted)
 		view.print(&printer);
 }
 
