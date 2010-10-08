@@ -1339,19 +1339,32 @@ void QfactureImpl::on_fPrint_clicked()
 		return;
 	}
 	
+	QSqlQuery query;
+	QString name;
+	
+	query.prepare(
+		"SELECT CONCAT(Reference, '-', Type) "
+		"FROM facture "
+		"WHERE Id = :id"
+	);
+	query.bindValue(":id", fNum->text());
+	query.exec();
+	query.next();
+	name = query.value(0).toString();
+	query.finish();
+	
 	QWebView view;
 	QPrinter printer;
 	
 	// configuration du printer
 	printer.setPageSize(QPrinter::A4);
 	printer.setOutputFormat(QPrinter::PdfFormat);
-	printer.setOutputFileName("test.pdf");
+	printer.setOutputFileName( name + QString(".pdf")); /* Nom fichier = Réf facture */
 
 	view.setHtml("<head><title>test titre</title></head><body><h1>titre</h1><p>contenu</p></body></html>");
-	
 	QPrintDialog printDialog(&printer, this);
 	if (printDialog.exec() == QDialog::Accepted)
-        view.print(&printer);
+		view.print(&printer);
 }
 
 /**
