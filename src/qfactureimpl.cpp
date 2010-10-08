@@ -1348,8 +1348,10 @@ void QfactureImpl::on_fPrint_clicked()
 	view.setHtml("<head><title>test titre</title></head><body><h1>titre</h1><p>contenu</p></body></html>");
 
 	QPrintDialog printDialog(&printer, this);
-	if(printDialog.exec() == QDialog::Accepted)
+	if(printDialog.exec() == QDialog::Accepted) {
 		view.print(&printer);
+        statusbar->showMessage(trUtf8("Facture imprimée."), 3000);
+    }
 }
 
 /**
