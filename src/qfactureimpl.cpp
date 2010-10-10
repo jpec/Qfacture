@@ -247,6 +247,23 @@ void QfactureImpl::doQuit()
 	qApp->quit();
 }
 
+/**
+ * Renvoie le template HTML à utiliser pour générer une facture
+ * 
+ * @return QString Le TPL en vigueur
+ */
+QString QfactureImpl::getInvoiceHTMLTpl()
+{
+	QSqlQuery query;
+	
+	query.exec(
+		"SELECT Content FROM template WHERE sel = \"x\" AND type = \"html\" LIMIT 1;"
+	);
+	query.next();
+    
+    return query.value(0).toString();
+}
+
 
 /* Menu **********************************************************************/
 
@@ -1339,17 +1356,72 @@ void QfactureImpl::on_fPrint_clicked()
 	
 	QWebView view;
 	QPrinter printer;
+    QString invoice_tpl = getInvoiceHTMLTpl();
+    QSqlQuery query;
+    QString logo_file = QDir::tempPath()+"/logo.png";
+    QPixmap logo;
 	
 	// configuration du printer
 	printer.setPageSize(QPrinter::A4);
 	printer.setOutputFormat(QPrinter::PdfFormat);
 	printer.setOutputFileName(makeFactureReference(fNum->text(), fDate->text()) + " - " + fType->currentText() + ".pdf");
 
-	view.setHtml("<head><title>test titre</title></head><body><h1>titre</h1><p>contenu</p></body></html>");
+    /** récupération des infos pour la facture  **/
+    
+    // infos sur l'AE
+    query.exec(
+		"SELECT Name, Siret, Adress, Adress2, Zip, City, Phone, Mail, Home, Logo "
+		"FROM user WHERE id = 1"
+	);
+	query.next();
 
+    invoice_tpl.replace("{% siren %}", query.value(1).toString())
+               .replace("{% ae_name %}", query.value(0).toString())
+               .replace("{% ae_address %}", query.value(2).toString())
+               .replace("{% ae_address2 %}", query.value(3).toString())
+               .replace("{% ae_zip %}", query.value(4).toString())
+               .replace("{% ae_city %}", query.value(5).toString())
+               .replace("{% ae_tel %}", query.value(6).toString())
+               .replace("{% ae_mail %}", query.value(7).toString())
+               .replace("{% ae_web %}", query.value(8).toString());
+    
+    // affichage du logo
+    logo.loadFromData(query.value(9).toByteArray());
+    logo.save(logo_file);
+    invoice_tpl.replace("{% logo_url %}", "file://"+logo_file);
+    
+    query.finish();
+    
+    // infos sur la facture et le client
+    query.prepare(
+		"SELECT f.Id, f.Amount, f.Comment, f.Payment, f.Reference, "
+               "f.Type, f.Date, c.Name, c.Adress, c.Adress2, c.Zip, "
+               "c.City "
+		"FROM facture f "
+		"LEFT JOIN client c ON f.idClient = c.id "
+        "WHERE f.Id = ?"
+	);
+    query.bindValue(0, fNum->text());
+	query.exec();
+    query.next();
+    
+    invoice_tpl.replace("{% ref %}", makeFactureReference(fNum->text(), fDate->text()))
+               .replace("{% invoice_date %}", query.value(6).toString())
+               .replace("{% invoice_comment %}", query.value(2).toString())
+               
+               .replace("{% customer_name %}", query.value(7).toString())
+               .replace("{% customer_address %}", query.value(8).toString())
+               .replace("{% customer_address2 %}", query.value(9).toString())
+               .replace("{% customer_zip %}", query.value(10).toString())
+               .replace("{% customer_city %}", query.value(11).toString());
+
+	view.setHtml(invoice_tpl);
+
+    // affichage d'une boite de dialogue avec quelques options d'impression
 	QPrintDialog printDialog(&printer, this);
 	if(printDialog.exec() == QDialog::Accepted) {
 		view.print(&printer);
+        
         statusbar->showMessage(trUtf8("Facture imprimée."), 3000);
     }
 }
