@@ -86,5 +86,6 @@ class QfactureImpl : public QMainWindow, public Ui::Qfacture
     QString compactDate(QString date);
     QString dateToDB(QDateEdit *date);
     QString makeFactureReference(QString number, QString date);
+    QString getInvoiceHTMLTpl();
 };
 #endif
