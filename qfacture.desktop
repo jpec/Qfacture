@@ -1,9 +1,10 @@
-[Desktop Entry] 
+[Desktop Entry]
 Name=Qfacture
+Comment=Qfacture
+Exec=/usr/local/bin/qfacture
 Icon=qfacture
-Comment=Qfacture - le logiciel de facturation libre pour les auto-entrepreneurs
-Exec=qfacture
-Terminal=false 
-Type=Application 
-Categories=Application;Office;
-GenericName=Qfacture
+Terminal=false
+Type=Application
+Categories=Desktop;Office;
+StartupNotify=true
+NoDisplay=false
