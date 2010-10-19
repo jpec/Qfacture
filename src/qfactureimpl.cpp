@@ -11,6 +11,7 @@
 #include <QWebView>
 #include <QPrinter>
 #include <QPrintDialog>
+#include <QRegExp>
 
 #include "qfactureimpl.h"
 
@@ -1414,7 +1415,42 @@ void QfactureImpl::on_fPrint_clicked()
                .replace("{% customer_address2 %}", query.value(9).toString())
                .replace("{% customer_zip %}", query.value(10).toString())
                .replace("{% customer_city %}", query.value(11).toString());
-
+    
+    // on parse la boucle des produits
+    query.prepare(
+		"SELECT l.id, a.name, l.price, l.quantity, l.off, l.amount "
+		"FROM link AS l "
+		"LEFT JOIN article AS a "
+		"ON a.id = l.idarticle "
+		"WHERE l.idfacture = :idFacture "
+		"ORDER BY l.id "
+	);
+	query.bindValue(":IdFacture", fNum->text());
+	query.exec();
+    
+    // traitement de la boucle via une regex
+    QRegExp regex(QRegExp::escape("{% product_line %}") + "(.+)" + QRegExp::escape("{% product_line %}"));
+    QString products;
+    QString product_line;
+    int pos=0;
+    
+    while ((pos = regex.indexIn(invoice_tpl, pos)) != -1)
+    {
+        product_line = regex.capturedTexts().at(0);
+        product_line.replace("{% product_line %}", " "); // dirty hack ... un de plus.
+        
+        pos += regex.matchedLength();
+    }
+    
+	while(query.next()) {
+        products += product_line.replace("{% designation %}", query.value(1).toString())
+                                .replace("{% prix_unitaire %}", query.value(2).toString())
+                                .replace("{% quantite %}", query.value(3).toString())
+                                .replace("{% montant %}", query.value(5).toString());
+	}
+    
+    invoice_tpl.replace(regex, products);
+    
 	view.setHtml(invoice_tpl);
 
     // affichage d'une boite de dialogue avec quelques options d'impression
