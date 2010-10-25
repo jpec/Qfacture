@@ -1409,6 +1409,7 @@ void QfactureImpl::on_fPrint_clicked()
     invoice_tpl.replace("{% ref %}", makeFactureReference(fNum->text(), fDate->text()))
                .replace("{% invoice_date %}", query.value(6).toString())
                .replace("{% invoice_comment %}", query.value(2).toString())
+               .replace("{% invoice_amount %}", query.value(1).toString())
                
                .replace("{% customer_name %}", query.value(7).toString())
                .replace("{% customer_address %}", query.value(8).toString())
@@ -1452,7 +1453,7 @@ void QfactureImpl::on_fPrint_clicked()
     invoice_tpl.replace(regex, products);
     
 	view.setHtml(invoice_tpl);
-
+    
     // affichage d'une boite de dialogue avec quelques options d'impression
 	QPrintDialog printDialog(&printer, this);
 	if(printDialog.exec() == QDialog::Accepted) {
