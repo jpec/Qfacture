@@ -2,8 +2,6 @@
 # install.sh - build the program & install it
 
 clear
-echo "***WARNING : "
-
 echo "*** Cleaning the project..."
 make clean
 
