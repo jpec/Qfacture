@@ -3,16 +3,16 @@
 *--------------------------------------------------------------------*
 
 * TABLE DES MATIERES
-1. Près-requis
+1. Pré-requis
 2. Installation du programme Qfacture
 3. Installation de la base de données MySQL
 
-1. Près-requis :
+1. Prés-requis :
 
 Pour pouvoir installer le programme Qfacture, vous devez avoir
-installé Qt4 sur votre système. Pour celà, veuillez installer le
+installé Qt4 sur votre système. Pour cela, veuillez installer le
 package de votre distribution Linux. Si vous n'utilisez pas Linux
-(c'est un tord!), veuillez installer manuellement l'environnement Qt4
+(c'est un tort !), veuillez installer manuellement l'environnement Qt4
 pour votre système d'exploitation.
 
 Pour obtenir Qt4 (téléchargement):
