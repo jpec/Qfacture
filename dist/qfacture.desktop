@@ -1,0 +1,13 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Name=Qfacture
+Comment=Le logiciel de facturation libre pour les Auto-Entrepreneurs
+GenericName=Facturation
+Exec=qfacture
+Icon=qfacture
+Terminal=false
+Type=Application
+X-MultipleArgs=false
+Categories=Office;
+StartupNotify=true

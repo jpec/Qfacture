@@ -20,8 +20,8 @@ make
 
 echo "*** Installing the program..."
 sudo cp bin/Qfacture /usr/local/bin/qfacture
-sudo cp art/qfacture.png /usr/share/pixmaps/qfacture.png
-sudo cp qfacture.desktop /usr/share/applications/qfacture.desktop
+sudo cp dist/qfacture.png /usr/share/pixmaps/qfacture.png
+sudo cp dist/qfacture.desktop /usr/share/applications/qfacture.desktop
 
 echo "*** END OF INSTALLATION ***"
 echo " "
