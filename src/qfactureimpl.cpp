@@ -1444,10 +1444,11 @@ void QfactureImpl::on_fPrint_clicked()
     }
     
 	while(query.next()) {
-        products += product_line.replace("{% designation %}", query.value(1).toString())
-                                .replace("{% prix_unitaire %}", query.value(2).toString())
-                                .replace("{% quantite %}", query.value(3).toString())
-                                .replace("{% montant %}", query.value(5).toString());
+		QString product_line_tmp = product_line;
+        products += product_line_tmp.replace("{% designation %}", query.value(1).toString())
+                                    .replace("{% prix_unitaire %}", query.value(2).toString())
+                                    .replace("{% quantite %}", query.value(3).toString())
+                                    .replace("{% montant %}", query.value(5).toString());
 	}
     
     invoice_tpl.replace(regex, products);
