@@ -8,10 +8,10 @@ class EditableSqlModel : public QSqlTableModel
 {
     Q_OBJECT
 
-    public:
-        EditableSqlModel(QObject *parent, QSqlDatabase &db);
+public:
+    EditableSqlModel(QObject *parent, QSqlDatabase &db);
 
-        Qt::ItemFlags flags(const QModelIndex &index) const;
- };
+    Qt::ItemFlags flags(const QModelIndex &index) const;
+};
 
- #endif
+#endif

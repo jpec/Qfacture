@@ -5,7 +5,7 @@
 EditableSqlModel::EditableSqlModel(QObject *parent, QSqlDatabase &db)
     : QSqlTableModel(parent, db)
 {
-	setEditStrategy(QSqlTableModel::OnFieldChange);
+    setEditStrategy(QSqlTableModel::OnFieldChange);
 }
 
 Qt::ItemFlags EditableSqlModel::flags(const QModelIndex &index) const

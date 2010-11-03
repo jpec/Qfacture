@@ -15,11 +15,14 @@ class QfactureImpl : public QMainWindow, public Ui::Qfacture
 {
     Q_OBJECT
     
- public:
+public:
     QfactureImpl(QWidget *parent=0, Qt::WFlags f=0);
     ~QfactureImpl();
     
- private slots:
+private slots:
+    void on_tUndo_clicked();
+    void on_tSave_clicked();
+    void on_tOpen_clicked();
     void on_aPass_returnPressed();
     void on_sYearCa_lostFocus();
     void on_fArtLink_itemChanged(QTableWidgetItem* item);
@@ -56,7 +59,7 @@ class QfactureImpl : public QMainWindow, public Ui::Qfacture
     void onCustomerSelected(const QModelIndex &item);
     void onProductSelected(const QModelIndex &item);
 
- signals:
+signals:
     void DBConnected();
     void clientSaved();
     void clientDeleted();
@@ -66,7 +69,7 @@ class QfactureImpl : public QMainWindow, public Ui::Qfacture
     void factureDeleted();
     void factureArticlesUpdated();
 
- protected:
+protected:
     QString VERSION;
     QSqlDatabase db;
     QSettings *settings;
@@ -87,5 +90,6 @@ class QfactureImpl : public QMainWindow, public Ui::Qfacture
     QString dateToDB(QDateEdit *date);
     QString makeFactureReference(QString number, QString date);
     QString getInvoiceHTMLTpl();
+    QString setInvoiceHTMLTpl(QString Tpl);
 };
 #endif
