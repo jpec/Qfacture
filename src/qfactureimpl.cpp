@@ -66,6 +66,9 @@ void QfactureImpl::createActions()
     // rechargement de la liste des factures
     connect(this, SIGNAL(DBConnected()), this, SLOT(refreshInvoicesList()));
 
+    // rechargement des statistiques
+    connect(this, SIGNAL(DBConnected()), this, SLOT(sListCaRefresh()));
+
     /** Actions effectuées lors de la sauvegarde d'un client (nouveau ou mise à jour d'un déjà existant) **/
 
     connect(this, SIGNAL(clientSaved()), this, SLOT(refreshCustomersList()));
@@ -84,11 +87,13 @@ void QfactureImpl::createActions()
 
     connect(this, SIGNAL(factureSaved()), this, SLOT(fArtLinkRefresh()));
     connect(this, SIGNAL(factureSaved()), this, SLOT(refreshInvoicesList()));
+    connect(this, SIGNAL(factureSaved()), this, SLOT(sListCaRefresh()));
 
     /** Actions effectuées lors de la suppression d'une facture **/
 
     connect(this, SIGNAL(factureDeleted()), this, SLOT(fArtLinkRefresh()));
     connect(this, SIGNAL(factureDeleted()), this, SLOT(refreshInvoicesList()));
+    connect(this, SIGNAL(factureDeleted()), this, SLOT(sListCaRefresh()));
 
     /** Actions effectuées lors de l'ajout d'un article à une facture **/
 
@@ -281,7 +286,6 @@ QString QfactureImpl::setInvoiceHTMLTpl(QString Tpl)
             );
     query.bindValue(":tpl", Tpl);
     query.exec();
-statusbar->showMessage(query.executedQuery());
     return getInvoiceHTMLTpl();
 }
 
@@ -1570,7 +1574,7 @@ void QfactureImpl::sListCaRefresh()
 
     year = sYearCa->text();
 
-    if(year.isEmpty() or year.length() != 4 or year.toInt() == 0) {
+    if(year.length() != 4 and !year.isEmpty()) {
         /* Date invalide */
         QMessageBox::warning(this, "Qfacture",
                              QString(trUtf8("La date saisie n'est pas valide!")),
@@ -1578,7 +1582,11 @@ void QfactureImpl::sListCaRefresh()
         year = QDate::currentDate().toString(QString(trUtf8("yyyy")));
         sYearCa->setText(year);
     }
-
+    if (year.isEmpty()) {
+        /* Date non renseignée */
+        year = QDate::currentDate().toString(QString(trUtf8("yyyy")));
+        sYearCa->setText(year);
+    }
     sListCa->clear();
 
     query.prepare(
@@ -1632,6 +1640,7 @@ void QfactureImpl::on_tOpen_clicked()
 
     tText->setPlainText(Modele);
     tText->setDisabled(false);
+    statusbar->showMessage(trUtf8("Le modèle de facture a été chargé avec succés!"));
 }
 
 /**
@@ -1646,6 +1655,7 @@ void QfactureImpl::on_tSave_clicked()
     if (!tText->toPlainText().isNull()) {
         QString New = setInvoiceHTMLTpl(tText->toPlainText());
         tText->setPlainText(New);
+        statusbar->showMessage(trUtf8("Le modèle de facture a été sauvé avec succés!"));
     }
 }
 
@@ -1657,6 +1667,8 @@ void QfactureImpl::on_tSave_clicked()
 void QfactureImpl::on_tUndo_clicked()
 {
     /** Annuler les modifications en cours **/
-    tText->setPlainText(QString(trUtf8("Modèle non chargé...")));
+
+    tText->setPlainText(QString(trUtf8("Modèle de facture non chargé...")));
     tText->setDisabled(true);
+    statusbar->showMessage(trUtf8("Modifications annulées!"));
 }
