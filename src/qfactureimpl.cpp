@@ -496,12 +496,19 @@ void QfactureImpl::on_cNew_clicked()
     cId->setEnabled(false);
     cId->clear();
     cName->clear();
+    cName->setEnabled(true);
     cAdress->clear();
+    cAdress->setEnabled(true);
     cAdress2->clear();
+    cAdress2->setEnabled(true);
     cZip->clear();
+    cZip->setEnabled(true);
     cCity->clear();
+    cCity->setEnabled(true);
     cPhone->clear();
+    cPhone->setEnabled(true);
     cMail->clear();
+    cMail->setEnabled(true);
 }
 
 /**
@@ -537,12 +544,19 @@ void QfactureImpl::onCustomerSelected(const QModelIndex &item)
 
     cId->setText(id);
     cName->setText(query.value(0).toString());
+    cName->setEnabled(true);
     cAdress->setText(query.value(1).toString());
+    cAdress->setEnabled(true);
     cAdress2->setText(query.value(2).toString());
+    cAdress2->setEnabled(true);
     cZip->setText(query.value(3).toString());
+    cZip->setEnabled(true);
     cCity->setText(query.value(4).toString());
+    cCity->setEnabled(true);
     cPhone->setText(query.value(5).toString());
+    cPhone->setEnabled(true);
     cMail->setText(query.value(6).toString());
+    cMail->setEnabled(true);
 }
 
 /**
@@ -594,8 +608,25 @@ void QfactureImpl::on_cSave_clicked()
         statusbar->showMessage(trUtf8("Le nouveau client a été enregistré avec succès."), 3000);
     }
 
-    cSave->setEnabled(true);
-    cDel->setEnabled(true);
+    cId->clear();
+    cName->clear();
+    cName->setEnabled(false);
+    cAdress->clear();
+    cAdress->setEnabled(false);
+    cAdress2->clear();
+    cAdress2->setEnabled(false);
+    cZip->clear();
+    cZip->setEnabled(false);
+    cCity->clear();
+    cCity->setEnabled(false);
+    cPhone->clear();
+    cPhone->setEnabled(false);
+    cMail->clear();
+    cMail->setEnabled(false);
+
+    cDel->setEnabled(false);
+    cNew->setEnabled(true);
+    cSave->setEnabled(false);
 
     emit clientSaved();
 }
@@ -651,12 +682,19 @@ void QfactureImpl::on_cDel_clicked()
 
     cId->clear();
     cName->clear();
+    cName->setEnabled(false);
     cAdress->clear();
+    cAdress->setEnabled(false);
     cAdress2->clear();
+    cAdress2->setEnabled(false);
     cZip->clear();
+    cZip->setEnabled(false);
     cCity->clear();
+    cCity->setEnabled(false);
     cPhone->clear();
+    cPhone->setEnabled(false);
     cMail->clear();
+    cMail->setEnabled(false);
 
     cDel->setEnabled(false);
     cNew->setEnabled(true);
@@ -684,8 +722,11 @@ void QfactureImpl::on_aNew_clicked()
 
     aId->clear();
     aName->clear();
+    aName->setEnabled(true);
     aPrice->setValue(0);
+    aPrice->setEnabled(true);
     aCom->clear();
+    aCom->setEnabled(true);
 }
 
 /**
@@ -721,8 +762,11 @@ void QfactureImpl::onProductSelected(const QModelIndex &item)
 
     aId->setText(id);
     aName->setText(query.value(1).toString());
+    aName->setEnabled(true);
     aPrice->setValue(query.value(2).toFloat());
+    aPrice->setEnabled(true);
     aCom->setText(query.value(3).toString());
+    aCom->setEnabled(true);
 }
 
 /**
@@ -803,8 +847,17 @@ void QfactureImpl::on_aSave_clicked()
 
     query.finish();
 
-    aSave->setEnabled(true);
-    aDel->setEnabled(true);
+    aId->clear();
+    aName->clear();
+    aName->setEnabled(false);
+    aPrice->setValue(0);
+    aPrice->setEnabled(false);
+    aCom->clear();
+    aCom->setEnabled(false);
+
+    aDel->setEnabled(false);
+    aNew->setEnabled(true);
+    aSave->setEnabled(false);
 
     emit articleSaved();
 }
@@ -826,8 +879,11 @@ void QfactureImpl::on_aDel_clicked()
 
     aId->clear();
     aName->clear();
+    aName->setEnabled(false);
     aPrice->setValue(0);
+    aPrice->setEnabled(false);
     aCom->clear();
+    aCom->setEnabled(false);
 
     aDel->setEnabled(false);
     aNew->setEnabled(true);
