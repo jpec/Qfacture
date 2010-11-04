@@ -45,7 +45,7 @@ QfactureImpl::~QfactureImpl()
 /**
  * Définit quelles méthodes seront appelées lors de l'émission de certains
  * évènements
- * 
+ *
  * @return void
  */
 void QfactureImpl::createActions()
@@ -142,9 +142,9 @@ void QfactureImpl::MySQLConnect()
  * Affiche une boite de dialogue permettant de confirmer ou non la
  * réalisation d'une action. La boite de dialogue est composée d'un
  * message (passé en paramètre) et de deux boutons : Oui ou Non.
- * 
+ *
  * @param msg Message à afficher
- * 
+ *
  * @return bool
  */
 bool QfactureImpl::confirm(const char *msg)
@@ -155,10 +155,10 @@ bool QfactureImpl::confirm(const char *msg)
 
 /**
  * Génère une référence de facture.
- * 
+ *
  * @param number Numéro de la facture dans la journée
  * @param date Date d'édition de la facture
- * 
+ *
  * @return QString La référence
  */
 QString QfactureImpl::makeFactureReference(QString number, QString date)
@@ -169,9 +169,9 @@ QString QfactureImpl::makeFactureReference(QString number, QString date)
 /**
  * Compacte une date pour ensuite être utilisée dans les références de
  * factures
- * 
+ *
  * @param date La date à compacter
- * 
+ *
  * @return QString La date compactée
  */
 QString QfactureImpl::compactDate(QString date)
@@ -182,11 +182,11 @@ QString QfactureImpl::compactDate(QString date)
 }
 
 /**
- * Renvoie la valeur d'un QDateEdit de telle sorte qu'elle puisse être 
+ * Renvoie la valeur d'un QDateEdit de telle sorte qu'elle puisse être
  * insérée en DB
- * 
+ *
  * @param date Pointeur vers le QDateEdit
- * 
+ *
  * @return QString
  */
 QString QfactureImpl::dateToDB(QDateEdit *date)
@@ -255,7 +255,7 @@ void QfactureImpl::doQuit()
 
 /**
  * Renvoie le template HTML à utiliser pour générer une facture
- * 
+ *
  * @return QString Le TPL en vigueur
  */
 QString QfactureImpl::getInvoiceHTMLTpl()
@@ -266,7 +266,7 @@ QString QfactureImpl::getInvoiceHTMLTpl()
             "SELECT Content FROM template WHERE sel = \"x\" AND type = \"html\" LIMIT 1;"
             );
     query.next();
-    
+
     return query.value(0).toString();
 }
 
@@ -327,7 +327,7 @@ void QfactureImpl::on_action_propos_activated()
 /**
  * Charge les informations sur l'auto-entrepreneur à afficher dans l'onglet
  * paramètres
- * 
+ *
  * @return void
  */
 void QfactureImpl::loadUserInfos()
@@ -362,7 +362,7 @@ void QfactureImpl::loadUserInfos()
  * à la DB dans l'onglet "Paramètres".
  * On s'occupe ici d'appeler la méthode gérant la connexion à la DB et
  * de (dés)activer certains champs
- * 
+ *
  * @return void
  */
 void QfactureImpl::on_aConnect_clicked()
@@ -496,6 +496,7 @@ void QfactureImpl::on_cNew_clicked()
     cId->setEnabled(false);
     cId->clear();
     cName->clear();
+    cName->setFocus();
     cName->setEnabled(true);
     cAdress->clear();
     cAdress->setEnabled(true);
@@ -514,9 +515,9 @@ void QfactureImpl::on_cNew_clicked()
 /**
  * Affiche les infos d'un client dans le formulaire lors du clic sur ce
  * dernier
- * 
+ *
  * @param item Pointeur vers la ligne représentant le client
- * 
+ *
  * @return void
  */
 void QfactureImpl::onCustomerSelected(const QModelIndex &item)
@@ -544,6 +545,7 @@ void QfactureImpl::onCustomerSelected(const QModelIndex &item)
 
     cId->setText(id);
     cName->setText(query.value(0).toString());
+    cName->setFocus();
     cName->setEnabled(true);
     cAdress->setText(query.value(1).toString());
     cAdress->setEnabled(true);
@@ -564,9 +566,9 @@ void QfactureImpl::onCustomerSelected(const QModelIndex &item)
  * On réalise l'enregistrement d'un nouveau client si le champ de l'ID
  * est vide, ou la mise à jour des informations d'un client déjà existant
  * dans le cas contraire.
- * 
+ *
  * \todo Documenter les vérifications effectuées par la méthode
- * 
+ *
  * @return void
  */
 void QfactureImpl::on_cSave_clicked()
@@ -578,7 +580,7 @@ void QfactureImpl::on_cSave_clicked()
         query.prepare(
                 "INSERT INTO client(Name, Adress, Adress2, Zip, City, Phone, Mail) "
                 "VALUES(:name, :adress, :adress2, :zip, :city, :phone, :mail)"
-		);
+                );
     else { /* Mise à jour d'un client */
         query.prepare(
                 "UPDATE client "
@@ -586,7 +588,7 @@ void QfactureImpl::on_cSave_clicked()
                 " Name = :name, Adress = :adress, Adress2 = :adress2,"
                 " Zip = :zip, City = :city, Phone = :phone, Mail = :mail "
                 "WHERE Id = :id "
-		);
+                );
         query.bindValue(":id", cId->text());
     }
 
@@ -633,7 +635,7 @@ void QfactureImpl::on_cSave_clicked()
 
 /**
  * Recharge la liste des clients.
- * 
+ *
  * @return void
  */
 void QfactureImpl::refreshCustomersList()
@@ -666,7 +668,7 @@ void QfactureImpl::refreshCustomersList()
 
 /**
  * Supprime le client actuellement sélectionné dans la liste
- * 
+ *
  * @return void
  */
 void QfactureImpl::on_cDel_clicked()
@@ -710,7 +712,7 @@ void QfactureImpl::on_cDel_clicked()
 /**
  * Méthode callback appelée lors d'un clic sur le bouton d'ajout d'un
  * article
- * 
+ *
  * @return void
  */
 void QfactureImpl::on_aNew_clicked()
@@ -722,6 +724,7 @@ void QfactureImpl::on_aNew_clicked()
 
     aId->clear();
     aName->clear();
+    aName->setFocus();
     aName->setEnabled(true);
     aPrice->setValue(0);
     aPrice->setEnabled(true);
@@ -732,9 +735,9 @@ void QfactureImpl::on_aNew_clicked()
 /**
  * Affiche les infos d'un article dans le formulaire lors du clic sur ce
  * dernier
- * 
+ *
  * @param item Pointeur vers la ligne représentant l'article
- * 
+ *
  * @return void
  */
 void QfactureImpl::onProductSelected(const QModelIndex &item)
@@ -762,6 +765,7 @@ void QfactureImpl::onProductSelected(const QModelIndex &item)
 
     aId->setText(id);
     aName->setText(query.value(1).toString());
+    aName->setFocus();
     aName->setEnabled(true);
     aPrice->setValue(query.value(2).toFloat());
     aPrice->setEnabled(true);
@@ -774,9 +778,9 @@ void QfactureImpl::onProductSelected(const QModelIndex &item)
  * On réalise l'enregistrement d'un nouvel article si le champ de l'ID
  * est vide, ou la mise à jour des informations d'un article déjà existant
  * dans le cas contraire.
- * 
+ *
  * \todo Documenter les vérifications effectuées par la méthode
- * 
+ *
  * @return void
  */
 void QfactureImpl::on_aSave_clicked()
@@ -804,13 +808,13 @@ void QfactureImpl::on_aSave_clicked()
         query.prepare(
                 "INSERT INTO article(Name, Price, Comment) "
                 "VALUES(:name, :price, :comment)"
-		);
+                );
     } else {
         // on vérifie qu'il n'existe pas déjà un article ayant la même désignation
         query.prepare("SELECT 1 FROM article WHERE Name = :name AND Id != :id");
         query.bindValue(":id", aId->text());
         query.bindValue(":name", aName->text());
-	
+
         query.exec();
 
         nb = query.size();
@@ -826,7 +830,7 @@ void QfactureImpl::on_aSave_clicked()
                 "UPDATE article "
                 "SET Name = :name, Price = :price, Comment = :comment "
                 "WHERE Id = :id "
-		);
+                );
 
         query.bindValue(":id", aId->text());
     }
@@ -864,7 +868,7 @@ void QfactureImpl::on_aSave_clicked()
 
 /**
  * Supprime l'article actuellement sélectionné dans la liste
- * 
+ *
  * @return void
  */
 void QfactureImpl::on_aDel_clicked()
@@ -896,7 +900,7 @@ void QfactureImpl::on_aDel_clicked()
 
 /**
  * Recharge la liste des articles.
- * 
+ *
  * @return void
  */
 void QfactureImpl::refreshProductsList()
@@ -927,7 +931,7 @@ void QfactureImpl::refreshProductsList()
 
 /**
  * Recharge la liste des factures.
- * 
+ *
  * @return void
  */
 void QfactureImpl::refreshInvoicesList()
@@ -977,9 +981,9 @@ void QfactureImpl::refreshInvoicesList()
 /**
  * Affiche les infos d'une facture dans le formulaire d'édition au clic
  * sur cette dernière dans la liste.
- * 
+ *
  * @param item Pointeur vers la ligne représentant la facture
- * 
+ *
  * @return void
  */
 void QfactureImpl::on_fList_itemDoubleClicked(QTableWidgetItem* item)
@@ -1030,7 +1034,7 @@ void QfactureImpl::on_fList_itemDoubleClicked(QTableWidgetItem* item)
 
 /**
  * Recharge la liste des clients de l'onglet facture
- * 
+ *
  * @return void
  */
 void QfactureImpl::refreshInvoiceCustomersList()
@@ -1068,13 +1072,13 @@ void QfactureImpl::refreshInvoiceCustomersList()
 /**
  * Appelée lors du clic sur un client. Le choix du client pour la facture
  * est alors réalisé et le champ fClient est alimenté.
- * 
+ *
  * \todo se débrouiller pour stocker l'ID du membre et afficher le nom
  *		 pour ne travailler qu'avec l'ID (unique) par la suite et non
  *		 le nom (pas forcément unique :-°)
- * 
+ *
  * @param item Pointeur vers la ligne choisie.
- * 
+ *
  * @return void
  */
 void QfactureImpl::on_fClientList_itemDoubleClicked(QListWidgetItem* item)
@@ -1101,7 +1105,7 @@ void QfactureImpl::on_fClientList_itemDoubleClicked(QListWidgetItem* item)
 
 /**
  * Recharge la liste des articles de l'onglet facture.
- * 
+ *
  * @return void
  */
 void QfactureImpl::refreshInvoiceProductsList()
@@ -1141,9 +1145,9 @@ void QfactureImpl::refreshInvoiceProductsList()
 /**
  * Ajoute l'article sur lequel on vient de cliquer dans la facture en
  * cours d'édition
- * 
+ *
  * @param item Pointeur vers la ligne représentant l'article
- * 
+ *
  * @return void
  */
 void QfactureImpl::on_fArtList_itemDoubleClicked(QTableWidgetItem* item)
@@ -1268,7 +1272,7 @@ void QfactureImpl::on_fArtLink_itemChanged(QTableWidgetItem* Item)
                 statusbar->showMessage(trUtf8("La ligne de la facture a été supprimée avec succés."), 3000);
             }
             break;
-			case 4: 
+                        case 4:
                             /* Remise mise à jour */
                             off = Item->text().toInt();
                             price = fArtLink->item(Row, 2)->text().toFloat();
@@ -1289,7 +1293,7 @@ void QfactureImpl::on_fArtLink_itemChanged(QTableWidgetItem* Item)
                             }
                             statusbar->showMessage(trUtf8("La remise a été modifiée avec succés."), 3000);
                             break;
-			default:
+                        default:
                             statusbar->showMessage(trUtf8("Cette cellule n'est pas modifiable."), 3000);
                             break;
                         }
@@ -1300,7 +1304,7 @@ void QfactureImpl::on_fArtLink_itemChanged(QTableWidgetItem* Item)
 
 /**
  * Met à jour le montant total de la facture en cours
- * 
+ *
  * @return void
  */
 void QfactureImpl::updateInvoiceAmount()
@@ -1323,9 +1327,9 @@ void QfactureImpl::updateInvoiceAmount()
  * On réalise l'enregistrement d'une nouvelle facture si le champ du numéro
  * est vide, ou la mise à jour des informations d'une facture déjà éditée
  * dans le cas contraire.
- * 
+ *
  * \todo Documenter les vérifications effectuées par la méthode
- * 
+ *
  * @return void
  */
 void QfactureImpl::on_fSave_clicked()
@@ -1373,7 +1377,7 @@ void QfactureImpl::on_fSave_clicked()
                 " (idclient, Amount, Payment, Reference, Type, Date) "
                 "VALUES"
                 " (:client, :amount, :pay, :ref, :type, :date)"
-		);
+                );
 
         query.bindValue(":ref", makeFactureReference(count, fDate->text()));
     } else {
@@ -1384,7 +1388,7 @@ void QfactureImpl::on_fSave_clicked()
                 " idclient = :client, Amount = :amount, Payment = :pay, "
                 " Type = :type, Date = :date "
                 "WHERE Id = :id"
-		);
+                );
 
         query.bindValue(":id", fNum->text());
     }
@@ -1421,7 +1425,7 @@ void QfactureImpl::on_fSave_clicked()
 /**
  * Edite la facture actuellement sélectionnée dans la liste (ou plutôt
  * en cours d'édition)
- * 
+ *
  * @return void
  */
 void QfactureImpl::on_fPrint_clicked()
@@ -1447,7 +1451,7 @@ void QfactureImpl::on_fPrint_clicked()
     printer.setOutputFileName(makeFactureReference(fNum->text(), fDate->text()) + " - " + fType->currentText() + ".pdf");
 
     /** récupération des infos pour la facture  **/
-    
+
     // infos sur l'AE
     query.exec(
             "SELECT Name, Siret, Adress, Adress2, Zip, City, Phone, Mail, Home, Logo "
@@ -1464,14 +1468,14 @@ void QfactureImpl::on_fPrint_clicked()
             .replace("{% ae_tel %}", query.value(6).toString())
             .replace("{% ae_mail %}", query.value(7).toString())
             .replace("{% ae_web %}", query.value(8).toString());
-    
+
     // affichage du logo
     logo.loadFromData(query.value(9).toByteArray());
     logo.save(logo_file);
     invoice_tpl.replace("{% logo_url %}", "file://"+logo_file);
-    
+
     query.finish();
-    
+
     // infos sur la facture et le client
     query.prepare(
             "SELECT f.Id, f.Amount, f.Comment, f.Payment, f.Reference, "
@@ -1484,7 +1488,7 @@ void QfactureImpl::on_fPrint_clicked()
     query.bindValue(0, fNum->text());
     query.exec();
     query.next();
-    
+
     invoice_tpl.replace("{% ref %}", makeFactureReference(fNum->text(), fDate->text()))
             .replace("{% invoice_date %}", query.value(6).toString())
             .replace("{% invoice_comment %}", query.value(2).toString())
@@ -1495,7 +1499,7 @@ void QfactureImpl::on_fPrint_clicked()
             .replace("{% customer_address2 %}", query.value(9).toString())
             .replace("{% customer_zip %}", query.value(10).toString())
             .replace("{% customer_city %}", query.value(11).toString());
-    
+
     // on parse la boucle des produits
     query.prepare(
             "SELECT l.id, a.name, l.price, l.quantity, l.off, l.amount "
@@ -1507,21 +1511,21 @@ void QfactureImpl::on_fPrint_clicked()
             );
     query.bindValue(":IdFacture", fNum->text());
     query.exec();
-    
+
     // traitement de la boucle via une regex
     QRegExp regex(QRegExp::escape("{% product_line %}") + "(.+)" + QRegExp::escape("{% product_line %}"));
     QString products;
     QString product_line;
     int pos=0;
-    
+
     while ((pos = regex.indexIn(invoice_tpl, pos)) != -1)
     {
         product_line = regex.capturedTexts().at(0);
         product_line.replace("{% product_line %}", " "); // dirty hack ... un de plus.
-        
+
         pos += regex.matchedLength();
     }
-    
+
     while(query.next()) {
         QString product_line_tmp = product_line;
         products += product_line_tmp.replace("{% designation %}", query.value(1).toString())
@@ -1529,16 +1533,16 @@ void QfactureImpl::on_fPrint_clicked()
                     .replace("{% quantite %}", query.value(3).toString())
                     .replace("{% montant %}", query.value(5).toString());
     }
-    
+
     invoice_tpl.replace(regex, products);
-    
+
     view.setHtml(invoice_tpl);
-    
+
     // affichage d'une boite de dialogue avec quelques options d'impression
     QPrintDialog printDialog(&printer, this);
     if(printDialog.exec() == QDialog::Accepted) {
         view.print(&printer);
-        
+
         statusbar->showMessage(trUtf8("Facture imprimée."), 3000);
     }
 }
@@ -1546,7 +1550,7 @@ void QfactureImpl::on_fPrint_clicked()
 /**
  * Supprime la facture actuellement sélectionnée dans la liste (ou plutôt
  * en cours d'édition)
- * 
+ *
  * @return void
  */
 void QfactureImpl::on_fDel_clicked()
@@ -1592,7 +1596,7 @@ void QfactureImpl::on_fDel_clicked()
 /**
  * Méthode de callback appelée lors du clic sur le bouton de création
  * d'une nouvelle facture.
- * 
+ *
  * @return void
  */
 void QfactureImpl::on_fNew_clicked()
@@ -1619,7 +1623,7 @@ void QfactureImpl::on_fNew_clicked()
 
 /**
  * Méthode rafraichissant la liste des chiffres d'affaires cumulés par mois.
- * 
+ *
  * @return void
  */
 void QfactureImpl::sListCaRefresh()
@@ -1670,7 +1674,7 @@ void QfactureImpl::sListCaRefresh()
 
 /**
  * Méthode de callback appellée lorsque l'année est modifiée.
- * 
+ *
  * @return void
  */
 void QfactureImpl::on_sYearCa_lostFocus()
@@ -1696,6 +1700,7 @@ void QfactureImpl::on_tOpen_clicked()
 
     tText->setPlainText(Modele);
     tText->setDisabled(false);
+    tText->setFocus();
     statusbar->showMessage(trUtf8("Le modèle de facture a été chargé avec succés!"));
 }
 

@@ -344,8 +344,14 @@
                <height>16777215</height>
               </size>
              </property>
+             <property name="toolTip">
+              <string>Raccourci : Ctrl+s</string>
+             </property>
              <property name="text">
               <string>Enregistrer</string>
+             </property>
+             <property name="shortcut">
+              <string>Ctrl+S</string>
              </property>
              <property name="checkable">
               <bool>false</bool>
@@ -357,8 +363,14 @@
            </item>
            <item row="9" column="1">
             <widget class="QPushButton" name="uChangeLogo">
+             <property name="toolTip">
+              <string>Raccourci : Ctrl+o</string>
+             </property>
              <property name="text">
               <string>Changer le logo</string>
+             </property>
+             <property name="shortcut">
+              <string>Ctrl+O</string>
              </property>
             </widget>
            </item>
@@ -674,8 +686,14 @@
                <height>16777215</height>
               </size>
              </property>
+             <property name="toolTip">
+              <string>Raccourci : Ctrl+n</string>
+             </property>
              <property name="text">
               <string>Connexion</string>
+             </property>
+             <property name="shortcut">
+              <string>Ctrl+N</string>
              </property>
             </widget>
            </item>
@@ -994,8 +1012,14 @@
                <height>16777215</height>
               </size>
              </property>
+             <property name="toolTip">
+              <string>Raccourci : Ctrl+c</string>
+             </property>
              <property name="text">
               <string>Nouveau</string>
+             </property>
+             <property name="shortcut">
+              <string>Ctrl+N</string>
              </property>
             </widget>
            </item>
@@ -1016,8 +1040,14 @@
                <height>16777215</height>
               </size>
              </property>
+             <property name="toolTip">
+              <string>Raccourci : Ctrl+s</string>
+             </property>
              <property name="text">
               <string>Enregistrer</string>
+             </property>
+             <property name="shortcut">
+              <string>Ctrl+S</string>
              </property>
             </widget>
            </item>
@@ -1038,8 +1068,14 @@
                <height>16777215</height>
               </size>
              </property>
+             <property name="toolTip">
+              <string>Raccourci : Ctrl+d</string>
+             </property>
              <property name="text">
               <string>Supprimer</string>
+             </property>
+             <property name="shortcut">
+              <string>Ctrl+D</string>
              </property>
             </widget>
            </item>
@@ -1288,8 +1324,14 @@
           <layout class="QFormLayout" name="formLayout_6">
            <item row="0" column="0">
             <widget class="QPushButton" name="aNew">
+             <property name="toolTip">
+              <string>Raccourci : Ctrl+n</string>
+             </property>
              <property name="text">
               <string>Nouveau</string>
+             </property>
+             <property name="shortcut">
+              <string>Ctrl+N</string>
              </property>
             </widget>
            </item>
@@ -1298,8 +1340,14 @@
              <property name="enabled">
               <bool>false</bool>
              </property>
+             <property name="toolTip">
+              <string>Raccourci : Ctrl+s</string>
+             </property>
              <property name="text">
               <string>Enregistrer</string>
+             </property>
+             <property name="shortcut">
+              <string>Ctrl+S</string>
              </property>
             </widget>
            </item>
@@ -1308,8 +1356,14 @@
              <property name="enabled">
               <bool>false</bool>
              </property>
+             <property name="toolTip">
+              <string>Raccourci : Ctrl+d</string>
+             </property>
              <property name="text">
               <string>Supprimer</string>
+             </property>
+             <property name="shortcut">
+              <string>Ctrl+D</string>
              </property>
             </widget>
            </item>
@@ -1598,8 +1652,14 @@
                     <property name="enabled">
                      <bool>false</bool>
                     </property>
+                    <property name="toolTip">
+                     <string>Raccourci : Ctrl+s</string>
+                    </property>
                     <property name="text">
                      <string>Sauver</string>
+                    </property>
+                    <property name="shortcut">
+                     <string>Ctrl+S</string>
                     </property>
                    </widget>
                   </item>
@@ -1608,8 +1668,14 @@
                     <property name="enabled">
                      <bool>false</bool>
                     </property>
+                    <property name="toolTip">
+                     <string>Raccourci : Ctrl+p</string>
+                    </property>
                     <property name="text">
                      <string>Imprimer</string>
+                    </property>
+                    <property name="shortcut">
+                     <string>Ctrl+P</string>
                     </property>
                    </widget>
                   </item>
@@ -1618,15 +1684,27 @@
                     <property name="enabled">
                      <bool>false</bool>
                     </property>
+                    <property name="toolTip">
+                     <string>Raccourci : Ctrl+d</string>
+                    </property>
                     <property name="text">
                      <string>Supprimer</string>
+                    </property>
+                    <property name="shortcut">
+                     <string>Ctrl+D</string>
                     </property>
                    </widget>
                   </item>
                   <item row="0" column="0">
                    <widget class="QPushButton" name="fNew">
+                    <property name="toolTip">
+                     <string>Raccourci : Ctrl+n</string>
+                    </property>
                     <property name="text">
                      <string>Créer</string>
+                    </property>
+                    <property name="shortcut">
+                     <string>Ctrl+N</string>
                     </property>
                    </widget>
                   </item>
@@ -1815,15 +1893,27 @@
        <layout class="QGridLayout" name="gridLayout_16">
         <item row="2" column="1">
          <widget class="QPushButton" name="tSave">
+          <property name="toolTip">
+           <string>Raccourci : Ctrl+s</string>
+          </property>
           <property name="text">
            <string>Enregistrer</string>
+          </property>
+          <property name="shortcut">
+           <string>Ctrl+S</string>
           </property>
          </widget>
         </item>
         <item row="2" column="2">
          <widget class="QPushButton" name="tUndo">
+          <property name="toolTip">
+           <string>Raccourci : Ctrl+z</string>
+          </property>
           <property name="text">
            <string>Annuler</string>
+          </property>
+          <property name="shortcut">
+           <string>Ctrl+Z</string>
           </property>
          </widget>
         </item>
@@ -1842,8 +1932,14 @@
         </item>
         <item row="2" column="0">
          <widget class="QPushButton" name="tOpen">
+          <property name="toolTip">
+           <string>Raccourci : Ctrl+o</string>
+          </property>
           <property name="text">
            <string>Ouvrir</string>
+          </property>
+          <property name="shortcut">
+           <string>Ctrl+O</string>
           </property>
          </widget>
         </item>
@@ -1914,10 +2010,16 @@ p, li { white-space: pre-wrap; }
    <property name="text">
     <string>&amp;Quitter</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
   </action>
   <action name="action_propos">
    <property name="text">
     <string>&amp;À propos</string>
+   </property>
+   <property name="shortcut">
+    <string>F1</string>
    </property>
   </action>
  </widget>
