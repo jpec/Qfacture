@@ -1733,5 +1733,7 @@ void QfactureImpl::on_tUndo_clicked()
 
     tText->setPlainText(QString(trUtf8("Modèle de facture non chargé...")));
     tText->setDisabled(true);
+    tSave->setEnabled(false);
+    tUndo->setEnabled(false);
     statusbar->showMessage(trUtf8("Modifications annulées!"));
 }
