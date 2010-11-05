@@ -1701,6 +1701,8 @@ void QfactureImpl::on_tOpen_clicked()
     tText->setPlainText(Modele);
     tText->setDisabled(false);
     tText->setFocus();
+    tSave->setEnabled(true);
+    tUndo->setEnabled(true);
     statusbar->showMessage(trUtf8("Le modèle de facture a été chargé avec succés!"));
 }
 
