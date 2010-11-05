@@ -2,10 +2,11 @@
 #
 # pkgrel 0.1.1 : creation of the pkg
 # pkgrel 0.1.2 : update to Qfacture v0.1.2 
+# pkgrel 0.1.3 : update to Qfacture v0.1.3
 
 pkgname=qfacture
-pkgver=20101103
-pkgrel=0.1.2
+pkgver=20101105
+pkgrel=0.1.3
 pkgdesc="Le logiciel libre de facturation pour les auto-entrepreneurs!"
 arch=('i686' 'x86_64')
 url="http://www.julienpecqueur.com/wordpress/projets/qfacture/"
