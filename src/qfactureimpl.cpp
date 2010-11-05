@@ -1493,7 +1493,7 @@ void QfactureImpl::on_fPrint_clicked()
             .replace("{% invoice_date %}", query.value(6).toString())
             .replace("{% invoice_comment %}", query.value(2).toString())
             .replace("{% invoice_amount %}", query.value(1).toString())
-
+            .replace("{% invoice_type %}", query.value(5).toString())
             .replace("{% customer_name %}", query.value(7).toString())
             .replace("{% customer_address %}", query.value(8).toString())
             .replace("{% customer_address2 %}", query.value(9).toString())
