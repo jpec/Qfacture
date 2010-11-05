@@ -1,11 +1,15 @@
 #!/bin/sh
 # install.sh - build the program & install it
 
-clear
-echo "*** Cleaning the project..."
+# chemin absolu vers le script
+SCRIPT=$(readlink -f $0)
+# chemin absolu vers le répertoire contenant le script
+SCRIPTPATH="`dirname $SCRIPT`/"
+
+echo "\n*** \033[32mCleaning the project...\033[0m\n"
 make clean
 
-echo "*** Generating makefile..."
+echo "\n*** \033[32mGenerating makefile...\033[0m\n"
 if [ -f /usr/bin/qmake-qt4 ];
 then 
     echo "    Using qmake-qt4."
@@ -15,20 +19,24 @@ else
     qmake Qfacture.pro
 fi
 
-echo "*** Building the program..."
+echo "\n*** \033[32mBuilding the program...\033[0m\n"
 make
 
-echo "*** Installing the program..."
+echo "\n*** \033[32mInstalling the program...\033[0m\n"
 sudo cp bin/Qfacture /usr/local/bin/qfacture
 sudo cp dist/qfacture.png /usr/share/pixmaps/qfacture.png
 sudo cp dist/qfacture.desktop /usr/share/applications/qfacture.desktop
 
-echo "*** END OF INSTALLATION ***"
-echo " "
-echo "Now you have to configure you SQL database."
-echo " "
+echo "\n*** \033[32mCreating the database...\033[0m\n"
+
+echo -n "User: "
+read LOGIN
+
+mysql -h localhost -u $LOGIN -p < "$SCRIPTPATH"qfacture_create_database.sql
+
+echo "*** \033[32mEND OF INSTALLATION\033[0m ***\n"
 echo "If /usr/local/bin is not in your PATH, you need to create "
 echo "a symbolic link in /usr/bin to /usr/local/bin/qfacture :"
-echo "cd /usr/bin && sudo ln -s /usr/local/bin/qfacture"
-echo " "
+echo "cd /usr/bin && sudo ln -s /usr/local/bin/qfacture\n"
+
 echo "For more informations : http://github.com/jpec/Qfacture/wiki"
