@@ -14,12 +14,13 @@
 class QfactureImpl : public QMainWindow, public Ui::Qfacture
 {
     Q_OBJECT
-    
+
 public:
     QfactureImpl(QWidget *parent=0, Qt::WFlags f=0);
     ~QfactureImpl();
-    
+
 private slots:
+    void on_fSearchClient_editingFinished();
     void on_tUndo_clicked();
     void on_tSave_clicked();
     void on_tOpen_clicked();
@@ -44,7 +45,7 @@ private slots:
     void on_uSave_clicked();
     void on_aConnect_clicked();
     void on_action_Quitter_triggered();
-    
+
     void doQuit();
     void loadUserInfos();
     void refreshCustomersList();
@@ -55,7 +56,7 @@ private slots:
     void updateInvoiceAmount();
     void sListCaRefresh();
     void refreshProductsList();
-    
+
     void onCustomerSelected(const QModelIndex &item);
     void onProductSelected(const QModelIndex &item);
 
@@ -73,19 +74,19 @@ protected:
     QString VERSION;
     QSqlDatabase db;
     QSettings *settings;
-    
+
     bool fFlag;
-    
+
     EditableSqlModel *clients_model;
     EditableSqlModel *products_model;
-    
+
     void createActions();
     void MySQLConnect();
     void readSettings();
     void writeSettings();
-    
+
     bool confirm(const char * msg);
-    
+
     QString compactDate(QString date);
     QString dateToDB(QDateEdit *date);
     QString makeFactureReference(QString number, QString date);

@@ -1019,6 +1019,7 @@ void QfactureImpl::on_fList_itemDoubleClicked(QTableWidgetItem* item)
     fDel->setEnabled(true);
     fArticleGroup->setEnabled(true);
     fClientGroup->setEnabled(true);
+    fSearchClient->setEnabled(true);
     fDate->setEnabled(true);
     fType->setEnabled(true);
     fRegl->setEnabled(true);
@@ -1047,8 +1048,19 @@ void QfactureImpl::refreshInvoiceCustomersList()
     query.prepare(
             "SELECT Id, Name, Adress, Adress2, Zip, City, Phone, Mail "
             "FROM client "
+            "WHERE Name LIKE :name "
             "ORDER BY Name"
             );
+
+    QString Name;
+    Name = fSearchClient->text();
+    if (Name != QString("") and Name != QString(trUtf8("Entrez le nom..."))) {
+        Name = QString("%") + Name + QString("%");
+    } else {
+        Name = QString("%");
+    }
+
+    query.bindValue(":name", Name);
     query.exec();
 
     while(query.next()) {
@@ -1068,6 +1080,18 @@ void QfactureImpl::refreshInvoiceCustomersList()
 
     query.finish();
 }
+
+/**
+ * Appelée lorsque l'on a saisi du texte dans le champs recherche client.
+ * La liste des clients est alors mise à jour.
+ *
+ * @return void
+ */
+void QfactureImpl::on_fSearchClient_editingFinished()
+{
+    refreshInvoiceCustomersList();
+}
+
 
 /**
  * Appelée lors du clic sur un client. Le choix du client pour la facture
@@ -1359,6 +1383,8 @@ void QfactureImpl::on_fSave_clicked()
 
     query.finish();
 
+    fSearchClient->setText(QString(trUtf8("Entrez le nom...")));
+
     /* Nouvelle facture */
     if(fNum->text().isEmpty()) {
         /* Récupération du numéro de la facture */
@@ -1587,6 +1613,7 @@ void QfactureImpl::on_fDel_clicked()
     fDate->setDate(QDate::currentDate());
     fMontant->clear();
     fClient->clear();
+    fSearchClient->setText(QString(trUtf8("Entrez le nom...")));
 
     statusbar->showMessage(trUtf8("La facture a bien été supprimée."), 3000);
 
@@ -1610,11 +1637,13 @@ void QfactureImpl::on_fNew_clicked()
     fDel->setEnabled(true);
     fArticleGroup->setEnabled(true);
     fClientGroup->setEnabled(true);
+    fSearchClient->setEnabled(true);
     fDate->setEnabled(true);
     fType->setEnabled(true);
     fRegl->setEnabled(true);
 
     fArtLinkRefresh();
+    fSearchClient->setText(QString(trUtf8("Entrez le nom...")));
 
     statusbar->showMessage(trUtf8("Nouvelle facture créée."), 3000);
 }
@@ -1737,3 +1766,5 @@ void QfactureImpl::on_tUndo_clicked()
     tUndo->setEnabled(false);
     statusbar->showMessage(trUtf8("Modifications annulées!"));
 }
+
+
