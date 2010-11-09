@@ -1008,6 +1008,7 @@ void QfactureImpl::on_fList_itemDoubleClicked(QTableWidgetItem* item)
     fNum->setText(query.value(0).toString());
     fDate->setDate(query.value(8).toDate());
     fMontant->setText(query.value(3).toString());
+    fCom->setText(query.value(4).toString());
     fClient->setText(query.value(2).toString());
     fRegl->setCurrentIndex(fRegl->findText(query.value(5).toString(), Qt::MatchExactly));
     fType->setCurrentIndex(fType->findText(query.value(7).toString(), Qt::MatchExactly));
@@ -1020,6 +1021,7 @@ void QfactureImpl::on_fList_itemDoubleClicked(QTableWidgetItem* item)
     fArticleGroup->setEnabled(true);
     fClientGroup->setEnabled(true);
     fSearchClient->setEnabled(true);
+    fComGroup->setEnabled(true);
     fDate->setEnabled(true);
     fType->setEnabled(true);
     fRegl->setEnabled(true);
@@ -1066,11 +1068,8 @@ void QfactureImpl::refreshInvoiceCustomersList()
     while(query.next()) {
         item = query.value(1).toString()
                + QString(trUtf8(" | ")) + query.value(2).toString()
-               + trUtf8(" ") + query.value(3).toString()
                + trUtf8(" ") + query.value(4).toString()
-               + trUtf8(" ") + query.value(5).toString()
-               + trUtf8(" - ") + query.value(6).toString()
-               + trUtf8(" - ") + query.value(7).toString();
+               + trUtf8(" ") + query.value(5).toString();
 
         fClientList->addItem(item);
 
@@ -1096,10 +1095,6 @@ void QfactureImpl::on_fSearchClient_editingFinished()
 /**
  * Appelée lors du clic sur un client. Le choix du client pour la facture
  * est alors réalisé et le champ fClient est alimenté.
- *
- * \todo se débrouiller pour stocker l'ID du membre et afficher le nom
- *		 pour ne travailler qu'avec l'ID (unique) par la suite et non
- *		 le nom (pas forcément unique :-°)
  *
  * @param item Pointeur vers la ligne choisie.
  *
@@ -1400,9 +1395,9 @@ void QfactureImpl::on_fSave_clicked()
 
         query.prepare(
                 "INSERT INTO facture"
-                " (idclient, Amount, Payment, Reference, Type, Date) "
+                " (idclient, Amount, Payment, Reference, Type, Date, Comment) "
                 "VALUES"
-                " (:client, :amount, :pay, :ref, :type, :date)"
+                " (:client, :amount, :pay, :ref, :type, :date, :com)"
                 );
 
         query.bindValue(":ref", makeFactureReference(count, fDate->text()));
@@ -1412,7 +1407,7 @@ void QfactureImpl::on_fSave_clicked()
                 "UPDATE facture "
                 "SET"
                 " idclient = :client, Amount = :amount, Payment = :pay, "
-                " Type = :type, Date = :date "
+                " Type = :type, Date = :date, Comment = :com "
                 "WHERE Id = :id"
                 );
 
@@ -1424,7 +1419,7 @@ void QfactureImpl::on_fSave_clicked()
     query.bindValue(":pay", fRegl->currentText());
     query.bindValue(":type", fType->currentText());
     query.bindValue(":date", dateToDB(fDate));
-
+    query.bindValue(":com", fCom->text());
     query.exec();
 
     /* Modification d'une facture */
@@ -1608,7 +1603,9 @@ void QfactureImpl::on_fDel_clicked()
     fDate->setEnabled(false);
     fType->setEnabled(false);
     fRegl->setEnabled(false);
+    fComGroup->setEnabled(false);
 
+    fCom->setText(QString(trUtf8("Commentaire facture...")));
     fNum->clear();
     fDate->setDate(QDate::currentDate());
     fMontant->clear();
@@ -1631,6 +1628,7 @@ void QfactureImpl::on_fNew_clicked()
     fNum->clear();
     fDate->setDate(QDate::currentDate());
     fMontant->clear();
+    fCom->clear();
 
     fSave->setEnabled(true);
     fPrint->setEnabled(true);
@@ -1641,6 +1639,8 @@ void QfactureImpl::on_fNew_clicked()
     fDate->setEnabled(true);
     fType->setEnabled(true);
     fRegl->setEnabled(true);
+    fComGroup->setEnabled(true);
+
 
     fArtLinkRefresh();
     fSearchClient->setText(QString(trUtf8("Entrez le nom...")));
