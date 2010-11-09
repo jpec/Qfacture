@@ -1,12 +1,13 @@
 # Maintainer: Julien Pecqueur <jpec at julienpecqueur dot com>
 #
 # pkgrel 0.1.1 : creation of the pkg
-# pkgrel 0.1.2 : update to Qfacture v0.1.2 
+# pkgrel 0.1.2 : update to Qfacture v0.1.2
 # pkgrel 0.1.3 : update to Qfacture v0.1.3
+# pkgrel 0.1.4 : update to Qfacture v0.1.4 (28645389bf3e2432cfd367822b90d00cfed1718c)
 
 pkgname=qfacture
 pkgver=20101105
-pkgrel=0.1.3
+pkgrel=0.1.4
 pkgdesc="Le logiciel libre de facturation pour les auto-entrepreneurs!"
 arch=('i686' 'x86_64')
 url="http://www.julienpecqueur.com/wordpress/projets/qfacture/"
@@ -22,16 +23,16 @@ build() {
     cd "${srcdir}"
     msg "GIT clone Qfacture..."
     if [ -d ${_gitname} ] ; then
-	cd ${_gitname} && git reset --hard && git pull origin
-	msg "The local files are updated."
+        cd ${_gitname} && git reset --hard && git pull origin
+        msg "The local files are updated."
     else
-	git clone ${_gitroot} ${_gitname}
-	cd ${_gitname}
+        git clone ${_gitroot} ${_gitname}
+        cd ${_gitname}
     fi
     msg "GIT checkout done or server timeout."
 
     msg "GIT checkout Qfacture v${pkgrel}..."
-    git reset --hard v${pkgrel}
+    git reset --hard 28645389bf3e2432cfd367822b90d00cfed1718c
 
     msg "Build..."
     qmake Qfacture.pro
