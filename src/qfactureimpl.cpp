@@ -1683,6 +1683,7 @@ void QfactureImpl::sListCaRefresh()
             "FROM facture "
             "WHERE date LIKE :year "
             "  AND type = 'FACTU'"
+            "  AND NOT payment LIKE 'Aucun%' "
             "GROUP BY month"
             );
     query.bindValue(":year", year+QString("%"));
@@ -1702,6 +1703,45 @@ void QfactureImpl::sListCaRefresh()
 }
 
 /**
+ * Méthode rafraichissant la liste des en-cours cumulés par mois.
+ *
+ * @return void
+ */
+void QfactureImpl::sListNpRefresh()
+{
+    QSqlQuery query;
+    QString year;
+    QString text;
+
+    year = sYearCa->text();
+
+    sListNp->clear();
+
+    query.prepare(
+            "SELECT LEFT(date, 7) AS month, SUM(amount) AS sum "
+            "FROM facture "
+            "WHERE date LIKE :year "
+            "  AND type = 'FACTU'"
+            "  AND payment LIKE 'Aucun%'"
+            "GROUP BY month"
+            );
+    query.bindValue(":year", year+QString("%"));
+
+    query.exec();
+
+    while(query.next()){
+        text = query.value(0).toString()
+               + trUtf8(" : ")
+               + query.value(1).toString()
+               + trUtf8("€");
+
+        sListNp->addItem(text);
+    }
+
+    query.finish();
+}
+
+/**
  * Méthode de callback appellée lorsque l'année est modifiée.
  *
  * @return void
@@ -1711,6 +1751,7 @@ void QfactureImpl::on_sYearCa_lostFocus()
     /** Année changée **/
 
     sListCaRefresh();
+    sListNpRefresh();
 }
 
 

@@ -55,6 +55,7 @@ private slots:
     void refreshInvoicesList();
     void updateInvoiceAmount();
     void sListCaRefresh();
+    void sListNpRefresh();
     void refreshProductsList();
 
     void onCustomerSelected(const QModelIndex &item);
