@@ -68,6 +68,7 @@ void QfactureImpl::createActions()
 
     // rechargement des statistiques
     connect(this, SIGNAL(DBConnected()), this, SLOT(sListCaRefresh()));
+    connect(this, SIGNAL(DBConnected()), this, SLOT(sListNpRefresh()));
 
     /** Actions effectuées lors de la sauvegarde d'un client (nouveau ou mise à jour d'un déjà existant) **/
 
@@ -88,12 +89,14 @@ void QfactureImpl::createActions()
     connect(this, SIGNAL(factureSaved()), this, SLOT(fArtLinkRefresh()));
     connect(this, SIGNAL(factureSaved()), this, SLOT(refreshInvoicesList()));
     connect(this, SIGNAL(factureSaved()), this, SLOT(sListCaRefresh()));
+    connect(this, SIGNAL(factureSaved()), this, SLOT(sListNpRefresh()));
 
     /** Actions effectuées lors de la suppression d'une facture **/
 
     connect(this, SIGNAL(factureDeleted()), this, SLOT(fArtLinkRefresh()));
     connect(this, SIGNAL(factureDeleted()), this, SLOT(refreshInvoicesList()));
     connect(this, SIGNAL(factureDeleted()), this, SLOT(sListCaRefresh()));
+    connect(this, SIGNAL(factureDeleted()), this, SLOT(sListNpRefresh()));
 
     /** Actions effectuées lors de l'ajout d'un article à une facture **/
 
