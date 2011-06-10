@@ -50,6 +50,7 @@ CREATE TABLE `client` (
   `City` varchar(255) NOT NULL COMMENT 'Ville',
   `Phone` varchar(14) default NULL COMMENT 'Téléphone',
   `Mail` varchar(255) default NULL COMMENT 'Email',
+  `Country` varchar(255) NOT NULL COMMENT 'Pays',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='Table des clients';
 SET character_set_client = @saved_cs_client;
