@@ -513,6 +513,8 @@ void QfactureImpl::on_cNew_clicked()
     cPhone->setEnabled(true);
     cMail->clear();
     cMail->setEnabled(true);
+    cCountry->clear();
+    cCountry->setEnabled(true);
 }
 
 /**
@@ -533,7 +535,7 @@ void QfactureImpl::onCustomerSelected(const QModelIndex &item)
 
     // récupération des infos du client
     query.prepare(
-            "SELECT Name, Adress, Adress2, Zip, City, Phone, Mail FROM client "
+            "SELECT Name, Adress, Adress2, Zip, City, Phone, Mail, Country FROM client "
             "WHERE Id = :id "
             );
 
@@ -562,6 +564,8 @@ void QfactureImpl::onCustomerSelected(const QModelIndex &item)
     cPhone->setEnabled(true);
     cMail->setText(query.value(6).toString());
     cMail->setEnabled(true);
+    cCountry->setText(query.value(7).toString());
+    cCountry->setEnabled(true);
 }
 
 /**
@@ -581,15 +585,15 @@ void QfactureImpl::on_cSave_clicked()
     /* Nouveau client */
     if (cId->text().isEmpty())
         query.prepare(
-                "INSERT INTO client(Name, Adress, Adress2, Zip, City, Phone, Mail) "
-                "VALUES(:name, :adress, :adress2, :zip, :city, :phone, :mail)"
+                "INSERT INTO client(Name, Adress, Adress2, Zip, City, Phone, Mail, Country) "
+                "VALUES(:name, :adress, :adress2, :zip, :city, :phone, :mail, :country)"
                 );
     else { /* Mise à jour d'un client */
         query.prepare(
                 "UPDATE client "
                 "SET"
                 " Name = :name, Adress = :adress, Adress2 = :adress2,"
-                " Zip = :zip, City = :city, Phone = :phone, Mail = :mail "
+                " Zip = :zip, City = :city, Phone = :phone, Mail = :mail, Country = :country"
                 "WHERE Id = :id "
                 );
         query.bindValue(":id", cId->text());
@@ -602,6 +606,7 @@ void QfactureImpl::on_cSave_clicked()
     query.bindValue(":city", cCity->text());
     query.bindValue(":phone", cPhone->text());
     query.bindValue(":mail", cMail->text());
+    query.bindValue(":country", cCountry->text());
 
     query.exec();
 
@@ -628,6 +633,8 @@ void QfactureImpl::on_cSave_clicked()
     cPhone->setEnabled(false);
     cMail->clear();
     cMail->setEnabled(false);
+    cCountry->clear();
+    cCountry->setEnabled(false);
 
     cDel->setEnabled(false);
     cNew->setEnabled(true);
@@ -655,6 +662,7 @@ void QfactureImpl::refreshCustomersList()
     clients_model->setHeaderData(5, Qt::Horizontal, trUtf8("Ville"));
     clients_model->setHeaderData(6, Qt::Horizontal, trUtf8("Téléphone"));
     clients_model->setHeaderData(7, Qt::Horizontal, trUtf8("Mail"));
+    clients_model->setHeaderData(7, Qt::Horizontal, trUtf8("Pays"));
 
     clients_model->select();
 
@@ -700,6 +708,8 @@ void QfactureImpl::on_cDel_clicked()
     cPhone->setEnabled(false);
     cMail->clear();
     cMail->setEnabled(false);
+    cCountry->clear();
+    cCountry->setEnabled(false);
 
     cDel->setEnabled(false);
     cNew->setEnabled(true);
@@ -1051,7 +1061,7 @@ void QfactureImpl::refreshInvoiceCustomersList()
     fClientList->clear();
 
     query.prepare(
-            "SELECT Id, Name, Adress, Adress2, Zip, City, Phone, Mail "
+            "SELECT Id, Name, Adress, Adress2, Zip, City, Phone, Mail, Country "
             "FROM client "
             "WHERE Name LIKE :name "
             "ORDER BY Name"
@@ -1470,6 +1480,7 @@ void QfactureImpl::on_fPrint_clicked()
     QPixmap logo;
 
     // configuration du printer
+    printer.setCreator("Qfacture");
     printer.setPageSize(QPrinter::A4);
     printer.setOutputFormat(QPrinter::PdfFormat);
     printer.setOutputFileName(makeFactureReference(fNum->text(), fDate->text()) + " - " + fType->currentText() + ".pdf");
@@ -1504,7 +1515,7 @@ void QfactureImpl::on_fPrint_clicked()
     query.prepare(
             "SELECT f.Id, f.Amount, f.Comment, f.Payment, f.Reference, "
             "f.Type, f.Date, c.Name, c.Adress, c.Adress2, c.Zip, "
-            "c.City "
+            "c.City, c.Country "
             "FROM facture f "
             "LEFT JOIN client c ON f.idClient = c.id "
             "WHERE f.Id = ?"
@@ -1522,7 +1533,8 @@ void QfactureImpl::on_fPrint_clicked()
             .replace("{% customer_address %}", query.value(8).toString())
             .replace("{% customer_address2 %}", query.value(9).toString())
             .replace("{% customer_zip %}", query.value(10).toString())
-            .replace("{% customer_city %}", query.value(11).toString());
+            .replace("{% customer_city %}", query.value(11).toString())
+            .replace("{% customer_country %}", query.value(12).toString());
 
     // on parse la boucle des produits
     query.prepare(
