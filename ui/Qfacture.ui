@@ -903,6 +903,30 @@
              </property>
             </widget>
            </item>
+           <item row="9" column="0">
+            <widget class="QLabel" name="label_29">
+             <property name="text">
+              <string>Pays</string>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="1">
+            <widget class="QLineEdit" name="cCountry">
+             <property name="minimumSize">
+              <size>
+               <width>250</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>250</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+
            <item row="3" column="1">
             <widget class="QLineEdit" name="cAdress">
              <property name="minimumSize">
@@ -2175,6 +2199,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>cAdress2</tabstop>
   <tabstop>cZip</tabstop>
   <tabstop>cCity</tabstop>
+  <tabstop>cCountry</tabstop>
   <tabstop>cPhone</tabstop>
   <tabstop>cMail</tabstop>
   <tabstop>cSave</tabstop>
