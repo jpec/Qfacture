@@ -1487,7 +1487,7 @@ void QfactureImpl::on_fPrint_clicked()
 
     // configuration du printer
     printer.setDocName( fType->currentText() + " " + makeFactureReference(fNum->text(), fDate->text()) );
-    printer.setCreator("Qfacture v.0.1.4");
+    printer.setCreator(trUtf8("Qfacture %1").arg(VERSION));
     printer.setPageSize(QPrinter::A4);
     printer.setOutputFormat(QPrinter::PdfFormat);
     printer.setOutputFileName(makeFactureReference(fNum->text(), fDate->text()) + " - " + fType->currentText() + ".pdf");
