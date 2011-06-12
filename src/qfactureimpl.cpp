@@ -20,7 +20,7 @@ QfactureImpl::QfactureImpl(QWidget * parent, Qt::WFlags f) : QMainWindow(parent,
 {
     setupUi(this);
 
-    VERSION = trUtf8("v0.1.4");
+    VERSION = trUtf8("v0.1.5");
 
     db = QSqlDatabase::addDatabase("QMYSQL");
 
