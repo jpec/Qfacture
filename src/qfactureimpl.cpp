@@ -1480,7 +1480,8 @@ void QfactureImpl::on_fPrint_clicked()
     QPixmap logo;
 
     // configuration du printer
-    printer.setCreator("Qfacture");
+    printer.setDocName( fType->currentText() + " " + makeFactureReference(fNum->text(), fDate->text()) );
+    printer.setCreator("Qfacture v.0.1.4");
     printer.setPageSize(QPrinter::A4);
     printer.setOutputFormat(QPrinter::PdfFormat);
     printer.setOutputFileName(makeFactureReference(fNum->text(), fDate->text()) + " - " + fType->currentText() + ".pdf");
