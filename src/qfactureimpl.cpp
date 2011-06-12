@@ -319,6 +319,7 @@ void QfactureImpl::on_action_propos_activated()
                          "--\n"
                          "Contributeur(s) :\n"
                          " * Kévin Gomez <contact@kevingomez.fr>\n"
+                         " * Mathieu Malaterre <info@mathieumalaterre.com>\n"
                          "\n").arg(VERSION);
 
     QMessageBox::about(this, "Qfacture", msg);
