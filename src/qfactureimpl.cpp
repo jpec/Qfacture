@@ -169,6 +169,11 @@ QString QfactureImpl::makeFactureReference(QString number, QString date)
     return compactDate(date) + number.rightJustified(3, '0');
 }
 
+QString QfactureImpl::makeLimitDate(QDate date)
+{
+  return date.addMonths(1).toString("yyyy-MM-dd"); // format explicit de date
+}
+
 /**
  * Compacte une date pour ensuite être utilisée dans les références de
  * factures
@@ -319,6 +324,7 @@ void QfactureImpl::on_action_propos_activated()
                          "--\n"
                          "Contributeur(s) :\n"
                          " * Kévin Gomez <contact@kevingomez.fr>\n"
+                         " * Mathieu Malaterre <info@mathieumalaterre.com>\n"
                          "\n").arg(VERSION);
 
     QMessageBox::about(this, "Qfacture", msg);
@@ -1480,7 +1486,8 @@ void QfactureImpl::on_fPrint_clicked()
     QPixmap logo;
 
     // configuration du printer
-    printer.setCreator("Qfacture");
+    printer.setDocName( fType->currentText() + " " + makeFactureReference(fNum->text(), fDate->text()) );
+    printer.setCreator("Qfacture v.0.1.4");
     printer.setPageSize(QPrinter::A4);
     printer.setOutputFormat(QPrinter::PdfFormat);
     printer.setOutputFileName(makeFactureReference(fNum->text(), fDate->text()) + " - " + fType->currentText() + ".pdf");
@@ -1526,6 +1533,7 @@ void QfactureImpl::on_fPrint_clicked()
 
     invoice_tpl.replace("{% ref %}", makeFactureReference(fNum->text(), fDate->text()))
             .replace("{% invoice_date %}", query.value(6).toString())
+            .replace("{% invoice_limit_date %}", makeLimitDate(query.value(6).toDate()))
             .replace("{% invoice_comment %}", query.value(2).toString())
             .replace("{% invoice_amount %}", query.value(1).toString())
             .replace("{% invoice_type %}", query.value(5).toString())
