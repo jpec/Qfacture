@@ -8,7 +8,7 @@
 
 pkgname=qfacture
 pkgver=20101105
-pkgrel=0.1.4
+pkgrel=0.1.5
 pkgdesc="Le logiciel libre de facturation pour les auto-entrepreneurs!"
 arch=('i686' 'x86_64')
 url="http://www.julienpecqueur.com/wordpress/projets/qfacture/"
