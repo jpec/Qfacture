@@ -91,6 +91,7 @@ protected:
     QString compactDate(QString date);
     QString dateToDB(QDateEdit *date);
     QString makeFactureReference(QString number, QString date);
+    QString makeLimitDate(QDate date);
     QString getInvoiceHTMLTpl();
     QString setInvoiceHTMLTpl(QString Tpl);
 };

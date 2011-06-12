@@ -169,6 +169,11 @@ QString QfactureImpl::makeFactureReference(QString number, QString date)
     return compactDate(date) + number.rightJustified(3, '0');
 }
 
+QString QfactureImpl::makeLimitDate(QDate date)
+{
+  return date.addMonths(1).toString("yyyy-MM-dd"); // format explicit de date
+}
+
 /**
  * Compacte une date pour ensuite être utilisée dans les références de
  * factures
@@ -1528,6 +1533,7 @@ void QfactureImpl::on_fPrint_clicked()
 
     invoice_tpl.replace("{% ref %}", makeFactureReference(fNum->text(), fDate->text()))
             .replace("{% invoice_date %}", query.value(6).toString())
+            .replace("{% invoice_limit_date %}", makeLimitDate(query.value(6).toDate()))
             .replace("{% invoice_comment %}", query.value(2).toString())
             .replace("{% invoice_amount %}", query.value(1).toString())
             .replace("{% invoice_type %}", query.value(5).toString())
