@@ -599,7 +599,7 @@ void QfactureImpl::on_cSave_clicked()
                 "UPDATE client "
                 "SET"
                 " Name = :name, Adress = :adress, Adress2 = :adress2,"
-                " Zip = :zip, City = :city, Phone = :phone, Mail = :mail, Country = :country"
+                " Zip = :zip, City = :city, Phone = :phone, Mail = :mail, Country = :country "
                 "WHERE Id = :id "
                 );
         query.bindValue(":id", cId->text());
@@ -614,7 +614,13 @@ void QfactureImpl::on_cSave_clicked()
     query.bindValue(":mail", cMail->text());
     query.bindValue(":country", cCountry->text());
 
-    query.exec();
+    bool res = query.exec();
+    if(!res)
+      {
+      //QString	l = query.lastQuery ();
+      statusbar->showMessage(trUtf8("Problème aves l'enregistrement des modifications."), 3000);
+      }
+
 
     if(!cId->text().isEmpty())
         statusbar->showMessage(trUtf8("Les modifications ont été enregistrées avec succès."), 3000);
